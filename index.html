@@ -286,6 +286,124 @@
     .stat-dot.err  { background: var(--error); }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
     .stat-spacer { flex: 1; }
+
+    /* ── LIGHT THEME ── */
+    body.light {
+      --bg-base:        #f0f4f8;
+      --bg-panel:       #e4eaf2;
+      --bg-header:      #ffffff;
+      --bg-editor:      #ffffff;
+      --border:         #d0dae8;
+      --border-bright:  #a8bcd4;
+      --sap-blue:       #0070f2;
+      --sap-blue-glow:  rgba(0,112,242,0.15);
+      --sap-gold:       #c87800;
+      --text-primary:   #1a2535;
+      --text-secondary: #4a6080;
+      --text-dim:       #8aa0b8;
+      --success:        #1a7f37;
+      --error:          #cf222e;
+      --warning:        #c87800;
+      --scrollbar:      #c0cfe0;
+    }
+    body.light .console-body { background: #f8fafc; }
+    body.light .status-bar   { background: linear-gradient(90deg, #0058c8, #0070f2); }
+
+    /* ── THEME TOGGLE ── */
+    .theme-toggle {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 15px;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .theme-toggle:hover {
+      color: var(--text-primary);
+      border-color: var(--border-bright);
+      background: var(--bg-header);
+    }
+
+    /* ── EXAMPLES DROPDOWN ── */
+    .ex-dropdown { position: relative; }
+    .ex-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 13px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text-secondary);
+      font-family: 'Syne', sans-serif;
+      font-size: 12px; font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .ex-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--border-bright);
+      background: var(--bg-header);
+    }
+    .ex-btn svg { width: 12px; height: 12px; transition: transform 0.2s; }
+    .ex-btn.open svg { transform: rotate(180deg); }
+
+    .ex-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: 310px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-bright);
+      border-radius: 10px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+      z-index: 1000;
+      overflow: hidden;
+    }
+    .ex-menu.open { display: block; }
+    .ex-menu-header {
+      padding: 10px 14px 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+    }
+    .ex-group-label {
+      padding: 8px 14px 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--sap-blue);
+    }
+    .ex-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: background 0.12s;
+      border-bottom: 1px solid var(--border);
+    }
+    .ex-item:last-child { border-bottom: none; }
+    .ex-item:hover { background: rgba(0,112,242,0.08); }
+    .ex-icon {
+      font-size: 15px; flex-shrink: 0; margin-top: 1px;
+    }
+    .ex-info { flex: 1; min-width: 0; }
+    .ex-name {
+      font-size: 12px; font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .ex-desc {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--text-dim);
+      margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
   </style>
 </head>
 <body>
@@ -315,14 +433,96 @@
     </div>
   </div>
 
-  <div class="h-group">
-    <span class="h-label">Output</span>
-    <div class="seg-ctrl">
-      <button class="seg-btn active" id="oXML" onclick="setOutputMode('xml')">XML</button>
-      <button class="seg-btn" id="oHTML" onclick="setOutputMode('html')">HTML</button>
-      <button class="seg-btn" id="oTXT" onclick="setOutputMode('text')">Text</button>
+  <div class="ex-dropdown" id="exDropdown">
+    <button class="ex-btn" id="exBtn" onclick="toggleExMenu()">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 3h14v1.5H1V3zm0 4h14v1.5H1V7zm0 4h14v1.5H1V11z"/></svg>
+      Examples
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="ex-menu" id="exMenu">
+      <div class="ex-menu-header">SAP CPI Examples</div>
+
+      <div class="ex-group-label">Data Transformation</div>
+      <div class="ex-item" onclick="loadExample('identityTransform')">
+        <span class="ex-icon">🔁</span>
+        <div class="ex-info">
+          <div class="ex-name">Identity Transform</div>
+          <div class="ex-desc">Copy XML as-is, basis for all modifications</div>
+        </div>
+      </div>
+      <div class="ex-item" onclick="loadExample('renameElements')">
+        <span class="ex-icon">✏️</span>
+        <div class="ex-info">
+          <div class="ex-name">Rename Elements &amp; Attributes</div>
+          <div class="ex-desc">Map source field names to target field names</div>
+        </div>
+      </div>
+      <div class="ex-item" onclick="loadExample('filterNodes')">
+        <span class="ex-icon">🔍</span>
+        <div class="ex-info">
+          <div class="ex-name">Filter / Conditional Output</div>
+          <div class="ex-desc">Include nodes only when conditions are met</div>
+        </div>
+      </div>
+
+      <div class="ex-group-label">Aggregation &amp; Grouping</div>
+      <div class="ex-item" onclick="loadExample('groupBy')">
+        <span class="ex-icon">📦</span>
+        <div class="ex-info">
+          <div class="ex-name">Group-by &amp; Aggregate</div>
+          <div class="ex-desc">Group line items, compute subtotals</div>
+        </div>
+      </div>
+      <div class="ex-item" onclick="loadExample('splitMessage')">
+        <span class="ex-icon">✂️</span>
+        <div class="ex-info">
+          <div class="ex-name">Split Message</div>
+          <div class="ex-desc">Split multi-item payload into individual messages</div>
+        </div>
+      </div>
+
+      <div class="ex-group-label">Format Conversion</div>
+      <div class="ex-item" onclick="loadExample('dateFormatting')">
+        <span class="ex-icon">📅</span>
+        <div class="ex-info">
+          <div class="ex-name">Date Format Conversion</div>
+          <div class="ex-desc">Convert between SAP, ISO 8601, and custom formats</div>
+        </div>
+      </div>
+      <div class="ex-item" onclick="loadExample('currencyAmount')">
+        <span class="ex-icon">💱</span>
+        <div class="ex-info">
+          <div class="ex-name">Currency &amp; Amount Formatting</div>
+          <div class="ex-desc">format-number, decimal normalization, currency codes</div>
+        </div>
+      </div>
+
+      <div class="ex-group-label">SAP IDoc / Order Scenarios</div>
+      <div class="ex-item" onclick="loadExample('idocToXml')">
+        <span class="ex-icon">📄</span>
+        <div class="ex-info">
+          <div class="ex-name">IDoc ORDERS05 → Custom XML</div>
+          <div class="ex-desc">Transform SAP IDoc purchase order structure</div>
+        </div>
+      </div>
+      <div class="ex-item" onclick="loadExample('lookupEnrich')">
+        <span class="ex-icon">🔗</span>
+        <div class="ex-info">
+          <div class="ex-name">Value Mapping / Lookup</div>
+          <div class="ex-desc">Map coded values using xsl:key lookup table</div>
+        </div>
+      </div>
+      <div class="ex-item" onclick="loadExample('errorHandling')">
+        <span class="ex-icon">🛡️</span>
+        <div class="ex-info">
+          <div class="ex-name">Error Handling (xsl:try)</div>
+          <div class="ex-desc">Catch transform errors, produce fallback output</div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light / dark theme">🌙</button>
 
   <button class="run-btn" id="runBtn" onclick="runTransform()">
     <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5l11 6.5-11 6.5V1.5z"/></svg>
@@ -340,7 +540,6 @@
       <div class="pane-indicator ind-xml"></div>
       <span class="pane-title">XML Source</span>
       <div class="pane-actions">
-        <button class="pane-act-btn" onclick="loadSampleXML()">Sample</button>
         <button class="pane-act-btn" onclick="fmtEditor('xml')">Format</button>
         <button class="pane-act-btn" onclick="clearPane('xml')">Clear</button>
       </div>
@@ -356,7 +555,6 @@
       <div class="pane-indicator ind-xslt"></div>
       <span class="pane-title">XSLT Stylesheet</span>
       <div class="pane-actions">
-        <button class="pane-act-btn" onclick="loadSampleXSLT()">Sample</button>
         <button class="pane-act-btn" onclick="fmtEditor('xslt')">Format</button>
         <button class="pane-act-btn" onclick="clearPane('xslt')">Clear</button>
       </div>
@@ -372,6 +570,7 @@
       <div class="pane-indicator ind-out"></div>
       <span class="pane-title">Output</span>
       <div class="pane-actions">
+        <button class="pane-act-btn" onclick="fmtEditor('out')">Format</button>
         <button class="pane-act-btn" onclick="copyOutput()">Copy</button>
         <button class="pane-act-btn" onclick="clearPane('out')">Clear</button>
       </div>
@@ -409,7 +608,6 @@
 // ════════════════════════════════════════════
 let eds = { xml: null, xslt: null, out: null };
 let xsltVersion = '3.0';
-let outputMode  = 'xml';
 let saxonReady  = false;
 
 // ════════════════════════════════════════════
@@ -622,18 +820,6 @@ function setVersion(v) {
   clog(`Engine set to XSLT ${v}`, 'info');
 }
 
-function setOutputMode(m) {
-  outputMode = m;
-  ['xml','html','text'].forEach(x => {
-    document.getElementById('o'+x.toUpperCase()[0]+x.slice(1))
-      ?.classList.toggle('active', x === m);
-  });
-  if (eds.out) {
-    const lang = m === 'xml' ? 'xml' : m === 'html' ? 'html' : 'plaintext';
-    monaco.editor.setModelLanguage(eds.out.getModel(), lang);
-  }
-  clog(`Output mode: ${m.toUpperCase()}`, 'info');
-}
 
 // ════════════════════════════════════════════
 //  SAMPLE LOADERS
@@ -662,9 +848,81 @@ function copyOutput() {
     .catch(() => clog('Clipboard access denied', 'error'));
 }
 
+function prettyXML(xml) {
+  // Tokenise with a regex that captures each XML token whole,
+  // then decide indentation per token type.
+  try {
+    const INDENT = '  ';
+    // Strip inter-tag whitespace so we start clean
+    xml = xml.replace(/>\s+</g, '><').trim();
+
+    // Each match is one complete token:
+    //   PI / declaration   <?...?>
+    //   comment            <!--...-->
+    //   CDATA              <![CDATA[...]]>
+    //   self-closing tag   <foo ... />
+    //   opening tag        <foo ...>
+    //   closing tag        </foo>
+    //   text               anything else
+    const TOKEN_RE = /(<\?[\s\S]*?\?>|<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<\/[^>]+>|<[^>]+\/>|<[^>]+>|[^<]+)/g;
+    const tokens = xml.match(TOKEN_RE) || [];
+
+    let out = '';
+    let depth = 0;
+
+    for (let i = 0; i < tokens.length; i++) {
+      const tok = tokens[i];
+      if (!tok.trim()) continue;
+
+      if (tok.startsWith('</')) {
+        // Closing tag — dedent before printing
+        depth = Math.max(0, depth - 1);
+        out += INDENT.repeat(depth) + tok + '\n';
+
+      } else if (tok.startsWith('<') && (tok.endsWith('/>') || tok.startsWith('<?') || tok.startsWith('<!--') || tok.startsWith('<!'))) {
+        // Self-closing, PI, comment, doctype — no depth change
+        out += INDENT.repeat(depth) + tok + '\n';
+
+      } else if (tok.startsWith('<')) {
+        // Opening tag — peek ahead: if next token is text and the one after
+        // is the matching closing tag, keep everything on one line
+        const nextTok  = tokens[i + 1];
+        const afterTok = tokens[i + 2];
+        if (
+          nextTok && !nextTok.startsWith('<') &&   // next is text
+          afterTok && afterTok.startsWith('</')     // then closing tag
+        ) {
+          out += INDENT.repeat(depth) + tok + nextTok.trim() + afterTok + '\n';
+          i += 2; // skip the text and closing tag — already consumed
+        } else {
+          out += INDENT.repeat(depth) + tok + '\n';
+          depth++;
+        }
+
+      } else {
+        // Bare text node (shouldn't normally appear after normalisation,
+        // but handle gracefully)
+        out += INDENT.repeat(depth) + tok.trim() + '\n';
+      }
+    }
+
+    return out.trim();
+  } catch(e) {
+    return xml;
+  }
+}
+
 function fmtEditor(which) {
-  const ed = which === 'xml' ? eds.xml : eds.xslt;
-  ed?.getAction('editor.action.formatDocument')?.run();
+  const ed = which === 'xml'  ? eds.xml
+           : which === 'xslt' ? eds.xslt
+           : eds.out;
+  if (!ed) return;
+  const wasReadOnly = ed.getRawOptions().readOnly;
+  if (wasReadOnly) ed.updateOptions({ readOnly: false });
+  const formatted = prettyXML(ed.getValue());
+  ed.setValue(formatted);
+  if (wasReadOnly) ed.updateOptions({ readOnly: true });
+  clog(`${which.toUpperCase()} formatted`, 'info');
 }
 
 // ════════════════════════════════════════════
@@ -713,10 +971,10 @@ async function runTransform() {
     eds.out.updateOptions({ readOnly: false });
     eds.out.setValue(output);
     eds.out.updateOptions({ readOnly: true });
-
-    // Auto-format if XML-looking output
     if (output.trimStart().startsWith('<')) {
-      setTimeout(() => eds.out.getAction('editor.action.formatDocument')?.run(), 80);
+      eds.out.updateOptions({ readOnly: false });
+      eds.out.setValue(prettyXML(output));
+      eds.out.updateOptions({ readOnly: true });
     }
 
     clog(`Transform complete in ${elapsed} ms ✓`, 'success');
@@ -741,6 +999,796 @@ async function runTransform() {
       <span class="kbd">⌘↵</span>`;
   }
 }
+
+
+// ════════════════════════════════════════════
+//  EXAMPLES
+// ════════════════════════════════════════════
+const EXAMPLES = {
+
+  identityTransform: {
+    label: 'Identity Transform',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<SalesOrder>
+  <Header>
+    <OrderId>SO-2024-001</OrderId>
+    <Customer>C-10042</Customer>
+    <OrderDate>2024-03-15</OrderDate>
+  </Header>
+  <Items>
+    <Item>
+      <LineNo>10</LineNo>
+      <Material>MAT-001</Material>
+      <Qty>5</Qty>
+    </Item>
+    <Item>
+      <LineNo>20</LineNo>
+      <Material>MAT-002</Material>
+      <Qty>3</Qty>
+    </Item>
+  </Items>
+</SalesOrder>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Identity Transform — copies every node and attribute unchanged.
+    The foundation for all CPI mapping: start here and override
+    only the templates you need to change.
+  -->
+
+  <xsl:template match="@* | node()">
+    <xsl:copy>
+      <xsl:apply-templates select="@* | node()"/>
+    </xsl:copy>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  renameElements: {
+    label: 'Rename Elements & Attributes',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<MATMAS>
+  <MATNR>000000000000012345</MATNR>
+  <MAKTX>Hydraulic Pump 50bar</MAKTX>
+  <MEINS>EA</MEINS>
+  <MTART>FERT</MTART>
+  <MATKL>01010</MATKL>
+  <BRGEW>12.500</BRGEW>
+  <GEWEI>KG</GEWEI>
+</MATMAS>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Rename SAP MATMAS field names to a target system's naming convention.
+    Pattern: one template per renamed element.
+  -->
+
+  <xsl:template match="MATMAS">
+    <MaterialMaster>
+      <xsl:apply-templates/>
+    </MaterialMaster>
+  </xsl:template>
+
+  <xsl:template match="MATNR">
+    <MaterialNumber><xsl:value-of select="normalize-space(.)"/></MaterialNumber>
+  </xsl:template>
+
+  <xsl:template match="MAKTX">
+    <Description><xsl:value-of select="."/></Description>
+  </xsl:template>
+
+  <xsl:template match="MEINS">
+    <BaseUoM><xsl:value-of select="."/></BaseUoM>
+  </xsl:template>
+
+  <xsl:template match="MTART">
+    <MaterialType><xsl:value-of select="."/></MaterialType>
+  </xsl:template>
+
+  <xsl:template match="MATKL">
+    <MaterialGroup><xsl:value-of select="."/></MaterialGroup>
+  </xsl:template>
+
+  <xsl:template match="BRGEW">
+    <GrossWeight unit="{../GEWEI}">
+      <xsl:value-of select="format-number(xs:decimal(.), '#,##0.000')"/>
+    </GrossWeight>
+  </xsl:template>
+
+  <!-- Suppress GEWEI — already used as attribute above -->
+  <xsl:template match="GEWEI"/>
+
+</xsl:stylesheet>`
+  },
+
+  filterNodes: {
+    label: 'Filter / Conditional Output',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Employees>
+  <Employee>
+    <EmpId>E001</EmpId>
+    <Name>Alice Martin</Name>
+    <Department>IT</Department>
+    <Status>Active</Status>
+    <Salary>85000</Salary>
+  </Employee>
+  <Employee>
+    <EmpId>E002</EmpId>
+    <Name>Bob Chen</Name>
+    <Department>Finance</Department>
+    <Status>Inactive</Status>
+    <Salary>72000</Salary>
+  </Employee>
+  <Employee>
+    <EmpId>E003</EmpId>
+    <Name>Carol Smith</Name>
+    <Department>IT</Department>
+    <Status>Active</Status>
+    <Salary>91000</Salary>
+  </Employee>
+  <Employee>
+    <EmpId>E004</EmpId>
+    <Name>David Lee</Name>
+    <Department>IT</Department>
+    <Status>Active</Status>
+    <Salary>67000</Salary>
+  </Employee>
+</Employees>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Filter: only Active IT employees with salary > 70000.
+    Common in CPI for pre-filtering payloads before routing.
+  -->
+
+  <xsl:template match="Employees">
+    <ActiveITEmployees>
+      <xsl:apply-templates select="Employee[
+        Status = 'Active' and
+        Department = 'IT' and
+        xs:decimal(Salary) &gt; 70000
+      ]"/>
+    </ActiveITEmployees>
+  </xsl:template>
+
+  <xsl:template match="Employee">
+    <Employee id="{EmpId}">
+      <Name><xsl:value-of select="Name"/></Name>
+      <Department><xsl:value-of select="Department"/></Department>
+      <Salary currency="USD">
+        <xsl:value-of select="format-number(xs:decimal(Salary), '#,##0')"/>
+      </Salary>
+    </Employee>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  groupBy: {
+    label: 'Group-by & Aggregate',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<SalesData>
+  <Sale><Region>North</Region><Product>Pump</Product><Amount>12500</Amount></Sale>
+  <Sale><Region>South</Region><Product>Valve</Product><Amount>8300</Amount></Sale>
+  <Sale><Region>North</Region><Product>Valve</Product><Amount>4200</Amount></Sale>
+  <Sale><Region>South</Region><Product>Pump</Product><Amount>17800</Amount></Sale>
+  <Sale><Region>North</Region><Product>Pump</Product><Amount>9100</Amount></Sale>
+  <Sale><Region>East</Region><Product>Pipe</Product><Amount>6700</Amount></Sale>
+  <Sale><Region>South</Region><Product>Pump</Product><Amount>11200</Amount></Sale>
+  <Sale><Region>East</Region><Product>Valve</Product><Amount>5400</Amount></Sale>
+</SalesData>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Group sales by Region, compute total and count per group.
+    Uses xsl:for-each-group — essential for CPI aggregation scenarios.
+  -->
+
+  <xsl:template match="SalesData">
+    <SalesSummary generatedAt="{current-dateTime()}">
+      <xsl:for-each-group select="Sale" group-by="Region">
+        <xsl:sort select="current-grouping-key()"/>
+        <RegionTotal region="{current-grouping-key()}"
+                     count="{count(current-group())}">
+          <Total currency="USD">
+            <xsl:value-of select="
+              format-number(
+                sum(current-group()/xs:decimal(Amount)),
+                '#,##0.00')"/>
+          </Total>
+          <Items>
+            <xsl:for-each select="current-group()">
+              <Item product="{Product}">
+                <xsl:value-of select="format-number(xs:decimal(Amount), '#,##0.00')"/>
+              </Item>
+            </xsl:for-each>
+          </Items>
+        </RegionTotal>
+      </xsl:for-each-group>
+
+      <GrandTotal>
+        <xsl:value-of select="
+          format-number(sum(Sale/xs:decimal(Amount)), '#,##0.00')"/>
+      </GrandTotal>
+    </SalesSummary>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  splitMessage: {
+    label: 'Split Message',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<PurchaseOrders>
+  <PurchaseOrder>
+    <OrderId>PO-001</OrderId>
+    <Vendor>V-100</Vendor>
+    <Items>
+      <Item><LineNo>10</LineNo><Material>MAT-A</Material><Qty>5</Qty></Item>
+      <Item><LineNo>20</LineNo><Material>MAT-B</Material><Qty>2</Qty></Item>
+    </Items>
+  </PurchaseOrder>
+  <PurchaseOrder>
+    <OrderId>PO-002</OrderId>
+    <Vendor>V-200</Vendor>
+    <Items>
+      <Item><LineNo>10</LineNo><Material>MAT-C</Material><Qty>10</Qty></Item>
+    </Items>
+  </PurchaseOrder>
+</PurchaseOrders>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Split: wrap each PurchaseOrder in its own root element.
+    In CPI, this is used before a Splitter step so each
+    resulting message is a standalone document.
+
+    NOTE: In real CPI you'd use the General Splitter or
+    IDoc Splitter. This XSLT approach is useful when you
+    need custom splitting logic or header enrichment per split.
+  -->
+
+  <xsl:template match="/">
+    <Messages>
+      <xsl:for-each select="PurchaseOrders/PurchaseOrder">
+        <Message index="{position()}" total="{last()}">
+          <PurchaseOrder>
+            <xsl:copy-of select="*"/>
+          </PurchaseOrder>
+        </Message>
+      </xsl:for-each>
+    </Messages>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  dateFormatting: {
+    label: 'Date Format Conversion',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Dates>
+  <!-- SAP compact format YYYYMMDD -->
+  <SAPDate>20240315</SAPDate>
+  <!-- ISO 8601 with time -->
+  <ISODateTime>2024-03-15T09:30:00</ISODateTime>
+  <!-- European format -->
+  <EUDate>15.03.2024</EUDate>
+  <!-- Unix-style -->
+  <USDate>03/15/2024</USDate>
+</Dates>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Date format conversions commonly needed in SAP CPI.
+    SAP uses YYYYMMDD internally; external systems vary widely.
+  -->
+
+  <xsl:template match="Dates">
+    <ConvertedDates>
+
+      <!-- SAP YYYYMMDD → ISO 8601 (YYYY-MM-DD) -->
+      <FromSAP>
+        <xsl:variable name="d" select="SAPDate"/>
+        <xsl:value-of select="concat(
+          substring($d,1,4), '-',
+          substring($d,5,2), '-',
+          substring($d,7,2))"/>
+      </FromSAP>
+
+      <!-- ISO DateTime → SAP compact YYYYMMDD -->
+      <ToSAP>
+        <xsl:value-of select="translate(substring(ISODateTime,1,10), '-', '')"/>
+      </ToSAP>
+
+      <!-- ISO DateTime → formatted display -->
+      <DisplayDate>
+        <xsl:value-of select="
+          format-dateTime(xs:dateTime(ISODateTime),
+            '[D01]-[MNn,*-3]-[Y0001] [H01]:[m01]')"/>
+      </DisplayDate>
+
+      <!-- Current timestamp in SAP format -->
+      <CurrentSAPDate>
+        <xsl:value-of select="format-date(current-date(), '[Y0001][M01][D01]')"/>
+      </CurrentSAPDate>
+
+      <!-- Current timestamp ISO -->
+      <CurrentISO>
+        <xsl:value-of select="format-dateTime(current-dateTime(),
+          '[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01]')"/>
+      </CurrentISO>
+
+      <!-- EU DD.MM.YYYY → ISO -->
+      <EUToISO>
+        <xsl:variable name="eu" select="EUDate"/>
+        <xsl:value-of select="concat(
+          substring($eu,7,4), '-',
+          substring($eu,4,2), '-',
+          substring($eu,1,2))"/>
+      </EUToISO>
+
+    </ConvertedDates>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  currencyAmount: {
+    label: 'Currency & Amount Formatting',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Invoice>
+  <InvoiceNo>INV-2024-0099</InvoiceNo>
+  <Currency>EUR</Currency>
+  <Lines>
+    <Line>
+      <Description>SAP License</Description>
+      <Qty>3</Qty>
+      <UnitPrice>1250.5</UnitPrice>
+      <TaxRate>0.19</TaxRate>
+    </Line>
+    <Line>
+      <Description>Consulting Days</Description>
+      <Qty>8</Qty>
+      <UnitPrice>950.00</UnitPrice>
+      <TaxRate>0.19</TaxRate>
+    </Line>
+    <Line>
+      <Description>Travel Expenses</Description>
+      <Qty>1</Qty>
+      <UnitPrice>342.75</UnitPrice>
+      <TaxRate>0.07</TaxRate>
+    </Line>
+  </Lines>
+</Invoice>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Currency & amount formatting: compute net, tax, gross per line
+    and invoice totals. Uses xs:decimal for precision arithmetic.
+  -->
+
+  <xsl:template match="Invoice">
+    <InvoiceCalculated currency="{Currency}">
+      <InvoiceNo><xsl:value-of select="InvoiceNo"/></InvoiceNo>
+
+      <Lines>
+        <xsl:for-each select="Lines/Line">
+          <xsl:variable name="net"   select="xs:decimal(Qty) * xs:decimal(UnitPrice)"/>
+          <xsl:variable name="tax"   select="$net * xs:decimal(TaxRate)"/>
+          <xsl:variable name="gross" select="$net + $tax"/>
+          <Line>
+            <Description><xsl:value-of select="Description"/></Description>
+            <Qty><xsl:value-of select="Qty"/></Qty>
+            <UnitPrice><xsl:value-of select="format-number(xs:decimal(UnitPrice), '#,##0.00')"/></UnitPrice>
+            <NetAmount><xsl:value-of select="format-number($net,   '#,##0.00')"/></NetAmount>
+            <TaxAmount><xsl:value-of select="format-number($tax,   '#,##0.00')"/></TaxAmount>
+            <GrossAmount><xsl:value-of select="format-number($gross, '#,##0.00')"/></GrossAmount>
+          </Line>
+        </xsl:for-each>
+      </Lines>
+
+      <Totals>
+        <NetTotal>
+          <xsl:value-of select="format-number(
+            sum(Lines/Line/(xs:decimal(Qty)*xs:decimal(UnitPrice))),
+            '#,##0.00')"/>
+        </NetTotal>
+        <TaxTotal>
+          <xsl:value-of select="format-number(
+            sum(Lines/Line/(xs:decimal(Qty)*xs:decimal(UnitPrice)*xs:decimal(TaxRate))),
+            '#,##0.00')"/>
+        </TaxTotal>
+        <GrossTotal>
+          <xsl:value-of select="format-number(
+            sum(Lines/Line/(xs:decimal(Qty)*xs:decimal(UnitPrice)*(1+xs:decimal(TaxRate)))),
+            '#,##0.00')"/>
+        </GrossTotal>
+      </Totals>
+    </InvoiceCalculated>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  idocToXml: {
+    label: 'IDoc ORDERS05 → Custom XML',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<ORDERS05>
+  <IDOC BEGIN="1">
+    <EDI_DC40 SEGMENT="1">
+      <TABNAM>EDI_DC40</TABNAM>
+      <MANDT>100</MANDT>
+      <DOCNUM>0000000000123456</DOCNUM>
+      <DOCREL>756</DOCREL>
+      <MESTYP>ORDERS</MESTYP>
+      <SNDPRT>LS</SNDPRT>
+      <SNDPRN>SAPSYSTEM</SNDPRN>
+      <RCVPRT>KU</RCVPRT>
+      <RCVPRN>CUSTOMER01</RCVPRN>
+    </EDI_DC40>
+    <E1EDK01 SEGMENT="1">
+      <ACTION>000</ACTION>
+      <CURCY>USD</CURCY>
+      <WKURS>1.0</WKURS>
+      <ZTERM>NT30</ZTERM>
+    </E1EDK01>
+    <E1EDKA1 SEGMENT="1">
+      <PARVW>AG</PARVW>
+      <PARTN>CUST-10042</PARTN>
+      <NAME1>Acme Corporation</NAME1>
+      <STRAS>123 Main Street</STRAS>
+      <ORT01>New York</ORT01>
+      <LAND1>US</LAND1>
+    </E1EDKA1>
+    <E1EDP01 SEGMENT="1">
+      <POSEX>000010</POSEX>
+      <MATNR>000000000000098765</MATNR>
+      <MENGE>25.000</MENGE>
+      <MENEE>EA</MENEE>
+      <NETWR>1250.00</NETWR>
+    </E1EDP01>
+    <E1EDP01 SEGMENT="1">
+      <POSEX>000020</POSEX>
+      <MATNR>000000000000054321</MATNR>
+      <MENGE>10.000</MENGE>
+      <MENEE>KG</MENEE>
+      <NETWR>890.50</NETWR>
+    </E1EDP01>
+  </IDOC>
+</ORDERS05>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Map SAP IDoc ORDERS05 to a generic Purchase Order XML.
+    Covers: header (EDI_DC40), order data (E1EDK01),
+    partner (E1EDKA1), and line items (E1EDP01).
+  -->
+
+  <xsl:template match="ORDERS05">
+    <PurchaseOrder>
+      <xsl:apply-templates select="IDOC"/>
+    </PurchaseOrder>
+  </xsl:template>
+
+  <xsl:template match="IDOC">
+    <Header>
+      <DocNumber>
+        <xsl:value-of select="normalize-space(EDI_DC40/DOCNUM)"/>
+      </DocNumber>
+      <MessageType><xsl:value-of select="EDI_DC40/MESTYP"/></MessageType>
+      <Sender><xsl:value-of select="EDI_DC40/SNDPRN"/></Sender>
+      <Receiver><xsl:value-of select="EDI_DC40/RCVPRN"/></Receiver>
+      <Currency><xsl:value-of select="E1EDK01/CURCY"/></Currency>
+      <PaymentTerms><xsl:value-of select="E1EDK01/ZTERM"/></PaymentTerms>
+    </Header>
+
+    <ShipTo>
+      <CustomerNo><xsl:value-of select="E1EDKA1[PARVW='AG']/PARTN"/></CustomerNo>
+      <Name><xsl:value-of select="E1EDKA1[PARVW='AG']/NAME1"/></Name>
+      <Street><xsl:value-of select="E1EDKA1[PARVW='AG']/STRAS"/></Street>
+      <City><xsl:value-of select="E1EDKA1[PARVW='AG']/ORT01"/></City>
+      <Country><xsl:value-of select="E1EDKA1[PARVW='AG']/LAND1"/></Country>
+    </ShipTo>
+
+    <LineItems count="{count(E1EDP01)}">
+      <xsl:apply-templates select="E1EDP01"/>
+    </LineItems>
+
+    <OrderTotal currency="{E1EDK01/CURCY}">
+      <xsl:value-of select="format-number(
+        sum(E1EDP01/xs:decimal(NETWR)), '#,##0.00')"/>
+    </OrderTotal>
+  </xsl:template>
+
+  <xsl:template match="E1EDP01">
+    <Item line="{normalize-space(POSEX)}">
+      <Material><xsl:value-of select="normalize-space(MATNR)"/></Material>
+      <Quantity uom="{MENEE}">
+        <xsl:value-of select="format-number(xs:decimal(MENGE), '#,##0.000')"/>
+      </Quantity>
+      <NetValue>
+        <xsl:value-of select="format-number(xs:decimal(NETWR), '#,##0.00')"/>
+      </NetValue>
+    </Item>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  lookupEnrich: {
+    label: 'Value Mapping / Lookup',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Orders>
+  <Order>
+    <OrderId>ORD-001</OrderId>
+    <StatusCode>A</StatusCode>
+    <PriorityCode>H</PriorityCode>
+    <CountryCode>DE</CountryCode>
+  </Order>
+  <Order>
+    <OrderId>ORD-002</OrderId>
+    <StatusCode>B</StatusCode>
+    <PriorityCode>L</PriorityCode>
+    <CountryCode>US</CountryCode>
+  </Order>
+  <Order>
+    <OrderId>ORD-003</OrderId>
+    <StatusCode>C</StatusCode>
+    <PriorityCode>M</PriorityCode>
+    <CountryCode>GB</CountryCode>
+  </Order>
+</Orders>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:lkp="urn:lookup-tables"
+  exclude-result-prefixes="lkp">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Value Mapping using embedded lookup tables.
+    Replaces coded values with human-readable descriptions.
+    Equivalent to CPI's Value Mapping artifact but done in XSLT.
+  -->
+
+  <!-- Lookup tables embedded in the stylesheet -->
+  <lkp:status>
+    <entry code="A" label="Active"/>
+    <entry code="B" label="Blocked"/>
+    <entry code="C" label="Closed"/>
+    <entry code="D" label="Deleted"/>
+  </lkp:status>
+
+  <lkp:priority>
+    <entry code="H" label="High"/>
+    <entry code="M" label="Medium"/>
+    <entry code="L" label="Low"/>
+  </lkp:priority>
+
+  <lkp:country>
+    <entry code="DE" label="Germany"/>
+    <entry code="US" label="United States"/>
+    <entry code="GB" label="United Kingdom"/>
+    <entry code="FR" label="France"/>
+  </lkp:country>
+
+  <!-- Index keys for O(1) lookup -->
+  <xsl:key name="statusKey"   match="lkp:status/entry"   use="@code"/>
+  <xsl:key name="priorityKey" match="lkp:priority/entry" use="@code"/>
+  <xsl:key name="countryKey"  match="lkp:country/entry"  use="@code"/>
+
+  <xsl:template match="Orders">
+    <Orders>
+      <xsl:apply-templates select="Order"/>
+    </Orders>
+  </xsl:template>
+
+  <xsl:template match="Order">
+    <Order id="{OrderId}">
+      <Status code="{StatusCode}">
+        <xsl:value-of select="key('statusKey', StatusCode)/@label"/>
+      </Status>
+      <Priority code="{PriorityCode}">
+        <xsl:value-of select="key('priorityKey', PriorityCode)/@label"/>
+      </Priority>
+      <Country code="{CountryCode}">
+        <xsl:value-of select="key('countryKey', CountryCode)/@label"/>
+      </Country>
+    </Order>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  errorHandling: {
+    label: 'Error Handling (xsl:try)',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Payments>
+  <Payment>
+    <Id>PAY-001</Id>
+    <Amount>1500.00</Amount>
+    <Date>2024-03-15</Date>
+    <IBAN>DE89370400440532013000</IBAN>
+  </Payment>
+  <Payment>
+    <Id>PAY-002</Id>
+    <Amount>INVALID_NUMBER</Amount>
+    <Date>NOT-A-DATE</Date>
+    <IBAN>INVALID</IBAN>
+  </Payment>
+  <Payment>
+    <Id>PAY-003</Id>
+    <Amount>750.50</Amount>
+    <Date>2024-03-16</Date>
+    <IBAN>GB29NWBK60161331926819</IBAN>
+  </Payment>
+</Payments>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:err="http://www.w3.org/2005/xqt-errors"
+  exclude-result-prefixes="xs err">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Error handling with xsl:try / xsl:catch (XSLT 3.0).
+    Invalid data produces an error element instead of crashing.
+    Critical for robust CPI mappings with external data sources.
+  -->
+
+  <xsl:template match="Payments">
+    <PaymentsProcessed processedAt="{current-dateTime()}">
+      <xsl:apply-templates select="Payment"/>
+    </PaymentsProcessed>
+  </xsl:template>
+
+  <xsl:template match="Payment">
+    <Payment id="{Id}">
+
+      <!-- Safe amount conversion -->
+      <Amount>
+        <xsl:try>
+          <xsl:value-of select="format-number(xs:decimal(Amount), '#,##0.00')"/>
+          <xsl:catch errors="*">
+            <xsl:attribute name="error">true</xsl:attribute>
+            <xsl:value-of select="concat('INVALID: ', Amount)"/>
+          </xsl:catch>
+        </xsl:try>
+      </Amount>
+
+      <!-- Safe date conversion -->
+      <ValueDate>
+        <xsl:try>
+          <xsl:value-of select="format-date(xs:date(Date), '[D01]-[M01]-[Y0001]')"/>
+          <xsl:catch errors="*">
+            <xsl:attribute name="error">true</xsl:attribute>
+            <xsl:value-of select="concat('INVALID: ', Date)"/>
+          </xsl:catch>
+        </xsl:try>
+      </ValueDate>
+
+      <!-- IBAN validation (basic length check) -->
+      <IBAN>
+        <xsl:choose>
+          <xsl:when test="string-length(IBAN) &gt;= 15 and string-length(IBAN) &lt;= 34">
+            <xsl:value-of select="IBAN"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:attribute name="error">true</xsl:attribute>
+            <xsl:value-of select="concat('INVALID FORMAT: ', IBAN)"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </IBAN>
+
+      <Status>
+        <xsl:choose>
+          <xsl:when test="not(xs:decimal(Amount) castable as xs:decimal)
+                          or not(Date castable as xs:date)">ERROR</xsl:when>
+          <xsl:otherwise>OK</xsl:otherwise>
+        </xsl:choose>
+      </Status>
+
+    </Payment>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  }
+};
+
+// ── Menu toggle ──
+function toggleExMenu() {
+  const menu = document.getElementById('exMenu');
+  const btn  = document.getElementById('exBtn');
+  const open = menu.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+
+// Close when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('#exDropdown')) {
+    document.getElementById('exMenu')?.classList.remove('open');
+    document.getElementById('exBtn')?.classList.remove('open');
+  }
+});
+
+// ── Load an example ──
+function loadExample(key) {
+  const ex = EXAMPLES[key];
+  if (!ex) return;
+  eds.xml?.setValue(ex.xml);
+  eds.xslt?.setValue(ex.xslt);
+  eds.out?.updateOptions({ readOnly: false });
+  eds.out?.setValue('');
+  eds.out?.updateOptions({ readOnly: true });
+  document.getElementById('exMenu').classList.remove('open');
+  document.getElementById('exBtn').classList.remove('open');
+  clog(`Example loaded: "${ex.label}" — press Run Transform to execute`, 'success');
+}
+
+// ════════════════════════════════════════════
+//  THEME TOGGLE
+// ════════════════════════════════════════════
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('themeToggle').textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('xforge-theme', isLight ? 'light' : 'dark');
+
+  // Switch Monaco editor themes
+  const monacoTheme = isLight ? 'xforge-light' : 'xforge';
+  if (typeof monaco !== 'undefined') {
+    monaco.editor.setTheme(monacoTheme);
+  }
+  clog(`Theme switched to ${isLight ? 'light' : 'dark'} mode`, 'info');
+}
+
+// Restore saved theme preference
+(function() {
+  if (localStorage.getItem('xforge-theme') === 'light') {
+    document.body.classList.add('light');
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('themeToggle');
+      if (btn) btn.textContent = '☀️';
+    });
+  }
+})();
 
 // ════════════════════════════════════════════
 //  MONACO INIT
@@ -787,8 +1835,46 @@ require(['vs/editor/editor.main'], () => {
     }
   });
 
+  monaco.editor.defineTheme('xforge-light', {
+    base: 'vs',
+    inherit: true,
+    rules: [
+      { token: 'tag',             foreground: '0550ae' },
+      { token: 'attribute.name',  foreground: '116329' },
+      { token: 'attribute.value', foreground: '0a3069' },
+      { token: 'string',          foreground: '0a3069' },
+      { token: 'delimiter.xml',   foreground: '8090a0' },
+      { token: 'metatag.xml',     foreground: 'a626a4' },
+      { token: 'comment',         foreground: '6a737d', fontStyle: 'italic' },
+      { token: 'number',          foreground: 'b5521a' },
+    ],
+    colors: {
+      'editor.background':                  '#ffffff',
+      'editor.foreground':                  '#1a2535',
+      'editorLineNumber.foreground':        '#c0cfe0',
+      'editorLineNumber.activeForeground':  '#6080a0',
+      'editor.lineHighlightBackground':     '#f0f6ff',
+      'editor.lineHighlightBorderColor':    '#d8e8f8',
+      'editorCursor.foreground':            '#0070f2',
+      'editor.selectionBackground':         '#b8d4f8',
+      'editor.inactiveSelectionBackground': '#d8e8f8',
+      'editorIndentGuide.background1':      '#e8f0f8',
+      'editorIndentGuide.activeBackground1':'#c0d4e8',
+      'scrollbarSlider.background':         '#c0cfe0aa',
+      'scrollbarSlider.hoverBackground':    '#a8bcd4aa',
+      'editorWidget.background':            '#f0f4f8',
+      'input.background':                   '#ffffff',
+      'dropdown.background':                '#f0f4f8',
+    }
+  });
+
+  // Apply saved theme to Monaco if light was restored from localStorage
+  if (document.body.classList.contains('light')) {
+    monaco.editor.setTheme('xforge-light');
+  }
+
   const shared = {
-    theme: 'xforge',
+    theme: document.body.classList.contains('light') ? 'xforge-light' : 'xforge',
     fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
     fontSize: 13,
     lineHeight: 22,
@@ -809,12 +1895,12 @@ require(['vs/editor/editor.main'], () => {
 
   eds.xml = monaco.editor.create(
     document.getElementById('xmlEd'),
-    { ...shared, language: 'xml', value: SAMPLE_XML }
+    { ...shared, language: 'xml', value: EXAMPLES.identityTransform.xml }
   );
 
   eds.xslt = monaco.editor.create(
     document.getElementById('xsltEd'),
-    { ...shared, language: 'xml', value: SAMPLE_XSLT_30 }
+    { ...shared, language: 'xml', value: EXAMPLES.identityTransform.xslt }
   );
 
   eds.out = monaco.editor.create(
@@ -840,7 +1926,7 @@ require(['vs/editor/editor.main'], () => {
       hideLoader();
       clog('Saxon-JS 2.x loaded · XSLT 3.0 engine ready ✓', 'success');
       clog('Shortcut: Ctrl+Enter (Cmd+Enter on Mac) to run transform', 'info');
-      clog('Sample data pre-loaded. Click "Run Transform" to try it!', 'info');
+      clog('Identity Transform example loaded. Select from Examples menu or press Run!', 'info');
       setStatus('Ready', 'ok');
     }
   }, 200);
