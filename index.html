@@ -514,35 +514,6 @@
     }
 
     /* ── THEME TOGGLE ── */
-    .rainbow-toggle {
-      display: flex; align-items: center; gap: 5px;
-      padding: 5px 10px;
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      color: var(--text-secondary);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; font-weight: 600;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      transition: all 0.15s;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .rainbow-toggle:hover { color: var(--text-primary); border-color: var(--border-bright); background: var(--bg-header); }
-    .rainbow-toggle.active {
-      border-color: rgba(0,112,242,0.5);
-      background: rgba(0,112,242,0.1);
-      color: #60a0f8;
-    }
-    .rainbow-toggle .rb-swatch {
-      display: flex; gap: 2px; align-items: center;
-    }
-    .rainbow-toggle .rb-swatch span {
-      display: inline-block;
-      width: 5px; height: 12px; border-radius: 2px;
-    }
-
     /* ── THEME TOGGLE ── */
     .theme-toggle {
       width: 32px; height: 32px;
@@ -781,31 +752,6 @@
       font-size: 12px; color: var(--text-dim);
     }
 
-    /* ── RAINBOW XML DELIMITERS (depth-based inline decorations) ── */
-    .xml-d1 { color: #2e6db4 !important; }
-    .xml-d2 { color: #2e8b4a !important; }
-    .xml-d3 { color: #b47a2e !important; }
-    .xml-d4 { color: #7a2eb4 !important; }
-    .xml-d5 { color: #2eb4b4 !important; }
-    .xml-d6 { color: #b42e5a !important; }
-    body.light .xml-d1 { color: #2e6db4 !important; }
-    body.light .xml-d2 { color: #1a7f37 !important; }
-    body.light .xml-d3 { color: #c87800 !important; }
-    body.light .xml-d4 { color: #6f42c1 !important; }
-    body.light .xml-d5 { color: #0969a0 !important; }
-    body.light .xml-d6 { color: #cf222e !important; }
-
-    /* ── XSL TAG + ATTRIBUTE NAME INLINE COLORS (dark) ── */
-    /* Regular XML element names — teal */
-    .xml-tag-plain  { color: #56b6c2 !important; font-weight: 600; }
-    /* xsl: / other namespace tags — warm amber-orange, clearly distinct */
-    .xml-tag-xsl    { color: #56b6c2 !important; font-weight: 700; }
-    /* Attribute names — soft lavender, different from both tag types */
-    .xml-attr-name  { color: #c084fc !important; }
-    /* Light theme overrides */
-    body.light .xml-tag-plain { color: #0550ae !important; font-weight: 600; }
-    body.light .xml-tag-xsl   { color: #0550ae !important; font-weight: 700; }
-    body.light .xml-attr-name { color: #6f42c1 !important; }
   </style>
 </head>
 <body class="light">
@@ -832,17 +778,19 @@
     Examples
   </button>
 
-  <button class="rainbow-toggle active" id="rainbowToggle" onclick="toggleRainbow()" title="Toggle rainbow line & delimiter colors">
-    <div class="rb-swatch">
-      <span style="background:#2e6db4"></span>
-      <span style="background:#2e8b4a"></span>
-      <span style="background:#b47a2e"></span>
-      <span style="background:#7a2eb4"></span>
-    </div>
-    Rainbow
-  </button>
-
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light / dark theme">☀️</button>
+
+  <button onclick="clearSavedState()" title="Clear saved session" id="clearSessionBtn" style="
+    display:flex;align-items:center;gap:5px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;
+    background:transparent;
+    border:1px solid var(--border);border-radius:6px;
+    color:var(--text-dim);cursor:pointer;
+    padding:5px 10px;transition:all 0.15s;
+  " onmouseover="this.style.color='var(--error)';this.style.borderColor='var(--error)';this.style.background='rgba(248,81,73,0.08)'" onmouseout="this.style.color='var(--text-dim)';this.style.borderColor='var(--border)';this.style.background='transparent'">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="12" height="12"><path d="M2 4h12M6 4V2h4v2M13 4l-1 10H4L3 4"/></svg>
+    Clear session
+  </button>
 
   <button class="run-btn" id="runBtn" onclick="runTransform()">
     <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5l11 6.5-11 6.5V1.5z"/></svg>
@@ -1046,6 +994,13 @@
   </div>
   <div class="stat">Saxon-JS 2.x · XSLT 3.0 Engine</div>
   <div class="stat-spacer"></div>
+  <div id="savedIndicator" title="Session auto-saved to browser storage" style="
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:#3fb950;opacity:0;transition:opacity 0.4s ease;
+    display:flex;align-items:center;gap:4px;padding:0 4px;
+  ">
+    <svg width="7" height="7" viewBox="0 0 8 8" fill="#3fb950"><circle cx="4" cy="4" r="3.5"/></svg>Saved
+  </div>
   <div class="stat" style="opacity:0.6;font-size:10px;">Developed by Sunil Pharswan</div>
   <div class="stat" id="statTime"></div>
 </div>
@@ -1060,6 +1015,10 @@ let saxonReady  = false;
 // KV stores: { id, name, value }
 let kvData = { headers: [], properties: [] };
 let kvIdSeq = 0;
+
+// Validation debounce timers — declared at top level so loadExample can cancel them
+let xsltDebounce = null;
+let xmlDebounce  = null;
 
 // ════════════════════════════════════════════
 //  SAMPLE DATA
@@ -1092,113 +1051,6 @@ function escHtml(s) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// ════════════════════════════════════════════
-//  RAINBOW DELIMITER DECORATIONS
-// ════════════════════════════════════════════
-// Decoration collections keyed by editor instance
-const _delimDecors = new WeakMap();
-
-function applyDelimiterColors(editor) {
-  const model = editor.getModel();
-  if (!model) return;
-  if (!rainbowEnabled) return;
-  const text = model.getValue();
-  const lines = text.split('\n');
-  const ranges = [];
-  let depth = 0;
-
-  // Regex: captures one tag token at a time
-  // Group 1: tag content between < and >  (we scan char by char for multi-line safety)
-  for (let li = 0; li < lines.length; li++) {
-    const line = lines[li];
-    let i = 0;
-    while (i < line.length) {
-      if (line[i] !== '<') { i++; continue; }
-
-      const isClose   = line[i + 1] === '/';
-      const isPI      = line[i + 1] === '?' || line[i + 1] === '!';
-
-      if (isClose && depth > 0) depth--;
-
-      const d = Math.min(Math.max(depth + 1, 1), 6);
-
-      // Color the opening <
-      ranges.push({
-        range: new monaco.Range(li + 1, i + 1, li + 1, i + 2),
-        options: { inlineClassName: `xml-d${d}` }
-      });
-
-      // Find matching >  (stay on same line — multi-line tags are rare in practice)
-      let j = i + 1;
-      while (j < line.length && line[j] !== '>') j++;
-
-      if (j < line.length) {
-        // Slice of tag innards: e.g. "xsl:template match="x"" or "/xsl:template"
-        const inner     = line.slice(i + 1, j); // excludes < and >
-        const selfClose = inner.endsWith('/');
-
-        // ── Color the > ──
-        ranges.push({
-          range: new monaco.Range(li + 1, j + 1, li + 1, j + 2),
-          options: { inlineClassName: `xml-d${d}` }
-        });
-
-        if (!isPI) {
-          // ── Parse tag name and attributes inside this tag ──
-          // Strip leading / for closing tags
-          const body    = inner.replace(/^\//, '').trimStart();
-          // Tag name ends at first whitespace, / or end
-          const nameMatch = body.match(/^([A-Za-z_][\w:.-]*)/);
-          if (nameMatch) {
-            const tagName   = nameMatch[1];
-            const nameStart = i + 1 + (isClose ? 1 : 0) + (inner.length - body.length) + 1;
-            const isXslTag  = /^[a-z]+:/.test(tagName); // any ns-prefixed tag
-            const cls       = isXslTag ? 'xml-tag-xsl' : 'xml-tag-plain';
-            ranges.push({
-              range: new monaco.Range(li + 1, nameStart, li + 1, nameStart + tagName.length),
-              options: { inlineClassName: cls }
-            });
-
-            // ── Color attribute names ──
-            // Find attr="value" pairs in the remainder after the tag name
-            const attrStr = body.slice(nameMatch[0].length);
-            let offset    = nameStart + tagName.length; // absolute col offset
-            const attrRe  = /([A-Za-z_][\w:.-]*)\s*=/g;
-            let am;
-            while ((am = attrRe.exec(attrStr)) !== null) {
-              const attrStart = offset + am.index + 1; // +1 for 1-based col
-              ranges.push({
-                range: new monaco.Range(li + 1, attrStart, li + 1, attrStart + am[1].length),
-                options: { inlineClassName: 'xml-attr-name' }
-              });
-            }
-          }
-
-          // Depth bookkeeping
-          if (!isClose && !selfClose) depth++;
-        }
-
-        i = j + 1;
-      } else {
-        i++;
-      }
-    }
-  }
-
-  // Replace previous decoration collection
-  let col = _delimDecors.get(editor);
-  if (col) col.clear();
-  col = editor.createDecorationsCollection(ranges);
-  _delimDecors.set(editor, col);
-}
-
-function applyDelimiterColorsDebounced(editor) {
-  const key = '_delimTimer';
-  if (editor[key]) clearTimeout(editor[key]);
-  editor[key] = setTimeout(() => applyDelimiterColors(editor), 300);
-}
-
-
 function clearConsole() {
   document.getElementById('consoleBody').innerHTML = '';
   consoleErrCount = 0;
@@ -1215,6 +1067,83 @@ function setStatus(txt, state = 'ok') {
 }
 
 
+
+// ════════════════════════════════════════════
+//  STATE PERSISTENCE  (localStorage)
+// ════════════════════════════════════════════
+const STORAGE_KEY = 'xdebugx-session-v1';
+let _saveTimer = null;
+
+// Debounced save — coalesces rapid keystrokes into one write
+function scheduleSave() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveState, 800);
+}
+
+function saveState() {
+  try {
+    const state = {
+      xml:        eds.xml?.getValue()  ?? '',
+      xslt:       eds.xslt?.getValue() ?? '',
+      headers:    kvData.headers.map(r => ({ name: r.name, value: r.value })),
+      properties: kvData.properties.map(r => ({ name: r.name, value: r.value })),
+      leftCollapsed:  document.getElementById('colLeft')?.classList.contains('collapsed')  ?? false,
+      rightCollapsed: document.getElementById('colRight')?.classList.contains('collapsed') ?? true,
+      savedAt: Date.now(),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    // Flash a subtle "saved" indicator
+    showSavedIndicator();
+  } catch (e) {
+    // localStorage full or unavailable — fail silently
+  }
+}
+
+function loadSavedState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function clearSavedState() {
+  localStorage.removeItem(STORAGE_KEY);
+
+  // Reset editors to default example
+  if (eds.xml)  eds.xml.setValue(EXAMPLES.identityTransform.xml);
+  if (eds.xslt) eds.xslt.setValue(EXAMPLES.identityTransform.xslt);
+  if (eds.out)  { eds.out.updateOptions({ readOnly: false }); eds.out.setValue(''); eds.out.updateOptions({ readOnly: true }); }
+
+  // Reset KV panels
+  kvData.headers    = [];
+  kvData.properties = [];
+  kvIdSeq = 0;
+  renderKV('headers');
+  renderKV('properties');
+  renderOutputKV({}, {});
+
+  // Hide saved indicator
+  const ind = document.getElementById('savedIndicator');
+  if (ind) ind.style.opacity = '0';
+
+  if (eds.xml && eds.xslt) clearAllMarkers();
+  setStatus('Ready', 'ok');
+  document.getElementById('statTime').textContent = '';
+  clog('Session cleared — editors reset to defaults.', 'info');
+}
+
+// ── Tiny "● Saved" pill in the status bar ──
+let _savedFadeTimer = null;
+function showSavedIndicator() {
+  const ind = document.getElementById('savedIndicator');
+  if (!ind) return;
+  ind.style.opacity = '1';
+  clearTimeout(_savedFadeTimer);
+  _savedFadeTimer = setTimeout(() => { ind.style.opacity = '0'; }, 2000);
+}
 
 // ════════════════════════════════════════════
 //  SAMPLE LOADERS
@@ -1237,6 +1166,7 @@ function clearPane(which) {
   }
   // Clear output KV panels when output is cleared
   if (which === 'out') renderOutputKV({}, {});
+  scheduleSave();
 }
 
 function copyOutput() {
@@ -1255,59 +1185,85 @@ function prettyXML(xml) {
     // Strip inter-tag whitespace so we start clean
     xml = xml.replace(/>\s+</g, '><').trim();
 
-    // Each match is one complete token:
+    // Token regex — handles attribute values containing > or < via ATTR_VAL,
+    // and avoids the separate self-closing branch that caused ambiguity when
+    // TAG_INNER consumed / characters inside attribute values.
+    //
     //   PI / declaration   <?...?>
     //   comment            <!--...-->
     //   CDATA              <![CDATA[...]]>
-    //   self-closing tag   <foo ... />
-    //   opening tag        <foo ...>
     //   closing tag        </foo>
+    //   any other tag      <foo ...>  or  <foo .../>
     //   text               anything else
-    const TOKEN_RE = /(<\?[\s\S]*?\?>|<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<\/[^>]+>|<[^>]+\/>|<[^>]+>|[^<]+)/g;
+    //
+    // ATTR_VAL matches "..." or '...' to skip > chars inside quoted values.
+    // [^<>] ensures TAG_INNER never crosses a tag boundary.
+    const ATTR_VAL  = `"[^"]*"|'[^']*'`;
+    const TAG_INNER = `(?:${ATTR_VAL}|[^<>])*`;
+    const TOKEN_RE  = new RegExp(
+      `<\\?[\\s\\S]*?\\?>` +                   // PI / XML declaration
+      `|<!--[\\s\\S]*?-->` +                    // comment
+      `|<!\\[CDATA\\[[\\s\\S]*?\\]\\]>` +       // CDATA section
+      `|</${TAG_INNER}>` +                      // closing tag  </foo>
+      `|<${TAG_INNER}>` +                       // opening or self-closing tag
+      `|[^<]+`,                                  // text node
+      'g'
+    );
     const tokens = xml.match(TOKEN_RE) || [];
 
-    let out = '';
+    let out   = '';
     let depth = 0;
 
     for (let i = 0; i < tokens.length; i++) {
       const tok = tokens[i];
       if (!tok.trim()) continue;
 
-      if (tok.startsWith('</')) {
+      const isClose     = tok.startsWith('</');
+      const isSelfClose = !isClose && tok.endsWith('/>');
+      const isPI        = tok.startsWith('<?') || tok.startsWith('<!--') || tok.startsWith('<!');
+
+      if (isClose) {
         // Closing tag — dedent before printing
         depth = Math.max(0, depth - 1);
         out += INDENT.repeat(depth) + tok + '\n';
 
-      } else if (tok.startsWith('<') && (tok.endsWith('/>') || tok.startsWith('<?') || tok.startsWith('<!--') || tok.startsWith('<!'))) {
-        // Self-closing, PI, comment, doctype — no depth change
+      } else if (isSelfClose || isPI) {
+        // Self-closing tag, PI, comment, CDATA — no depth change
         out += INDENT.repeat(depth) + tok + '\n';
 
-      } else if (tok.startsWith('<')) {
-        // Opening tag — peek ahead: if next token is text and the one after
-        // is the matching closing tag, keep everything on one line
+      } else {
+        // Opening tag — look ahead for special inline cases
         const nextTok  = tokens[i + 1];
         const afterTok = tokens[i + 2];
-        if (
-          nextTok && !nextTok.startsWith('<') &&   // next is text
-          afterTok && afterTok.startsWith('</')     // then closing tag
-        ) {
+
+        if (nextTok && nextTok.startsWith('</')) {
+          // <open></close> — empty element pair, keep on one line
+          out += INDENT.repeat(depth) + tok + nextTok + '\n';
+          i += 1;
+
+        } else if (nextTok && !nextTok.startsWith('<') && afterTok && afterTok.startsWith('</')) {
+          // <open>text</close> — simple inline content, keep on one line
           out += INDENT.repeat(depth) + tok + nextTok.trim() + afterTok + '\n';
-          i += 2; // skip the text and closing tag — already consumed
+          i += 2;
+
+        } else if (nextTok && !nextTok.startsWith('<')) {
+          // <open>text<child... — mixed content; emit tag+text prefix, indent children
+          const trimmed = nextTok.trim();
+          out += INDENT.repeat(depth) + tok + (trimmed ? trimmed + ' ' : '') + '\n';
+          depth++;
+          i += 1; // text token consumed; child elements follow
+
         } else {
+          // Normal opening tag with child elements
           out += INDENT.repeat(depth) + tok + '\n';
           depth++;
         }
-
-      } else {
-        // Bare text node (shouldn't normally appear after normalisation,
-        // but handle gracefully)
-        out += INDENT.repeat(depth) + tok.trim() + '\n';
       }
     }
 
     return out.trim();
   } catch(e) {
-    return xml;
+    return xml; // fallback: return original if anything goes wrong
   }
 }
 
@@ -1323,6 +1279,7 @@ function fmtEditor(which) {
   _suppressNextValidation = true;
   ed.setValue(formatted);
   if (wasReadOnly) ed.updateOptions({ readOnly: true });
+  scheduleSave();
   clog(`${which.toUpperCase()} formatted`, 'info');
 }
 
@@ -1402,8 +1359,8 @@ function validateXML(src) {
   if (lineMatch) line = parseInt(lineMatch[1]);
   if (colMatch)  col  = parseInt(colMatch[1]);
 
-  // Clean up the message
-  const message = text.replace(/<?xml[^>]*>/,'').trim().split('\n')[0].trim();
+  // Clean up the message — strip leading <?xml...?> declaration if present
+  const message = text.replace(/<\?xml[^?]*\?>\s*/i, '').trim().split('\n')[0].trim();
   return { ok: false, line, col, message };
 }
 
@@ -1541,11 +1498,13 @@ function addKVRow(type) {
   const id = ++kvIdSeq;
   kvData[type].push({ id, name: '', value: '' });
   renderKV(type);
+  scheduleSave();
 }
 
 function deleteKVRow(type, id) {
   kvData[type] = kvData[type].filter(r => r.id !== id);
   renderKV(type);
+  scheduleSave();
 }
 
 function updateKV(type, id, field, val) {
@@ -1554,6 +1513,7 @@ function updateKV(type, id, field, val) {
   const countId = type === 'headers' ? 'hdrCount' : 'propCount';
   document.getElementById(countId).textContent =
     kvData[type].filter(r => r.name.trim()).length;
+  scheduleSave();
 }
 
 function renderKV(type) {
@@ -1657,6 +1617,7 @@ async function runTransform() {
     const colRight = document.getElementById('colRight');
     if (colRight.classList.contains('collapsed')) {
       colRight.classList.remove('collapsed');
+      scheduleSave();
       setTimeout(() => {
         eds.xml?.layout();
         eds.xslt?.layout();
@@ -3148,11 +3109,7 @@ function loadExample(key) {
 
   closeExModal();
   clog(`Example loaded: "${ex.label}" — press Run Transform to execute`, 'success');
-  // Re-apply rainbow delimiters for newly loaded content
-  setTimeout(() => {
-    applyDelimiterColors(eds.xml);
-    applyDelimiterColors(eds.xslt);
-  }, 50);
+  scheduleSave();
 }
 
 // ════════════════════════════════════════════
@@ -3173,6 +3130,7 @@ function handleUpload(event, pane) {
     const text = e.target.result;
     const ed = pane === 'xml' ? eds.xml : eds.xslt;
     ed.setValue(text);
+    scheduleSave();
     clog(`Uploaded: ${file.name} (${(file.size / 1024).toFixed(1)} KB) → ${pane.toUpperCase()} pane`, 'success');
   };
   reader.onerror = () => clog(`Failed to read file: ${file.name}`, 'error');
@@ -3213,6 +3171,7 @@ function setupDragDrop(editorWrapId, pane) {
     reader.onload = ev => {
       const ed = pane === 'xml' ? eds.xml : eds.xslt;
       ed.setValue(ev.target.result);
+      scheduleSave();
       clog(`Dropped: ${file.name} (${(file.size / 1024).toFixed(1)} KB) → ${pane.toUpperCase()} pane`, 'success');
     };
     reader.readAsText(file);
@@ -3225,6 +3184,7 @@ function setupDragDrop(editorWrapId, pane) {
 function toggleSideCol(side) {
   const col = document.getElementById(side === 'left' ? 'colLeft' : 'colRight');
   col.classList.toggle('collapsed');
+  scheduleSave();
 
   // Relayout all Monaco editors after transition
   setTimeout(() => {
@@ -3284,100 +3244,6 @@ function updateConsoleErrBadge() {
 }
 
 // ════════════════════════════════════════════
-//  RAINBOW TOGGLE
-// ════════════════════════════════════════════
-let rainbowEnabled = localStorage.getItem('xforge-rainbow') !== 'off';
-
-function toggleRainbow() {
-  rainbowEnabled = !rainbowEnabled;
-  localStorage.setItem('xforge-rainbow', rainbowEnabled ? 'on' : 'off');
-  document.getElementById('rainbowToggle').classList.toggle('active', rainbowEnabled);
-
-  if (rainbowEnabled) {
-    // Re-apply inline decorations
-    applyDelimiterColors(eds.xml);
-    applyDelimiterColors(eds.xslt);
-    // Re-enable indent guide colors in both themes
-    setRainbowGuides(true);
-  } else {
-    // Clear inline delimiter decorations
-    [eds.xml, eds.xslt].forEach(ed => {
-      const col = _delimDecors.get(ed);
-      if (col) { col.clear(); _delimDecors.delete(ed); }
-    });
-    // Reset indent guides to flat single color
-    setRainbowGuides(false);
-  }
-  clog(`Rainbow colors ${rainbowEnabled ? 'enabled' : 'disabled'}`, 'info');
-}
-
-function setRainbowGuides(on) {
-  // Dynamically update the Monaco theme colors for indent guides
-  const isDark = !document.body.classList.contains('light');
-  const colors = on ? (isDark ? {
-    'editorIndentGuide.background1':       '#1a3a5c',
-    'editorIndentGuide.background2':       '#1a3a2a',
-    'editorIndentGuide.background3':       '#3a2a1a',
-    'editorIndentGuide.background4':       '#2a1a3a',
-    'editorIndentGuide.background5':       '#1a3838',
-    'editorIndentGuide.background6':       '#3a1a28',
-    'editorIndentGuide.activeBackground1': '#2e6db4',
-    'editorIndentGuide.activeBackground2': '#2e8b4a',
-    'editorIndentGuide.activeBackground3': '#b47a2e',
-    'editorIndentGuide.activeBackground4': '#7a2eb4',
-    'editorIndentGuide.activeBackground5': '#2eb4b4',
-    'editorIndentGuide.activeBackground6': '#b42e5a',
-  } : {
-    'editorIndentGuide.background1':       '#c8daf4',
-    'editorIndentGuide.background2':       '#c4e8d0',
-    'editorIndentGuide.background3':       '#f0dfc0',
-    'editorIndentGuide.background4':       '#dcc8f0',
-    'editorIndentGuide.background5':       '#c0e8e8',
-    'editorIndentGuide.background6':       '#f0c8d8',
-    'editorIndentGuide.activeBackground1': '#2e6db4',
-    'editorIndentGuide.activeBackground2': '#1a7f37',
-    'editorIndentGuide.activeBackground3': '#c87800',
-    'editorIndentGuide.activeBackground4': '#6f42c1',
-    'editorIndentGuide.activeBackground5': '#0969a0',
-    'editorIndentGuide.activeBackground6': '#cf222e',
-  }) : (isDark ? {
-    'editorIndentGuide.background1':       '#182030',
-    'editorIndentGuide.background2':       '#182030',
-    'editorIndentGuide.background3':       '#182030',
-    'editorIndentGuide.background4':       '#182030',
-    'editorIndentGuide.background5':       '#182030',
-    'editorIndentGuide.background6':       '#182030',
-    'editorIndentGuide.activeBackground1': '#1e3050',
-    'editorIndentGuide.activeBackground2': '#1e3050',
-    'editorIndentGuide.activeBackground3': '#1e3050',
-    'editorIndentGuide.activeBackground4': '#1e3050',
-    'editorIndentGuide.activeBackground5': '#1e3050',
-    'editorIndentGuide.activeBackground6': '#1e3050',
-  } : {
-    'editorIndentGuide.background1':       '#e8f0f8',
-    'editorIndentGuide.background2':       '#e8f0f8',
-    'editorIndentGuide.background3':       '#e8f0f8',
-    'editorIndentGuide.background4':       '#e8f0f8',
-    'editorIndentGuide.background5':       '#e8f0f8',
-    'editorIndentGuide.background6':       '#e8f0f8',
-    'editorIndentGuide.activeBackground1': '#c0d4e8',
-    'editorIndentGuide.activeBackground2': '#c0d4e8',
-    'editorIndentGuide.activeBackground3': '#c0d4e8',
-    'editorIndentGuide.activeBackground4': '#c0d4e8',
-    'editorIndentGuide.activeBackground5': '#c0d4e8',
-    'editorIndentGuide.activeBackground6': '#c0d4e8',
-  });
-  const themeName = isDark ? 'xforge' : 'xforge-light';
-  monaco.editor.defineTheme(themeName, Object.assign({}, _themeBase[themeName], {
-    colors: Object.assign({}, _themeBase[themeName].colors, colors)
-  }));
-  monaco.editor.setTheme(themeName);
-}
-
-// Store base theme definitions for re-use in setRainbowGuides
-const _themeBase = {};
-
-// ════════════════════════════════════════════
 //  THEME TOGGLE
 // ════════════════════════════════════════════
 function toggleTheme() {
@@ -3391,24 +3257,18 @@ function toggleTheme() {
     monaco.editor.setTheme(monacoTheme);
   }
   clog(`Theme switched to ${isLight ? 'light' : 'dark'} mode`, 'info');
-  // Re-apply rainbow guide state for new theme
-  if (typeof setRainbowGuides === 'function') setRainbowGuides(rainbowEnabled);
 }
 
 // Restore saved theme preference
-// Default is dark; apply light only if explicitly saved as 'light' or no preference yet
 (function() {
   const saved = localStorage.getItem('xforge-theme');
-  if (saved === 'light' || saved === null) {
-    document.body.classList.add('light');
-    document.addEventListener('DOMContentLoaded', () => {
-      const btn = document.getElementById('themeToggle');
-      if (btn) btn.textContent = '☀️';
-    });
-  } else {
-    // Saved as dark — ensure light class is not present (body starts with it in HTML)
+  if (saved === 'dark') {
     document.body.classList.remove('light');
+    // Update button emoji once DOM is accessible (script is at bottom of body so DOM is ready)
+    const btn = document.getElementById('themeToggle');
+    if (btn) btn.textContent = '🌙';
   }
+  // Default is light (body has class="light" in HTML), emoji is already ☀️
 })();
 
 // ════════════════════════════════════════════
@@ -3466,18 +3326,18 @@ require(['vs/editor/editor.main'], () => {
       'editorCursor.foreground':            '#0070f2',
       'editor.selectionBackground':         '#183060',
       'editor.inactiveSelectionBackground': '#10203a',
-      'editorIndentGuide.background1':      '#1a3a5c',
-      'editorIndentGuide.background2':      '#1a3a2a',
-      'editorIndentGuide.background3':      '#3a2a1a',
-      'editorIndentGuide.background4':      '#2a1a3a',
-      'editorIndentGuide.background5':      '#1a3838',
-      'editorIndentGuide.background6':      '#3a1a28',
-      'editorIndentGuide.activeBackground1':'#2e6db4',
-      'editorIndentGuide.activeBackground2':'#2e8b4a',
-      'editorIndentGuide.activeBackground3':'#b47a2e',
-      'editorIndentGuide.activeBackground4':'#7a2eb4',
-      'editorIndentGuide.activeBackground5':'#2eb4b4',
-      'editorIndentGuide.activeBackground6':'#b42e5a',
+      'editorIndentGuide.background1':      '#182030',
+      'editorIndentGuide.background2':      '#182030',
+      'editorIndentGuide.background3':      '#182030',
+      'editorIndentGuide.background4':      '#182030',
+      'editorIndentGuide.background5':      '#182030',
+      'editorIndentGuide.background6':      '#182030',
+      'editorIndentGuide.activeBackground1':'#1e3050',
+      'editorIndentGuide.activeBackground2':'#1e3050',
+      'editorIndentGuide.activeBackground3':'#1e3050',
+      'editorIndentGuide.activeBackground4':'#1e3050',
+      'editorIndentGuide.activeBackground5':'#1e3050',
+      'editorIndentGuide.activeBackground6':'#1e3050',
       'editorBracketHighlight.foreground1': '#2e6db4',
       'editorBracketHighlight.foreground2': '#2e8b4a',
       'editorBracketHighlight.foreground3': '#b47a2e',
@@ -3515,18 +3375,18 @@ require(['vs/editor/editor.main'], () => {
       'editorCursor.foreground':            '#0070f2',
       'editor.selectionBackground':         '#b8d4f8',
       'editor.inactiveSelectionBackground': '#d8e8f8',
-      'editorIndentGuide.background1':      '#c8daf4',
-      'editorIndentGuide.background2':      '#c4e8d0',
-      'editorIndentGuide.background3':      '#f0dfc0',
-      'editorIndentGuide.background4':      '#dcc8f0',
-      'editorIndentGuide.background5':      '#c0e8e8',
-      'editorIndentGuide.background6':      '#f0c8d8',
-      'editorIndentGuide.activeBackground1':'#2e6db4',
-      'editorIndentGuide.activeBackground2':'#1a7f37',
-      'editorIndentGuide.activeBackground3':'#c87800',
-      'editorIndentGuide.activeBackground4':'#6f42c1',
-      'editorIndentGuide.activeBackground5':'#0969a0',
-      'editorIndentGuide.activeBackground6':'#cf222e',
+      'editorIndentGuide.background1':      '#e0e8f0',
+      'editorIndentGuide.background2':      '#e0e8f0',
+      'editorIndentGuide.background3':      '#e0e8f0',
+      'editorIndentGuide.background4':      '#e0e8f0',
+      'editorIndentGuide.background5':      '#e0e8f0',
+      'editorIndentGuide.background6':      '#e0e8f0',
+      'editorIndentGuide.activeBackground1':'#b0c4d8',
+      'editorIndentGuide.activeBackground2':'#b0c4d8',
+      'editorIndentGuide.activeBackground3':'#b0c4d8',
+      'editorIndentGuide.activeBackground4':'#b0c4d8',
+      'editorIndentGuide.activeBackground5':'#b0c4d8',
+      'editorIndentGuide.activeBackground6':'#b0c4d8',
       'editorBracketHighlight.foreground1': '#2e6db4',
       'editorBracketHighlight.foreground2': '#1a7f37',
       'editorBracketHighlight.foreground3': '#c87800',
@@ -3541,8 +3401,6 @@ require(['vs/editor/editor.main'], () => {
     }
   };
 
-  _themeBase['xforge']       = _darkThemeDef;
-  _themeBase['xforge-light'] = _lightThemeDef;
   monaco.editor.defineTheme('xforge',       _darkThemeDef);
   monaco.editor.defineTheme('xforge-light', _lightThemeDef);
 
@@ -3579,14 +3437,17 @@ require(['vs/editor/editor.main'], () => {
     'semanticHighlighting.enabled': true,
   };
 
+  // ── Restore saved session (if any) ──
+  const _savedSession = loadSavedState();
+
   eds.xml = monaco.editor.create(
     document.getElementById('xmlEd'),
-    { ...shared, language: 'xml', value: EXAMPLES.identityTransform.xml }
+    { ...shared, language: 'xml', value: _savedSession?.xml ?? EXAMPLES.identityTransform.xml }
   );
 
   eds.xslt = monaco.editor.create(
     document.getElementById('xsltEd'),
-    { ...shared, language: 'xml', value: EXAMPLES.identityTransform.xslt }
+    { ...shared, language: 'xml', value: _savedSession?.xslt ?? EXAMPLES.identityTransform.xslt }
   );
 
   eds.out = monaco.editor.create(
@@ -3605,10 +3466,6 @@ require(['vs/editor/editor.main'], () => {
   // Set up drag & drop for XML and XSLT panes
   setupDragDrop('xmlEdWrap', 'xml');
   setupDragDrop('xsltEdWrap', 'xslt');
-
-  // Initial rainbow delimiter coloring
-  applyDelimiterColors(eds.xml);
-  applyDelimiterColors(eds.xslt);
 
   // ── Auto-close XML tags for xml language mode ──
   // Combined auto-close handler: XML tags + bracket/quote pairs
@@ -3753,8 +3610,6 @@ require(['vs/editor/editor.main'], () => {
 
 
   // Debounced live validation — runs 800ms after the user stops typing
-  let xsltDebounce = null;
-  let xmlDebounce  = null;
 
   function runXsltValidation() {
     const src = eds.xslt.getValue().trim();
@@ -3775,7 +3630,13 @@ require(['vs/editor/editor.main'], () => {
 
   function runXmlValidation() {
     const src = eds.xml.getValue().trim();
-    if (!src) { return; }
+    if (!src) {
+      monaco.editor.setModelMarkers(eds.xml.getModel(), 'xsltforge', []);
+      if (xmlDecorations) { xmlDecorations.clear(); xmlDecorations = null; }
+      const current = document.getElementById('statTxt').textContent;
+      if (current.startsWith('XML error')) setStatus('Ready', 'ok');
+      return;
+    }
     monaco.editor.setModelMarkers(eds.xml.getModel(), 'xsltforge', []);
     if (xmlDecorations) { xmlDecorations.clear(); xmlDecorations = null; }
     const result = validateXML(src);
@@ -3789,7 +3650,7 @@ require(['vs/editor/editor.main'], () => {
   }
 
   eds.xslt.onDidChangeModelContent(() => {
-    applyDelimiterColorsDebounced(eds.xslt);
+    scheduleSave();
     if (_suppressNextValidation) { _suppressNextValidation = false; return; }
     // Clear immediately so stale markers don't linger while user types
     monaco.editor.setModelMarkers(eds.xslt.getModel(), 'xsltforge', []);
@@ -3799,7 +3660,7 @@ require(['vs/editor/editor.main'], () => {
   });
 
   eds.xml.onDidChangeModelContent(() => {
-    applyDelimiterColorsDebounced(eds.xml);
+    scheduleSave();
     if (_suppressNextValidation) { _suppressNextValidation = false; return; }
     monaco.editor.setModelMarkers(eds.xml.getModel(), 'xsltforge', []);
     if (xmlDecorations) { xmlDecorations.clear(); xmlDecorations = null; }
@@ -3817,14 +3678,45 @@ require(['vs/editor/editor.main'], () => {
       hideLoader();
       clog('Saxon-JS 2.x loaded · XSLT 3.0 engine ready ✓', 'success');
       clog('Shortcut: Ctrl+Enter (Cmd+Enter on Mac) to run transform', 'info');
-      clog('Identity Transform loaded. Use Examples menu to load CPI scenarios.', 'info');
+
+      // ── Restore persisted session ──
+      if (_savedSession) {
+        // Restore KV rows
+        if (Array.isArray(_savedSession.headers)) {
+          _savedSession.headers.forEach(r => {
+            kvIdSeq++;
+            kvData.headers.push({ id: kvIdSeq, name: r.name, value: r.value });
+          });
+        }
+        if (Array.isArray(_savedSession.properties)) {
+          _savedSession.properties.forEach(r => {
+            kvIdSeq++;
+            kvData.properties.push({ id: kvIdSeq, name: r.name, value: r.value });
+          });
+        }
+        // Restore column collapse states
+        if (_savedSession.leftCollapsed)  document.getElementById('colLeft')?.classList.add('collapsed');
+        if (!_savedSession.rightCollapsed) document.getElementById('colRight')?.classList.remove('collapsed');
+        // Relay Monaco after potential column changes
+        setTimeout(() => { eds.xml?.layout(); eds.xslt?.layout(); eds.out?.layout(); }, 260);
+
+        const ago = _savedSession.savedAt
+          ? (() => {
+              const diff = Math.round((Date.now() - _savedSession.savedAt) / 1000);
+              if (diff < 60)   return `${diff}s ago`;
+              if (diff < 3600) return `${Math.round(diff/60)}m ago`;
+              return `${Math.round(diff/3600)}h ago`;
+            })()
+          : '';
+        clog(`Session restored${ago ? ' · saved ' + ago : ''} ✓`, 'success');
+      } else {
+        clog('Identity Transform loaded. Use Examples menu to load CPI scenarios.', 'info');
+      }
+
       renderKV('headers');
       renderKV('properties');
       renderOutputKV({}, {});
       setStatus('Ready', 'ok');
-      // Restore rainbow preference
-      document.getElementById('rainbowToggle').classList.toggle('active', rainbowEnabled);
-      if (!rainbowEnabled) setRainbowGuides(false);
     }
   }, 200);
 
