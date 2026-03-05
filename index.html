@@ -817,6 +817,7 @@
         <div class="pane-actions">
           <span class="lang-badge">XML</span>
           <button class="pane-act-btn" onclick="fmtEditor('xml')">Format</button>
+          <button class="pane-act-btn" onclick="copyPane('xml')">Copy</button>
           <button class="pane-act-btn" onclick="clearPane('xml')">Clear</button>
           <div class="pane-divider"></div>
           <button class="pane-icon-btn" title="Upload XML file" onclick="triggerUpload('xml')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 10V2M5 5l3-3 3 3M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg></button>
@@ -870,6 +871,7 @@
       <div class="pane-actions">
         <span class="lang-badge">XSLT</span>
         <button class="pane-act-btn" onclick="fmtEditor('xslt')">Format</button>
+        <button class="pane-act-btn" onclick="copyPane('xslt')">Copy</button>
         <button class="pane-act-btn" onclick="clearPane('xslt')">Clear</button>
         <div class="pane-divider"></div>
         <button class="pane-icon-btn" title="Upload XSLT file" onclick="triggerUpload('xslt')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 10V2M5 5l3-3 3 3M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg></button>
@@ -914,7 +916,7 @@
           <div class="pane-divider"></div>
           <span class="lang-badge">XML</span>
           <button class="pane-act-btn" onclick="fmtEditor('out')">Format</button>
-          <button class="pane-act-btn" onclick="copyOutput()">Copy</button>
+          <button class="pane-act-btn" onclick="copyPane('out')">Copy</button>
           <button class="pane-act-btn" onclick="clearPane('out')">Clear</button>
           <div class="pane-divider"></div>
           <button class="pane-icon-btn" title="Download output as XML" onclick="downloadPane('out','output.xml')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg></button>
@@ -1151,8 +1153,12 @@ function showSavedIndicator() {
 
 
 function clearPane(which) {
-  const map = { xml: eds.xml, xslt: eds.xslt, out: eds.out };
-  map[which]?.setValue('');
+  const ed = which === 'xml' ? eds.xml : which === 'xslt' ? eds.xslt : eds.out;
+  if (!ed) return;
+  const wasReadOnly = ed.getRawOptions().readOnly;
+  if (wasReadOnly) ed.updateOptions({ readOnly: false });
+  ed.setValue('');
+  if (wasReadOnly) ed.updateOptions({ readOnly: true });
   // Clear error markers from this pane
   if (which === 'xml'  && eds.xml)  {
     monaco.editor.setModelMarkers(eds.xml.getModel(),  'xsltforge', []);
@@ -1169,11 +1175,12 @@ function clearPane(which) {
   scheduleSave();
 }
 
-function copyOutput() {
-  const v = eds.out?.getValue() ?? '';
-  if (!v) return clog('Nothing to copy', 'warn');
+function copyPane(which) {
+  const ed = which === 'xml' ? eds.xml : which === 'xslt' ? eds.xslt : eds.out;
+  const v  = ed?.getValue() ?? '';
+  if (!v.trim()) return clog('Nothing to copy', 'warn');
   navigator.clipboard.writeText(v)
-    .then(() => clog('Output copied to clipboard ✓', 'success'))
+    .then(() => clog(`${which.toUpperCase()} copied to clipboard ✓`, 'success'))
     .catch(() => clog('Clipboard access denied', 'error'));
 }
 
@@ -1423,17 +1430,18 @@ function extractCPICalls(xslt) {
 //    Strategy: remove xmlns:cpi="..." and replace the full xsl:value-of
 //    element with a harmless empty string select.
 function stripCPICalls(xslt) {
-  // 1. Remove xmlns:cpi namespace declaration
-  xslt = xslt.replace(/\s*xmlns:cpi\s*=\s*"[^"]*"/g, '');
-  // 2. Remove 'cpi' from exclude-result-prefixes (e.g. "cpi xs" -> "xs", "xs cpi" -> "xs")
+  // 1. Remove xmlns:cpi namespace declaration (double or single quoted)
+  xslt = xslt.replace(/\s*xmlns:cpi\s*=\s*(?:"[^"]*"|'[^']*')/g, '');
+  // 2. Remove 'cpi' from exclude-result-prefixes
   xslt = xslt.replace(/(exclude-result-prefixes\s*=\s*")([^"]*)"/g, (_, attr, val) => {
     const cleaned = val.split(/\s+/).filter(p => p !== 'cpi').join(' ');
     return attr + cleaned + '"';
   });
   // 3. Remove self-closing: <xsl:value-of select="cpi:setXxx(...)"/>
-  xslt = xslt.replace(/<xsl:value-of[^>]*select\s*=\s*"cpi:set[^"]*"[^>]*\/>/g, '');
+  //    Use ATTR_VAL-aware inner match so > inside select value doesn't break the regex
+  xslt = xslt.replace(/<xsl:value-of(?:\s+(?:"[^"]*"|'[^']*'|[^<>])*?)?\s+select\s*=\s*"cpi:set[^"]*"(?:\s+(?:"[^"]*"|'[^']*'|[^<>])*?)?\/>/g, '');
   // 4. Remove open+close form: <xsl:value-of select="cpi:setXxx(...)"></xsl:value-of>
-  xslt = xslt.replace(/<xsl:value-of[^>]*select\s*=\s*"cpi:set[^"]*"[^>]*>[^<]*<\/xsl:value-of>/g, '');
+  xslt = xslt.replace(/<xsl:value-of(?:\s+(?:"[^"]*"|'[^']*'|[^<>])*?)?\s+select\s*=\s*"cpi:set[^"]*"(?:\s+(?:"[^"]*"|'[^']*'|[^<>])*?)?>[^<]*<\/xsl:value-of>/g, '');
   return xslt;
 }
 
@@ -1541,6 +1549,12 @@ async function runTransform() {
   if (!saxonReady) { clog('Saxon-JS not ready yet', 'error'); return; }
 
   const btn = document.getElementById('runBtn');
+  function resetBtn() {
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13">
+      <path d="M3 1.5l11 6.5-11 6.5V1.5z"/></svg> Run Transform <span class="kbd">⌘↵</span>`;
+  }
+
   btn.disabled = true;
   setStatus('Transforming…', 'busy');
 
@@ -1643,11 +1657,6 @@ async function runTransform() {
   }
 
   resetBtn();
-  function resetBtn() {
-    btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13">
-      <path d="M3 1.5l11 6.5-11 6.5V1.5z"/></svg> Run Transform <span class="kbd">⌘↵</span>`;
-  }
 }
 
 
@@ -3132,6 +3141,7 @@ function handleUpload(event, pane) {
     ed.setValue(text);
     scheduleSave();
     clog(`Uploaded: ${file.name} (${(file.size / 1024).toFixed(1)} KB) → ${pane.toUpperCase()} pane`, 'success');
+    event.target.value = ''; // reset so same file can be re-uploaded
   };
   reader.onerror = () => clog(`Failed to read file: ${file.name}`, 'error');
   reader.readAsText(file);
@@ -3220,7 +3230,9 @@ function setConsoleState(state) {
   const start = performance.now();
   const duration = 240;
   function pump(now) {
+    eds.xml?.layout();
     eds.xslt?.layout();
+    eds.out?.layout();
     if (now - start < duration) requestAnimationFrame(pump);
   }
   requestAnimationFrame(pump);
