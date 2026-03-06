@@ -30,7 +30,9 @@ function generateShareUrl(options) {
 function loadFromShareHash() {
   if (!location.hash.startsWith('#share/')) return false;
   try {
-    const b64    = location.hash.slice(7).replace(/-/g, '+').replace(/_/g, '/');
+    const raw    = location.hash.slice(7).replace(/-/g, '+').replace(/_/g, '/');
+    // Re-add stripped padding so atob works in all browsers
+    const b64    = raw + '==='.slice(raw.length % 4 === 0 ? 3 : 4 - raw.length % 4);
     const binary = atob(b64);
     const bytes  = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -50,12 +52,11 @@ function applyShareData(data) {
 
   clearTimeout(xsltDebounce);
   clearTimeout(xmlDebounce);
-  _suppressNextValidation = true;
   clearAllMarkers();
 
-  if (data.xml  !== undefined) eds.xml?.setValue(data.xml);
-  _suppressNextValidation = true;
-  if (data.xslt !== undefined) eds.xslt?.setValue(data.xslt);
+  // Set suppress before EACH setValue — the change handler flips it to false on first fire
+  if (data.xml  !== undefined) { _suppressNextValidation = true; eds.xml?.setValue(data.xml); }
+  if (data.xslt !== undefined) { _suppressNextValidation = true; eds.xslt?.setValue(data.xslt); }
 
   kvData  = { headers: [], properties: [] };
   kvIdSeq = 0;
@@ -63,16 +64,11 @@ function applyShareData(data) {
   (data.headers    || []).forEach(r => { kvIdSeq++; kvData.headers.push(   { id: kvIdSeq, name: r.name, value: r.value }); });
   (data.properties || []).forEach(r => { kvIdSeq++; kvData.properties.push({ id: kvIdSeq, name: r.name, value: r.value }); });
 
-  renderKV('headers');
-  renderKV('properties');
-  renderOutputKV({}, {});
-
   eds.out?.updateOptions({ readOnly: false });
   eds.out?.setValue('');
   eds.out?.updateOptions({ readOnly: true });
 
   clog('Shared session loaded', 'success');
-  setStatus('Ready', 'ok');
 }
 
 // ── Modal ────────────────────────────────────

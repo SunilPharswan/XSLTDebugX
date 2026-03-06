@@ -8,8 +8,8 @@ require.config({
 document.getElementById('loadTxt').textContent = 'Loading Monaco Editor…';
 
 // Parse share hash immediately — before editors exist — so _pendingShareData is
-// set before the session-restore block runs inside the Saxon-ready callback.
-const _hasShareData = loadFromShareHash();
+// set before editors initialize below.
+loadFromShareHash();
 
 require(['vs/editor/editor.main'], () => {
   document.getElementById('loadTxt').textContent = 'Defining theme…';
@@ -169,7 +169,8 @@ require(['vs/editor/editor.main'], () => {
   };
 
   // ── Restore saved session (if any) ──
-  const _savedSession = loadSavedState();
+  // Skip session restore when a share link is pending — applyShareData handles init.
+  const _savedSession = window._pendingShareData ? null : loadSavedState();
 
   eds.xml = monaco.editor.create(
     document.getElementById('xmlEd'),
@@ -411,13 +412,9 @@ require(['vs/editor/editor.main'], () => {
       clog('Shortcut: Ctrl+Enter (Cmd+Enter on Mac) to run transform', 'info');
 
       // ── Share link takes priority over saved session ──
-      if (_hasShareData && window._pendingShareData) {
+      if (window._pendingShareData) {
         applyShareData(window._pendingShareData);
         window._pendingShareData = null;
-        renderKV('headers');
-        renderKV('properties');
-        renderOutputKV({}, {});
-        setStatus('Ready', 'ok');
       } else if (_savedSession) {
         // Restore KV rows
         if (Array.isArray(_savedSession.headers)) {
