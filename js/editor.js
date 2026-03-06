@@ -7,6 +7,10 @@ require.config({
 
 document.getElementById('loadTxt').textContent = 'Loading Monaco Editor…';
 
+// Parse share hash immediately — before editors exist — so _pendingShareData is
+// set before the session-restore block runs inside the Saxon-ready callback.
+const _hasShareData = loadFromShareHash();
+
 require(['vs/editor/editor.main'], () => {
   document.getElementById('loadTxt').textContent = 'Defining theme…';
 
@@ -406,8 +410,15 @@ require(['vs/editor/editor.main'], () => {
       clog('Saxon-JS 2.x loaded · XSLT 3.0 engine ready ✓', 'success');
       clog('Shortcut: Ctrl+Enter (Cmd+Enter on Mac) to run transform', 'info');
 
-      // ── Restore persisted session ──
-      if (_savedSession) {
+      // ── Share link takes priority over saved session ──
+      if (_hasShareData && window._pendingShareData) {
+        applyShareData(window._pendingShareData);
+        window._pendingShareData = null;
+        renderKV('headers');
+        renderKV('properties');
+        renderOutputKV({}, {});
+        setStatus('Ready', 'ok');
+      } else if (_savedSession) {
         // Restore KV rows
         if (Array.isArray(_savedSession.headers)) {
           _savedSession.headers.forEach(r => {

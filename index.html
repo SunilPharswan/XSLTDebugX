@@ -6,6 +6,7 @@
   <title>XSLTDebugX — SAP CPI Developer IDE</title>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
   <script src="./lib/SaxonJS2.js"></script>
 </head>
@@ -31,6 +32,11 @@
   <button class="ex-btn" id="exBtn" onclick="openExModal()">
     <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M1 3h14v1.5H1V3zm0 4h14v1.5H1V7zm0 4h14v1.5H1V11z"/></svg>
     Examples
+  </button>
+
+  <button class="ex-btn share-btn" id="shareBtn" onclick="openShareModal()">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="13" height="13"><circle cx="12" cy="3" r="1.8"/><circle cx="12" cy="13" r="1.8"/><circle cx="3" cy="8" r="1.8"/><path d="M10.3 3.9L4.7 7.1M4.7 8.9l5.6 3.2"/></svg>
+    Share
   </button>
 
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light / dark theme">☀️</button>
@@ -206,6 +212,49 @@
 </div>
 
 
+<!-- Share Modal -->
+<div class="ex-modal-backdrop" id="shareModalBackdrop" onclick="handleShareBackdropClick(event)">
+  <div class="share-modal">
+    <div class="share-modal-header">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="15" height="15"><circle cx="12" cy="3" r="1.8"/><circle cx="12" cy="13" r="1.8"/><circle cx="3" cy="8" r="1.8"/><path d="M10.3 3.9L4.7 7.1M4.7 8.9l5.6 3.2"/></svg>
+      <span class="share-modal-title">Share Session</span>
+      <button class="ex-modal-close" onclick="closeShareModal()" title="Close">✕</button>
+    </div>
+
+    <div class="share-modal-body">
+      <div class="share-section-label">Include in share link</div>
+      <div class="share-checks">
+        <label class="share-check-item">
+          <input type="checkbox" id="shareChk-xml" checked onchange="onShareCheckboxChange('xml', this.checked)">
+          <span class="share-check-dot ind-xml"></span>
+          <span class="share-check-label">XML Input</span>
+        </label>
+        <label class="share-check-item">
+          <input type="checkbox" id="shareChk-xslt" checked onchange="onShareCheckboxChange('xslt', this.checked)">
+          <span class="share-check-dot ind-xslt"></span>
+          <span class="share-check-label">XSLT Stylesheet</span>
+        </label>
+        <label class="share-check-item">
+          <input type="checkbox" id="shareChk-headers" checked onchange="onShareCheckboxChange('headers', this.checked)">
+          <span class="share-check-dot" style="background:#c084fc;box-shadow:0 0 8px rgba(192,132,252,0.4)"></span>
+          <span class="share-check-label">Headers</span>
+        </label>
+        <label class="share-check-item">
+          <input type="checkbox" id="shareChk-properties" checked onchange="onShareCheckboxChange('properties', this.checked)">
+          <span class="share-check-dot" style="background:#f5a524;box-shadow:0 0 8px rgba(245,165,36,0.4)"></span>
+          <span class="share-check-label">Properties</span>
+        </label>
+      </div>
+
+      <div class="share-url-row">
+        <input class="share-url-input" id="shareUrlInput" readonly onclick="this.select()">
+        <button class="share-copy-btn" id="shareCopyBtn" onclick="_copyShareUrl(false)">Copy URL</button>
+      </div>
+      <div class="share-hint">URL auto-copied to clipboard · recipient opens the link to restore this session</div>
+    </div>
+  </div>
+</div>
+
 <!-- Examples Library Modal -->
 <div class="ex-modal-backdrop" id="exModalBackdrop" onclick="handleModalBackdropClick(event)">
   <div class="ex-modal">
@@ -263,6 +312,7 @@
 <script src="js/modal.js"></script>
 <script src="js/files.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/share.js"></script>
 <script src="js/editor.js"></script>
 
 </body>
