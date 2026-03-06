@@ -842,13 +842,15 @@
   white-space: nowrap;
 }
 .stat-author:hover { opacity: 0.85; }
-.stat-link {
+.stat-link,
+.stat-link:visited,
+.stat-link:active {
   display: flex;
   align-items: center;
   gap: 3px;
-  color: inherit;
+  color: rgba(255,255,255,0.9);
   text-decoration: none;
   transition: color 0.15s;
 }
-.stat-link:hover { color: var(--sap-blue); }
+.stat-link:hover { color: #ffffff; text-shadow: 0 0 8px rgba(255,255,255,0.5); }
 .stat-divider { opacity: 0.4; }
