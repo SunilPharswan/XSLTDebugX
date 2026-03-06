@@ -1,30 +1,6 @@
-// ── Menu toggle ──
 // ════════════════════════════════════════════
 //  EXAMPLES LIBRARY MODAL
 // ════════════════════════════════════════════
-
-const EX_META = {
-  // Data Transformation
-  identityTransform:    { icon:'🔁', name:'Identity Transform',              desc:'Copy XML as-is — foundation for all CPI mappings',           cat:'transform' },
-  renameElements:       { icon:'✏️', name:'Rename Elements & Attributes',     desc:'Map SAP IDoc MATMAS fields to target REST format',           cat:'transform' },
-  filterNodes:          { icon:'🔍', name:'Filter / Conditional Output',      desc:'Keep only nodes matching multi-field conditions',            cat:'transform' },
-  namespaceHandling:    { icon:'🏷️', name:'Namespace Handling',               desc:'Strip ns prefixes, remap namespaces, enrich inline',         cat:'transform' },
-  // Aggregation & Splitting
-  groupBy:              { icon:'📦', name:'Group-by & Aggregate',             desc:'Nested grouping with subtotals — xsl:for-each-group',        cat:'aggregation' },
-  splitMessage:         { icon:'✂️', name:'Split Message',                    desc:'Wrap each record as standalone message with index',          cat:'aggregation' },
-  mergeMessages:        { icon:'🔀', name:'Merge / Collect Records',          desc:'Flatten nested records, compute open/closed totals',         cat:'aggregation' },
-  // Format Conversion
-  dateFormatting:       { icon:'📅', name:'Date Format Conversion',           desc:'SAP YYYYMMDD ↔ ISO 8601 ↔ display formats',                  cat:'format' },
-  currencyAmount:       { icon:'💱', name:'Currency & Amount Formatting',     desc:'format-number, IBAN validation, negative handling',          cat:'format' },
-  multiCurrencyReport:  { icon:'💹', name:'Multi-Currency Consolidation',     desc:'Convert to base currency, group by currency code',           cat:'format' },
-  // SAP CPI Patterns
-  idocToXml:            { icon:'📄', name:'IDoc ORDERS05 → Custom XML',       desc:'Full IDoc parse: control record, header, vendor, items',     cat:'cpi' },
-  lookupEnrich:         { icon:'🔗', name:'Value Mapping / Lookup',           desc:'Inline lookup tables — replaces CPI Value Mapping step',     cat:'cpi' },
-  cpiHeaders:           { icon:'⚙️', name:'Headers & Properties (CPI)',       desc:'xsl:param binding + cpi:setHeader / setProperty',            cat:'cpi' },
-  errorHandling:        { icon:'🛡️', name:'Error Handling (xsl:try)',         desc:'Per-field try/catch with fallback — XSLT 3.0 resilience',   cat:'cpi' },
-  batchProcessing:      { icon:'🔄', name:'Batch Processing (SuccessFactors)',desc:'OData $batch for EmpEmployment + EmpJob UPSERT',             cat:'cpi' },
-  batchKeyRecovery:     { icon:'🔑', name:'Batch Key Recovery (SuccessFactors)', desc:'Re-inject saved keys into $batch response by position',      cat:'cpi' },
-};
 
 const CAT_ACCENT = {
   transform:   '#3fb950',
@@ -77,11 +53,11 @@ function renderExGrid() {
   const query  = (document.getElementById('exModalSearch').value || '').toLowerCase().trim();
   const wrap   = document.getElementById('exGridWrap');
 
-  // Filter keys
-  const keys = Object.keys(EX_META).filter(k => {
-    const m = EX_META[k];
-    if (exActiveCat !== 'all' && m.cat !== exActiveCat) return false;
-    if (query && !m.name.toLowerCase().includes(query) && !m.desc.toLowerCase().includes(query)) return false;
+  // Filter keys — iterate EXAMPLES directly, meta fields now live there
+  const keys = Object.keys(EXAMPLES).filter(k => {
+    const ex = EXAMPLES[k];
+    if (exActiveCat !== 'all' && ex.cat !== exActiveCat) return false;
+    if (query && !ex.label.toLowerCase().includes(query) && !ex.desc.toLowerCase().includes(query)) return false;
     return true;
   });
 
@@ -95,7 +71,7 @@ function renderExGrid() {
   // Group by category for section labels (only when showing all)
   const groups = {};
   keys.forEach(k => {
-    const cat = EX_META[k].cat;
+    const cat = EXAMPLES[k].cat;
     if (!groups[cat]) groups[cat] = [];
     groups[cat].push(k);
   });
@@ -109,18 +85,18 @@ function renderExGrid() {
     }
     html += '<div class="ex-grid">';
     groups[cat].forEach(k => {
-      const m = EX_META[k];
-      const accent = CAT_ACCENT[m.cat] || 'var(--sap-blue)';
+      const ex = EXAMPLES[k];
+      const accent = CAT_ACCENT[ex.cat] || 'var(--sap-blue)';
       html += `
         <div class="ex-card" style="--card-accent:${accent}" onclick="loadExample('${k}')">
           <div class="ex-card-top">
-            <span class="ex-card-icon">${m.icon}</span>
-            <span class="ex-card-name">${m.name}</span>
+            <span class="ex-card-icon">${ex.icon}</span>
+            <span class="ex-card-name">${ex.label}</span>
           </div>
-          <div class="ex-card-desc">${m.desc}</div>
+          <div class="ex-card-desc">${ex.desc}</div>
           <div class="ex-card-footer">
-            <span class="ex-card-tag">${CAT_LABELS[m.cat] || m.cat}</span>
-            <button class="ex-card-load" onclick="event.stopPropagation();loadExample('${k}')">Load →</button>
+            <span class="ex-card-tag">${CAT_LABELS[ex.cat] || ex.cat}</span>
+            <span class="ex-card-load">Load →</span>
           </div>
         </div>`;
     });
@@ -134,7 +110,16 @@ function renderExGrid() {
 function loadExample(key) {
   const ex = EXAMPLES[key];
   if (!ex) return;
+
+  // Cancel pending debounce timers and suppress the new ones triggered by setValue
+  clearTimeout(xsltDebounce);
+  clearTimeout(xmlDebounce);
+  _suppressNextValidation = true;
+  clearAllMarkers();
+
   eds.xml?.setValue(ex.xml);
+  // _suppressNextValidation consumed by xml change — reset for xslt
+  _suppressNextValidation = true;
   eds.xslt?.setValue(ex.xslt);
   eds.out?.updateOptions({ readOnly: false });
   eds.out?.setValue('');
@@ -158,11 +143,6 @@ function loadExample(key) {
   }
   renderKV('headers');
   renderKV('properties');
-
-  // Cancel any pending debounce validations to avoid ghost squiggles
-  clearTimeout(xsltDebounce);
-  clearTimeout(xmlDebounce);
-  clearAllMarkers();
 
   // Collapse output pane so stale output from previous example isn't shown
   const colRight = document.getElementById('colRight');

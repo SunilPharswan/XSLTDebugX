@@ -35,14 +35,7 @@
 
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light / dark theme">☀️</button>
 
-  <button onclick="clearSavedState()" title="Clear saved session" id="clearSessionBtn" style="
-    display:flex;align-items:center;gap:5px;
-    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;
-    background:transparent;
-    border:1px solid var(--border);border-radius:6px;
-    color:var(--text-dim);cursor:pointer;
-    padding:5px 10px;transition:all 0.15s;
-  " onmouseover="this.style.color='var(--error)';this.style.borderColor='var(--error)';this.style.background='rgba(248,81,73,0.08)'" onmouseout="this.style.color='var(--text-dim)';this.style.borderColor='var(--border)';this.style.background='transparent'">
+  <button onclick="clearSavedState()" title="Clear saved session" id="clearSessionBtn" class="clear-session-btn">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="12" height="12"><path d="M2 4h12M6 4V2h4v2M13 4l-1 10H4L3 4"/></svg>
     Clear session
   </button>
@@ -170,7 +163,6 @@
           <button class="collapse-btn" title="Collapse panel" onclick="toggleSideCol('right')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg></button>
           <div class="pane-divider"></div>
           <span class="lang-badge">XML</span>
-          <button class="pane-act-btn" onclick="fmtEditor('out')">Format</button>
           <button class="pane-act-btn" onclick="copyPane('out')">Copy</button>
           <button class="pane-act-btn" onclick="clearPane('out')">Clear</button>
           <div class="pane-divider"></div>

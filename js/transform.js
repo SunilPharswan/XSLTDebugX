@@ -20,7 +20,8 @@ function extractCPICalls(xslt) {
 function stripCPICalls(xslt) {
   // 1. Remove xmlns:cpi namespace declaration (double or single quoted)
   xslt = xslt.replace(/\s*xmlns:cpi\s*=\s*(?:"[^"]*"|'[^']*')/g, '');
-  // 2. Remove 'cpi' from exclude-result-prefixes
+  // 2. Remove 'cpi' from exclude-result-prefixes — Saxon-JS errors on undeclared prefixes
+  //    even in exclude-result-prefixes, so this must be cleaned up after step 1 removes xmlns:cpi
   xslt = xslt.replace(/(exclude-result-prefixes\s*=\s*")([^"]*)"/g, (_, attr, val) => {
     const cleaned = val.split(/\s+/).filter(p => p !== 'cpi').join(' ');
     return attr + cleaned + '"';

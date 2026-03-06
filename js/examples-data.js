@@ -7,6 +7,9 @@ const EXAMPLES = {
 
   identityTransform: {
     label: 'Identity Transform',
+    icon: '🔁',
+    desc: 'Copy XML as-is — foundation for all CPI mappings',
+    cat:  'transform',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <SalesOrder>
   <Header>
@@ -52,6 +55,9 @@ const EXAMPLES = {
 
   renameElements: {
     label: 'Rename Elements & Attributes',
+    icon: '✏️',
+    desc: 'Map SAP IDoc MATMAS fields to target REST format',
+    cat:  'transform',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <MATMAS>
   <MATNR>000000000000012345</MATNR>
@@ -121,6 +127,9 @@ const EXAMPLES = {
 
   filterNodes: {
     label: 'Filter / Conditional Output',
+    icon: '🔍',
+    desc: 'Keep only nodes matching multi-field conditions',
+    cat:  'transform',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <Employees>
   <Employee>
@@ -190,6 +199,9 @@ const EXAMPLES = {
 
   namespaceHandling: {
     label: 'Namespace Handling',
+    icon: '🏷️',
+    desc: 'Strip ns prefixes, remap namespaces, enrich inline',
+    cat:  'transform',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <ns0:Order xmlns:ns0="http://acme.com/order/v1"
            xmlns:ns1="http://acme.com/common/v1">
@@ -258,6 +270,9 @@ const EXAMPLES = {
 
   groupBy: {
     label: 'Group-by & Aggregate',
+    icon: '📦',
+    desc: 'Nested grouping with subtotals — xsl:for-each-group',
+    cat:  'aggregation',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <SalesData>
   <Sale><Region>North</Region><Product>Pump</Product><Amount>12500</Amount></Sale>
@@ -310,6 +325,9 @@ const EXAMPLES = {
 
   splitMessage: {
     label: 'Split Message',
+    icon: '✂️',
+    desc: 'Wrap each record as standalone message with index',
+    cat:  'aggregation',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <PurchaseOrders>
   <PurchaseOrder>
@@ -363,6 +381,9 @@ const EXAMPLES = {
 
   mergeMessages: {
     label: 'Merge / Collect Records',
+    icon: '🔀',
+    desc: 'Flatten nested records, compute open/closed totals',
+    cat:  'aggregation',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <CustomerOrders>
   <Customer id="C001">
@@ -438,6 +459,9 @@ const EXAMPLES = {
 
   dateFormatting: {
     label: 'Date Format Conversion',
+    icon: '📅',
+    desc: 'SAP YYYYMMDD ↔ ISO 8601 ↔ display formats',
+    cat:  'format',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <Dates>
   <!-- SAP compact format YYYYMMDD -->
@@ -503,6 +527,9 @@ const EXAMPLES = {
 
   currencyAmount: {
     label: 'Currency & Amount Formatting',
+    icon: '💱',
+    desc: 'format-number, IBAN validation, negative handling',
+    cat:  'format',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <Payments>
   <Payment>
@@ -582,6 +609,9 @@ const EXAMPLES = {
 
   idocToXml: {
     label: 'IDoc ORDERS05 → Custom XML',
+    icon: '📄',
+    desc: 'Full IDoc parse: control record, header, vendor, items',
+    cat:  'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <ORDERS05>
   <IDOC BEGIN="1">
@@ -712,6 +742,9 @@ const EXAMPLES = {
 
   lookupEnrich: {
     label: 'Value Mapping / Lookup',
+    icon: '🔗',
+    desc: 'Inline lookup tables — replaces CPI Value Mapping step',
+    cat:  'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <Orders>
   <Order>
@@ -797,6 +830,9 @@ const EXAMPLES = {
 
   cpiHeaders: {
     label: 'Headers & Properties (CPI)',
+    icon: '⚙️',
+    desc: 'xsl:param binding + cpi:setHeader / setProperty',
+    cat:  'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <Products>
   <Product>
@@ -872,6 +908,9 @@ const EXAMPLES = {
 
   errorHandling: {
     label: 'Error Handling (xsl:try)',
+    icon: '🛡️',
+    desc: 'Per-field try/catch with fallback — XSLT 3.0 resilience',
+    cat:  'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <Transactions>
   <Transaction>
@@ -967,6 +1006,9 @@ const EXAMPLES = {
 
   batchProcessing: {
     label: 'Batch Processing (SuccessFactors)',
+    icon: '🔄',
+    desc: 'OData $batch for EmpEmployment + EmpJob UPSERT',
+    cat:  'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <FormHeader>
   <FormHeader>
@@ -1126,6 +1168,9 @@ const EXAMPLES = {
 
   multiCurrencyReport: {
     label: 'Multi-Currency Consolidation',
+    icon: '💹',
+    desc: 'Convert to base currency, group by currency code',
+    cat:  'format',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <Invoices baseCurrency="EUR">
   <Invoice>
@@ -1204,6 +1249,9 @@ const EXAMPLES = {
 
   batchKeyRecovery: {
     label: 'Batch Key Recovery (SuccessFactors)',
+    icon: '🔑',
+    desc: 'Re-inject saved keys into $batch response by position',
+    cat:  'cpi',
     properties: [['Batch_Key', 'userId=20655282;userId=20654955']],
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <batchPartResponse>

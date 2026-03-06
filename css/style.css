@@ -540,6 +540,20 @@
     .ex-btn:hover { color: var(--text-primary); border-color: var(--border-bright); background: var(--bg-header); }
     .ex-btn svg { width: 12px; height: 12px; }
 
+    .clear-session-btn {
+      display: flex; align-items: center; gap: 5px;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+      background: transparent;
+      border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text-dim); cursor: pointer;
+      padding: 5px 10px; transition: all 0.15s;
+    }
+    .clear-session-btn:hover {
+      color: var(--error);
+      border-color: var(--error);
+      background: rgba(248,81,73,0.08);
+    }
+
     /* ── EXAMPLES LIBRARY MODAL ── */
     .ex-modal-backdrop {
       display: none;
@@ -731,8 +745,8 @@
       font-size: 10px; font-weight: 600;
       padding: 3px 10px; border-radius: 5px;
       background: var(--sap-blue); color: #fff;
-      border: none; cursor: pointer;
       opacity: 0; transition: opacity 0.15s;
+      pointer-events: none;
     }
     .ex-card:hover .ex-card-load { opacity: 1; }
 
