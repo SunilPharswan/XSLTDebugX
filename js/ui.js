@@ -17,24 +17,13 @@ function toggleSideCol(side) {
 // ════════════════════════════════════════════
 //  CONSOLE STATE (minimize / maximize)
 // ════════════════════════════════════════════
-let consoleState = 'normal';  // 'normal' | 'minimized' | 'maximized'
+let consoleState = 'normal';  // 'normal' | 'minimized'
 let consoleErrCount = 0;
 
 function setConsoleState(state) {
   const panel = document.getElementById('consolePanel');
-  const minBtn  = document.getElementById('consoleMinBtn');
-  const maxBtn  = document.getElementById('consoleMaxBtn');
-  const restBtn = document.getElementById('consoleRestBtn');
-
-  panel.classList.remove('minimized', 'maximized');
-  if (state === 'minimized') panel.classList.add('minimized');
-  if (state === 'maximized') panel.classList.add('maximized');
-
+  panel.classList.toggle('minimized', state === 'minimized');
   consoleState = state;
-
-  minBtn.style.display  = state === 'minimized' ? 'none' : '';
-  maxBtn.style.display  = state === 'maximized' ? 'none' : '';
-  restBtn.style.display = (state === 'minimized' || state === 'maximized') ? '' : 'none';
 
   // Relay Monaco continuously during the CSS transition (220ms) to prevent blank editor
   const start = performance.now();
@@ -48,10 +37,9 @@ function setConsoleState(state) {
   requestAnimationFrame(pump);
 }
 
-// Clicking the bar toggles minimize (if already minimized, restores)
+// Clicking the bar toggles minimize
 function handleConsoleBarClick(e) {
-  if (consoleState === 'minimized') setConsoleState('normal');
-  else setConsoleState('minimized');
+  setConsoleState(consoleState === 'minimized' ? 'normal' : 'minimized');
 }
 
 function updateConsoleErrBadge() {
@@ -63,6 +51,19 @@ function updateConsoleErrBadge() {
   } else {
     badge.classList.remove('visible');
   }
+}
+
+function copyConsole() {
+  const body = document.getElementById('consoleBody');
+  const text = [...body.querySelectorAll('.log-line')].map(l => {
+    const ts  = l.querySelector('.ts')?.textContent  ?? '';
+    const msg = l.querySelector('.msg')?.textContent ?? '';
+    return `${ts}  ${msg}`;
+  }).join('\n');
+  if (!text.trim()) return clog('Console is empty — nothing to copy', 'warn');
+  navigator.clipboard.writeText(text)
+    .then(() => clog('Console copied to clipboard ✓', 'success'))
+    .catch(() => clog('Clipboard access denied', 'error'));
 }
 
 // ════════════════════════════════════════════

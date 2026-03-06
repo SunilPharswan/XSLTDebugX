@@ -134,14 +134,14 @@
     <!-- Console — lives inside center column -->
     <div class="console-panel" id="consolePanel">
       <div class="console-bar" onclick="handleConsoleBarClick(event)">
+        <span class="kv-icon">›_</span>
         <span class="console-title">Console</span>
         <span class="console-err-badge" id="consoleErrBadge">0</span>
-        <div class="console-win-btns" onclick="event.stopPropagation()">
-          <button class="console-win-btn" id="consoleClearBtn" title="Clear console" onclick="clearConsole()">✕</button>
-          <button class="console-win-btn" id="consoleMinBtn"   title="Minimize"      onclick="setConsoleState('minimized')">—</button>
-          <button class="console-win-btn" id="consoleMaxBtn"   title="Maximize"      onclick="setConsoleState('maximized')">▢</button>
-          <button class="console-win-btn" id="consoleRestBtn"  title="Restore"       onclick="setConsoleState('normal')" style="display:none">❐</button>
+        <div class="console-bar-actions" onclick="event.stopPropagation()">
+          <button class="pane-act-btn" id="consoleCopyBtn" title="Copy console output" onclick="copyConsole()">Copy</button>
+          <button class="pane-act-btn" id="consoleClearBtn" title="Clear console" onclick="clearConsole()">Clear</button>
         </div>
+        <svg class="kv-chevron console-chevron" viewBox="0 0 16 16" fill="currentColor"><path d="M4 6l4 4 4-4"/></svg>
       </div>
       <div class="console-body" id="consoleBody"></div>
     </div>

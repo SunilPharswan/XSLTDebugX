@@ -386,28 +386,26 @@
       flex-shrink: 0;
       border-top: 1px solid var(--border);
       display: flex; flex-direction: column;
-      /* Default: normal height */
       height: 160px;
       transition: height 0.22s ease;
       overflow: hidden;
     }
-    .console-panel.minimized { height: 28px; }
-    .console-panel.maximized { height: 420px; }
+    .console-panel.minimized { height: 31px; }
 
     .console-bar {
       background: var(--bg-panel);
       border-bottom: 1px solid var(--border);
-      height: 28px; flex-shrink: 0;
+      height: 30px; flex-shrink: 0;
       display: flex; align-items: center;
       padding: 0 10px; gap: 6px;
       cursor: pointer; user-select: none;
     }
-    .console-bar:hover { background: rgba(128,128,128,0.08); }
+    .console-bar:hover { background: rgba(255,255,255,0.02); }
     .console-title {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px; font-weight: 600;
-      letter-spacing: 1.2px; text-transform: uppercase;
-      color: var(--text-dim);
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--text-secondary);
     }
     .console-err-badge {
       display: none;
@@ -419,18 +417,17 @@
       min-width: 16px; text-align: center;
     }
     .console-err-badge.visible { display: inline-block; }
-    .console-win-btns {
+    .console-bar-actions {
       margin-left: auto; display: flex; align-items: center; gap: 4px;
     }
-    .console-win-btn {
-      width: 22px; height: 22px;
-      display: flex; align-items: center; justify-content: center;
-      background: transparent;
-      border: 1px solid transparent; border-radius: 4px;
-      color: var(--text-dim); cursor: pointer;
-      font-size: 11px; transition: all 0.15s;
+    .console-chevron {
+      width: 12px; height: 12px;
+      color: var(--text-dim);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+      margin-left: 4px;
     }
-    .console-win-btn:hover { color: var(--text-primary); border-color: var(--border); background: rgba(128,128,128,0.1); }
+    .console-panel.minimized .console-chevron { transform: rotate(-90deg); }
     .console-body {
       flex: 1; overflow-y: auto;
       padding: 4px 14px;
