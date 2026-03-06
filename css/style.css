@@ -822,3 +822,33 @@
       font-size: 10px; color: var(--text-dim);
       line-height: 1.5;
     }
+
+/* ── Trademark notice (status bar item) ── */
+.tm-notice {
+  opacity: 0.35;
+  font-size: 10px;
+  cursor: default;
+  white-space: nowrap;
+}
+.tm-notice:hover { opacity: 0.7; }
+
+/* ── Author + social links (status bar) ── */
+.stat-author {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0.55;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.stat-author:hover { opacity: 0.85; }
+.stat-link {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.stat-link:hover { color: var(--sap-blue); }
+.stat-divider { opacity: 0.4; }

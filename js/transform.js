@@ -232,7 +232,6 @@ function runTransform() {
     renderOutputKV(outHdrs, outProps);
 
     clog(`Transform complete in ${elapsed} ms ✓`, 'success');
-    document.getElementById('statTime').textContent = `${elapsed} ms`;
     setStatus(`Done · ${elapsed} ms`, 'ok');
 
     // Auto-expand output pane on first successful run

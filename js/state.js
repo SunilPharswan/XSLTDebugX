@@ -122,7 +122,6 @@ function clearSavedState() {
 
   if (eds.xml && eds.xslt) clearAllMarkers();
   setStatus('Ready', 'ok');
-  document.getElementById('statTime').textContent = '';
   clog('Session cleared — editors reset to defaults.', 'info');
 }
 

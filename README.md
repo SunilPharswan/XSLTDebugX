@@ -349,3 +349,11 @@ Requires a modern browser for: `TextEncoder`, `DOMParser`, `navigator.clipboard`
 ## License
 
 MIT
+
+---
+
+## Trademarks
+
+SAP® and SAP Cloud Platform Integration (CPI) are registered trademarks of SAP SE. SuccessFactors® and IDoc® are trademarks or registered trademarks of SAP SE.
+
+This project is not affiliated with, endorsed by, or in any way officially connected with SAP SE. All product and company names are used for identification purposes only.
