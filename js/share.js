@@ -58,12 +58,16 @@ function applyShareData(data) {
   clearTimeout(xmlDebounce);
   clearAllMarkers();
 
-  if (data.xml  !== undefined) { _suppressNextSave = true; _suppressNextValidation = true; eds.xml?.setValue(data.xml); }
-  if (data.xslt !== undefined) { _suppressNextSave = true; _suppressNextValidation = true; eds.xslt?.setValue(data.xslt); }
-  // Reset suppress flags — if shared value matched the current editor value Monaco fires
-  // no change event, leaving these stuck true and silently breaking the first user keystroke.
-  _suppressNextSave = false;
-  _suppressNextValidation = false;
+  // try/finally guarantees both suppress flags are cleared even if setValue throws
+  // (e.g. a disposed Monaco model), preventing save and validation from being silently
+  // disabled for the rest of the session.
+  try {
+    if (data.xml  !== undefined) { _suppressNextSave = true; _suppressNextValidation = true; eds.xml?.setValue(data.xml); }
+    if (data.xslt !== undefined) { _suppressNextSave = true; _suppressNextValidation = true; eds.xslt?.setValue(data.xslt); }
+  } finally {
+    _suppressNextSave = false;
+    _suppressNextValidation = false;
+  }
 
   kvData  = { headers: [], properties: [] };
   kvIdSeq = 0;

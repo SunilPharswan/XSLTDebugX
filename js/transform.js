@@ -18,6 +18,7 @@ function extractCPICalls(xslt) {
 //    Strategy: remove xmlns:cpi="..." and replace the full xsl:value-of
 //    element with a harmless empty string select.
 function stripCPICalls(xslt) {
+  const linesBefore = xslt.split('\n').length;
   // 1. Remove xmlns:cpi namespace declaration (double or single quoted)
   xslt = xslt.replace(/\s*xmlns:cpi\s*=\s*(?:"[^"]*"|'[^']*')/g, '');
   // 2. Remove 'cpi' from exclude-result-prefixes — Saxon-JS errors on undeclared prefixes
@@ -27,11 +28,13 @@ function stripCPICalls(xslt) {
     return attr + cleaned + '"';
   });
   // 3. Remove self-closing: <xsl:value-of select="cpi:setXxx(...)"/>
-  //    Use ATTR_VAL-aware inner match so > inside select value doesn't break the regex
-  xslt = xslt.replace(/<xsl:value-of(?:\s+(?:"[^"]*"|'[^']*'|[^<>])*?)?\s+select\s*=\s*"cpi:set[^"]*"(?:\s+(?:"[^"]*"|'[^']*'|[^<>])*?)?\/>/g, '');
+  //    Include leading whitespace and trailing newline so the entire line is removed,
+  //    keeping the line count accurate for error-line offset correction.
+  xslt = xslt.replace(/[ \t]*<xsl:value-of(?:\s+(?:"[^"]*"|'[^']*'|[^<>])*?)?\s+select\s*=\s*"cpi:set[^"]*"(?:\s+(?:"[^"]*"|'[^']*'|[^<>])*?)?\/>[  \t]*\r?\n/g, '');
   // 4. Remove open+close form: <xsl:value-of select="cpi:setXxx(...)"></xsl:value-of>
-  xslt = xslt.replace(/<xsl:value-of(?:\s+(?:"[^"]*"|'[^']*'|[^<>])*?)?\s+select\s*=\s*"cpi:set[^"]*"(?:\s+(?:"[^"]*"|'[^']*'|[^<>])*?)?>[^<]*<\/xsl:value-of>/g, '');
-  return xslt;
+  xslt = xslt.replace(/[ \t]*<xsl:value-of(?:\s+(?:"[^"]*"|'[^']*'|[^<>])*?)?\s+select\s*=\s*"cpi:set[^"]*"(?:\s+(?:"[^"]*"|'[^']*'|[^<>])*?)?>[^<]*<\/xsl:value-of>[  \t]*\r?\n/g, '');
+  const linesAfter = xslt.split('\n').length;
+  return { stripped: xslt, offset: linesBefore - linesAfter };
 }
 
 // 3. Build the stylesheet-params map fragment for XPath transform()
@@ -168,8 +171,11 @@ function runTransform() {
   // Extract cpi: calls BEFORE stripping so we can show them in output panels
   const hasCPI   = /cpi:set(?:Header|Property)/.test(xsltSrc);
   const cpiCalls = hasCPI ? extractCPICalls(xsltSrc) : { headers: {}, properties: {} };
+  let cpiLineOffset = 0;
   if (hasCPI) {
-    xsltSrc = stripCPICalls(xsltSrc);
+    const { stripped, offset } = stripCPICalls(xsltSrc);
+    xsltSrc       = stripped;
+    cpiLineOffset = offset;
     const _hc = Object.keys(cpiCalls.headers).length;
     const _pc = Object.keys(cpiCalls.properties).length;
     const _parts = ['CPI extension calls detected'];
@@ -261,8 +267,16 @@ function runTransform() {
       clog(`xsl:message terminate="yes" — ${terminateMatch[1]}`, 'warn');
     } else {
       clog(`Error: ${msg}`, 'error');
-      // Try to highlight the offending line in the XSLT editor
-      const errLine = parseSaxonErrorLine(fullMsg);
+      // Strategy 1: Saxon embeds the failing XPath expression in {…} in the error message.
+      // Search for that expression directly in the original (unstripped) XSLT — immune to
+      // any line-count drift caused by stripCPICalls. Pass saxonReportedLine + cpiLineOffset
+      // as a hint so duplicate expressions resolve to the closest occurrence.
+      // Strategy 2 (fallback): add the stripped-line offset to Saxon's reported line number.
+      const originalXslt = eds.xslt?.getValue() ?? '';
+      const saxonLine    = parseSaxonErrorLine(fullMsg);
+      const errLine =
+        findXPathExpressionLine(fullMsg, originalXslt, saxonLine, cpiLineOffset) ||
+        (saxonLine !== null ? saxonLine + cpiLineOffset : null);
       if (errLine) {
         xsltDecorations = markErrorLine(eds.xslt, errLine, msg, xsltDecorations);
         clog(`↳ Error at line ${errLine} (highlighted in XSLT editor)`, 'error');

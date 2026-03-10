@@ -87,6 +87,57 @@ function parseSaxonErrorLine(msg) {
   return m ? parseInt(m[1]) : null;
 }
 
+// Saxon error messages include the failing XPath expression in braces:
+//   "Static error in XPath on line 4 in /NoStylesheetBaseURI {DOES_NOT_EXIST()}: ..."
+// Extract that expression and search for it in the ORIGINAL (unstripped) XSLT source
+// to find the true line number — reliable regardless of how many cpi: lines were stripped.
+//
+// saxonReportedLine (optional): Saxon's own line number against the stripped source.
+// When the same expression appears more than once, we pick the occurrence whose line
+// number is closest to saxonReportedLine + cpiLineOffset, breaking ties in favour of
+// the later line (expressions tend to appear near the end of a template, not the top).
+//
+// Returns the 1-based line number, or null if not found.
+function findXPathExpressionLine(saxonMsg, originalXslt, saxonReportedLine, cpiLineOffset) {
+  // Saxon embeds the expression in {…} immediately after the location info.
+  // Skip namespace URIs (they look like {http://…}) by requiring the content
+  // not to start with "http" or "https".
+  const candidates = [];
+  const re = /\{([^}]+)\}/g;
+  let m;
+  while ((m = re.exec(saxonMsg)) !== null) {
+    const inner = m[1].trim();
+    if (inner && !/^https?:/.test(inner)) {
+      candidates.push(inner);
+    }
+  }
+  if (!candidates.length) return null;
+  // Prefer the shortest candidate — namespace-qualified names like
+  // Q{http://…}fn:name are long; the actual expression snippet is short.
+  const expr = candidates.reduce((a, b) => a.length <= b.length ? a : b);
+  if (!expr) return null;
+
+  const lines = originalXslt.split('\n');
+  const matches = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes(expr)) matches.push(i + 1); // 1-based
+  }
+  if (!matches.length) return null;
+  if (matches.length === 1) return matches[0];
+
+  // Multiple matches — use Saxon's reported line (adjusted by offset) as a hint
+  // and return whichever occurrence is closest.
+  if (saxonReportedLine != null) {
+    const hintLine = saxonReportedLine + (cpiLineOffset || 0);
+    return matches.reduce((best, line) =>
+      Math.abs(line - hintLine) < Math.abs(best - hintLine) ? line : best
+    );
+  }
+  // No hint — return last occurrence (expressions that error are usually later in the file)
+  return matches[matches.length - 1];
+}
+
+
 // Pre-flight: validate XML source and XSLT structure before running Saxon
 // Returns true if OK to proceed, false if a blocking error was found
 function preflight(xmlSrc, xsltSrc) {

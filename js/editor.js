@@ -402,6 +402,8 @@ require(['vs/editor/editor.main'], () => {
   const checkSaxon = setInterval(() => {
     if (typeof SaxonJS !== 'undefined') {
       clearInterval(checkSaxon);
+      clearTimeout(saxonTimeout); // cancel failure path — prevents double hideLoader() if Saxon
+                                  // loads in the same event-loop turn as the 12s timeout fires
       saxonReady = true;
       hideLoader();
       clog('Saxon-JS 2.x loaded · XSLT 3.0 engine ready ✓', 'success');
@@ -450,8 +452,8 @@ require(['vs/editor/editor.main'], () => {
     }
   }, 200);
 
-  // Timeout fallback
-  setTimeout(() => {
+  // Timeout fallback — ID stored so the success path can cancel it
+  const saxonTimeout = setTimeout(() => {
     if (!saxonReady) {
       clearInterval(checkSaxon);
       hideLoader();

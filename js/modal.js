@@ -114,17 +114,19 @@ function loadExample(key) {
   // Cancel pending debounce timers and suppress the new ones triggered by setValue
   clearTimeout(xsltDebounce);
   clearTimeout(xmlDebounce);
-  _suppressNextValidation = true;
   clearAllMarkers();
 
-  eds.xml?.setValue(ex.xml);
-  // _suppressNextValidation consumed by xml change — reset for xslt.
-  // Always reset after both setValue calls: if the new value matches the current
-  // editor value Monaco fires no change event, leaving the flag stuck true and
-  // silently breaking the first real keystroke's validation.
-  _suppressNextValidation = true;
-  eds.xslt?.setValue(ex.xslt);
-  _suppressNextValidation = false;
+  // try/finally guarantees the flag is cleared even if setValue or clearAllMarkers throws
+  // (e.g. a disposed Monaco model), preventing validation from being silently disabled
+  // for the rest of the session.
+  try {
+    _suppressNextValidation = true;
+    eds.xml?.setValue(ex.xml);
+    _suppressNextValidation = true;
+    eds.xslt?.setValue(ex.xslt);
+  } finally {
+    _suppressNextValidation = false;
+  }
   eds.out?.updateOptions({ readOnly: false });
   eds.out?.setValue('');
   eds.out?.updateOptions({ readOnly: true });

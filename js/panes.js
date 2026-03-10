@@ -106,6 +106,17 @@ function prettyXML(xml) {
         // Self-closing tag, PI, comment, CDATA — no depth change
         out += INDENT.repeat(depth) + tok + '\n';
 
+      } else if (!tok.startsWith('<')) {
+        // ── Text node ──
+        // Text tokens don't start with '<'. They must be handled before the
+        // opening-tag branch, otherwise they fall through to it and the
+        // lookahead logic consumes closing tags without decrementing depth,
+        // causing every subsequent element to be over-indented by one level.
+        // Emit the text at current depth and leave the closing tag to be
+        // handled by the isClose branch on the next iteration — this keeps
+        // text and its closing tag on separate lines at the correct indentation.
+        out += INDENT.repeat(depth) + tok.trim() + '\n';
+
       } else {
         // Opening tag — look ahead for special inline cases
         const nextTok  = tokens[i + 1];
@@ -152,7 +163,12 @@ function fmtEditor(which) {
   const formatted = prettyXML(ed.getValue());
   // Suppress the live-validation debounce — formatting doesn't change validity
   _suppressNextValidation = true;
-  ed.setValue(formatted);
+  // Use executeEdits instead of setValue so the format is pushed onto Monaco's undo
+  // stack as a single bracketed step — Ctrl+Z undoes the format without wiping
+  // the edit history that existed before Format was applied.
+  ed.pushUndoStop();
+  ed.executeEdits('format', [{ range: ed.getModel().getFullModelRange(), text: formatted }]);
+  ed.pushUndoStop();
   if (wasReadOnly) ed.updateOptions({ readOnly: true });
   scheduleSave();
   clog(`${which.toUpperCase()} formatted`, 'info');
