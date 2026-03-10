@@ -84,6 +84,28 @@ function copyConsole() {
 }
 
 // ════════════════════════════════════════════
+//  CONSOLE FILTER
+// ════════════════════════════════════════════
+let consoleFilter = 'all';
+
+function setConsoleFilter(filter) {
+  consoleFilter = filter;
+
+  // Update active button state
+  document.querySelectorAll('.console-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filter === filter);
+  });
+
+  // Apply filter via data attribute — CSS hides non-matching lines
+  const body = document.getElementById('consoleBody');
+  if (filter === 'all') {
+    body.removeAttribute('data-filter');
+  } else {
+    body.setAttribute('data-filter', filter);
+  }
+}
+
+// ════════════════════════════════════════════
 //  THEME TOGGLE
 // ════════════════════════════════════════════
 function toggleTheme() {

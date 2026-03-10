@@ -144,6 +144,13 @@
         <span class="console-title">Console</span>
         <span class="console-err-badge" id="consoleErrBadge">0</span>
         <div class="console-bar-actions" onclick="event.stopPropagation()">
+          <div class="console-filters">
+            <button class="console-filter-btn active" data-filter="all"   onclick="setConsoleFilter('all')">ALL</button>
+            <button class="console-filter-btn"         data-filter="info"  onclick="setConsoleFilter('info')">INFO</button>
+            <button class="console-filter-btn"         data-filter="warn"  onclick="setConsoleFilter('warn')">WARN</button>
+            <button class="console-filter-btn"         data-filter="error" onclick="setConsoleFilter('error')">ERROR</button>
+          </div>
+          <div class="pane-divider"></div>
           <button class="pane-act-btn" id="consoleCopyBtn" title="Copy console output" onclick="copyConsole()">Copy</button>
           <button class="pane-act-btn" id="consoleClearBtn" title="Clear console" onclick="clearConsole()">Clear</button>
         </div>

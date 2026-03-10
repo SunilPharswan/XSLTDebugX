@@ -38,9 +38,13 @@ function escHtml(s) {
 }
 
 function clearConsole() {
-  document.getElementById('consoleBody').innerHTML = '';
+  const body = document.getElementById('consoleBody');
+  body.innerHTML = '';
+  body.removeAttribute('data-filter');
   consoleErrCount = 0;
   updateConsoleErrBadge();
+  // Reset filter buttons to ALL
+  if (typeof setConsoleFilter === 'function') setConsoleFilter('all');
 }
 
 // ════════════════════════════════════════════

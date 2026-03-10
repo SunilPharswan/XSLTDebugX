@@ -420,6 +420,48 @@
     .console-bar-actions {
       margin-left: auto; display: flex; align-items: center; gap: 4px;
     }
+    .console-filters {
+      display: flex; align-items: center; gap: 2px;
+    }
+    .console-filter-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.6px;
+      padding: 2px 7px; border-radius: 4px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s, border-color 0.15s;
+    }
+    .console-filter-btn:hover {
+      color: var(--text-secondary);
+      background: rgba(255,255,255,0.05);
+    }
+    .console-filter-btn.active[data-filter="all"] {
+      color: var(--text-secondary);
+      border-color: var(--border-focus);
+      background: rgba(255,255,255,0.06);
+    }
+    .console-filter-btn.active[data-filter="info"] {
+      color: var(--text-secondary);
+      border-color: var(--border-focus);
+      background: rgba(255,255,255,0.06);
+    }
+    .console-filter-btn.active[data-filter="warn"] {
+      color: var(--warning);
+      border-color: var(--warning);
+      background: rgba(245,165,36,0.1);
+    }
+    .console-filter-btn.active[data-filter="error"] {
+      color: var(--error);
+      border-color: var(--error);
+      background: rgba(248,81,73,0.1);
+    }
+    /* Hide non-matching log lines when a filter is active */
+    #consoleBody[data-filter="info"]  .log-line:not(.info):not(.success) { display: none; }
+    #consoleBody[data-filter="warn"]  .log-line:not(.warn)               { display: none; }
+    #consoleBody[data-filter="error"] .log-line:not(.error)              { display: none; }
     .console-chevron {
       width: 12px; height: 12px;
       color: var(--text-dim);
@@ -498,6 +540,21 @@
       --error:          #cf222e;
       --warning:        #c87800;
       --scrollbar:      #c0cfe0;
+    }
+
+    /* ── LIGHT THEME: console filter buttons ── */
+    body.light .console-filter-btn:hover {
+      background: rgba(0,0,0,0.05);
+    }
+    body.light .console-filter-btn.active[data-filter="all"],
+    body.light .console-filter-btn.active[data-filter="info"] {
+      background: rgba(0,0,0,0.06);
+    }
+    body.light .console-filter-btn.active[data-filter="warn"] {
+      background: rgba(200,120,0,0.1);
+    }
+    body.light .console-filter-btn.active[data-filter="error"] {
+      background: rgba(207,34,46,0.08);
     }
 
     /* ── THEME TOGGLE ── */
