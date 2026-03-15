@@ -313,6 +313,10 @@ function runXPath() {
   if (!saxonReady) { clog('Saxon-JS not ready yet', 'error'); return; }
   if (!xpathEnabled) return;
 
+  // Reset error badge for fresh run
+  consoleErrCount = 0;
+  updateConsoleErrBadge();
+
   const input = document.getElementById('xpathInput');
   const expr  = input?.value?.trim();
   if (!expr) return;

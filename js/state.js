@@ -83,6 +83,7 @@ function saveState() {
       properties: kvData.properties.map(r => ({ name: r.name, value: r.value })),
       leftCollapsed:  document.getElementById('colLeft')?.classList.contains('collapsed')  ?? false,
       rightCollapsed: document.getElementById('colRight')?.classList.contains('collapsed') ?? true,
+      centerCollapsed: !xpathEnabled && (document.getElementById('colCenter')?.classList.contains('collapsed') ?? false),
       xpathExpr:    document.getElementById('xpathInput')?.value ?? '',
       xpathEnabled: xpathEnabled,
       savedAt: Date.now(),

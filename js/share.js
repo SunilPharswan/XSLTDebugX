@@ -10,7 +10,6 @@ function buildSharePayload() {
     xslt:       eds.xslt?.getValue() ?? '',
     headers:    kvData.headers.map(r    => ({ name: r.name, value: r.value })),
     properties: kvData.properties.map(r => ({ name: r.name, value: r.value })),
-    xpathExpr:  document.getElementById('xpathInput')?.value ?? '',
   };
 }
 
@@ -55,6 +54,12 @@ function loadFromShareHash() {
 function applyShareData(data) {
   if (!data) return;
 
+  // Share is XSLT-only — always switch to XSLT mode on the receiver side
+  if (typeof xpathEnabled !== 'undefined' && xpathEnabled) {
+    xpathEnabled = false;
+    if (typeof _applyXPathToggleState === 'function') _applyXPathToggleState();
+  }
+
   clearTimeout(xsltDebounce);
   clearTimeout(xmlDebounce);
   clearAllMarkers();
@@ -84,12 +89,6 @@ function applyShareData(data) {
   if (_shdr)  _parts.push(`${_shdr} header${_shdr  > 1 ? 's' : ''}`);
   if (_sprop) _parts.push(`${_sprop} propert${_sprop > 1 ? 'ies' : 'y'}`);
   clog(`Shared session loaded — ${_parts.join(' · ')} ✓`, 'success');
-
-  // Restore XPath expression if present
-  if (data.xpathExpr) {
-    const xpathInput = document.getElementById('xpathInput');
-    if (xpathInput) xpathInput.value = data.xpathExpr;
-  }
 }
 
 // ── Modal ────────────────────────────────────

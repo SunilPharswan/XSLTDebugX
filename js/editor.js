@@ -595,6 +595,14 @@ require(['vs/editor/editor.main'], () => {
         }
         // Restore XPath toggle state (default off if not in session)
         xpathEnabled = _savedSession.xpathEnabled === true;
+        // Restore pre-xpath colCenter state so toggling back to XSLT restores it correctly
+        if (typeof _xpathPreColCenterCollapsed !== 'undefined') {
+          _xpathPreColCenterCollapsed = _savedSession.centerCollapsed ?? false;
+        }
+        // In XSLT mode, restore manually-collapsed colCenter if saved
+        if (!xpathEnabled && _savedSession.centerCollapsed) {
+          document.getElementById('colCenter')?.classList.add('collapsed');
+        }
         if (typeof _applyXPathToggleState === 'function') _applyXPathToggleState();
         // Relay Monaco after potential column changes
         setTimeout(() => { eds.xml?.layout(); eds.xslt?.layout(); eds.out?.layout(); }, 260);
@@ -607,7 +615,7 @@ require(['vs/editor/editor.main'], () => {
               return `${Math.round(diff/3600)}h ago`;
             })()
           : '';
-        clog(`Session restored${ago ? ' · saved ' + ago : ''} ✓`, 'success');
+        clog(`Session restored${ago ? ' · saved ' + ago : ''} · ${xpathEnabled ? 'XPath' : 'XSLT'} mode ✓`, 'success');
       } else {
         clog('Identity Transform loaded. Use Examples menu to load CPI scenarios.', 'info');
         // Apply default XPath state (off) on fresh load

@@ -100,6 +100,11 @@
       color: #60a0f8;
       letter-spacing: 0.6px;
     }
+    .logo-tag-ide {
+      background: rgba(63,185,80,0.1);
+      border-color: rgba(63,185,80,0.28);
+      color: #3fb950;
+    }
     .h-spacer { flex: 1; }
     .run-btn {
       display: flex; align-items: center; gap: 7px;
