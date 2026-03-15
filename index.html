@@ -82,18 +82,22 @@
         <div class="pane-bar">
           <div class="pane-indicator ind-xpath"></div>
           <span class="pane-title">XQuery</span>
+          <span class="xpath-header-count" id="xpathHeaderCount" style="display:none"></span>
           <div class="pane-actions">
             <span class="lang-badge">XQuery</span>
             <button class="pane-act-btn" onclick="copyXPathInput()">Copy</button>
             <button class="pane-act-btn" onclick="clearXPathInput()">Clear</button>
+            <div class="pane-divider"></div>
+            <button class="pane-icon-btn" onclick="_xpathHistoryNavigate('up', document.getElementById('xpathInput'))" title="Previous expression (↑)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M3 10l5-5 5 5"/></svg></button>
+            <button class="pane-icon-btn" onclick="_xpathHistoryNavigate('down', document.getElementById('xpathInput'))" title="Next expression (↓)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M3 6l5 5 5-5"/></svg></button>
           </div>
         </div>
         <div class="xpath-input-row">
           <span class="xpath-icon">ƒx</span>
           <input class="xpath-input" id="xpathInput"
             placeholder="e.g. //Order[@status='OPEN'] or count(//Item)"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();runXPath();}"
-            oninput="scheduleSave()"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();runXPath();}else if(event.key==='ArrowUp'){event.preventDefault();_xpathHistoryNavigate('up',this);}else if(event.key==='ArrowDown'){event.preventDefault();_xpathHistoryNavigate('down',this);}"
+            oninput="_xpathHistoryCursor=-1;scheduleSave()"
             autocomplete="off" spellcheck="false"/>
         </div>
       </div>
@@ -321,6 +325,7 @@
     <span id="statTxt">Ready</span>
   </div>
   <div class="stat">Saxon-JS 2.x · XSLT 3.0 Engine</div>
+  <div class="stat stat-cursor" id="statCursor" title="Cursor position · document size"></div>
   <div class="stat-mode" id="statMode" title="Current editor mode">
     <span class="mode-pill mode-xslt" id="modePill">XSLT</span>
   </div>

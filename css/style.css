@@ -531,6 +531,30 @@
     .stat-dot.err  { background: var(--error); }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
     .stat-spacer { flex: 1; }
+    .stat-cursor {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--text-dim);
+      white-space: nowrap; padding: 0 6px;
+    }
+    .xpath-header-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; font-weight: 700;
+      padding: 1px 6px; border-radius: 10px;
+      background: rgba(0,112,242,0.18);
+      color: #60a0f8;
+      border: 1px solid rgba(0,112,242,0.3);
+      letter-spacing: 0.3px;
+    }
+    .xpath-header-count.has-results {
+      background: rgba(63,185,80,0.15);
+      color: #3fb950;
+      border-color: rgba(63,185,80,0.3);
+    }
+    .xpath-header-count.has-error {
+      background: rgba(248,81,73,0.15);
+      color: #f85149;
+      border-color: rgba(248,81,73,0.3);
+    }
     .stat-mode { display: flex; align-items: center; }
     .mode-pill {
       font-family: 'JetBrains Mono', monospace;

@@ -11,6 +11,59 @@ let xpathDecorations = null;
 let xpathEnabled = false; // off by default — user must explicitly enable
 let _xpathPreColCenterCollapsed = false; // colCenter state before XPath was enabled
 
+// ── XPath expression history ──────────────────────────────────────────────────
+const _xpathHistory = [];        // most-recent-first
+const _xpathHistoryMax = 20;
+const _xpathHistoryKey = 'xdebugx-xpath-history';
+let   _xpathHistoryCursor = -1;  // -1 = not browsing history
+let   _xpathDraftExpr     = '';  // saves current typed text while browsing
+
+// Load persisted history on startup
+(function() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(_xpathHistoryKey) || '[]');
+    if (Array.isArray(saved)) _xpathHistory.push(...saved.slice(0, _xpathHistoryMax));
+  } catch(_) {}
+})();
+
+function _xpathHistoryPush(expr) {
+  if (!expr) return;
+  // Remove duplicate if already present, then prepend
+  const idx = _xpathHistory.indexOf(expr);
+  if (idx !== -1) _xpathHistory.splice(idx, 1);
+  _xpathHistory.unshift(expr);
+  if (_xpathHistory.length > _xpathHistoryMax) _xpathHistory.length = _xpathHistoryMax;
+  _xpathHistoryCursor = -1;
+  // Persist to localStorage
+  try { localStorage.setItem(_xpathHistoryKey, JSON.stringify(_xpathHistory)); } catch(_) {}
+}
+
+function _xpathHistoryNavigate(direction, input) {
+  if (_xpathHistory.length === 0) {
+    clog('ƒx  No expression history yet — run an expression first', 'info');
+    return;
+  }
+  if (_xpathHistoryCursor === -1) {
+    // Save whatever user was typing before browsing
+    _xpathDraftExpr = input.value;
+  }
+  if (direction === 'up') {
+    _xpathHistoryCursor = Math.min(_xpathHistoryCursor + 1, _xpathHistory.length - 1);
+  } else {
+    _xpathHistoryCursor = Math.max(_xpathHistoryCursor - 1, -1);
+  }
+  input.value = _xpathHistoryCursor === -1 ? _xpathDraftExpr : _xpathHistory[_xpathHistoryCursor];
+  // Move cursor to end
+  const len = input.value.length;
+  input.setSelectionRange(len, len);
+  if (_xpathHistoryCursor === -1) {
+    clog(`ƒx  History: back to current draft`, 'info');
+  } else {
+    clog(`ƒx  History ${_xpathHistoryCursor + 1}/${_xpathHistory.length}: ${_xpathHistory[_xpathHistoryCursor]}`, 'info');
+  }
+  scheduleSave();
+}
+
 // ── Apply XPath enabled/disabled state to DOM (no logging, no side effects) ──
 function _applyXPathToggleState() {
   const btnXslt    = document.getElementById('modeBtnXslt');
@@ -353,6 +406,8 @@ function runXPath() {
   }
 
   clog(`ƒx  ${expr}`, 'info');
+  _xpathHistoryPush(expr);
+  _xpathHistoryCursor = -1;
 
   try {
     const t0      = performance.now();
@@ -523,16 +578,27 @@ async function _showXPathResults(items, errorMsg, isError) {
     setTimeout(() => { eds.out?.layout(); }, 250);
   }
 
+  // Helper: update the XQuery pane-bar count badge
+  const headerCount = document.getElementById('xpathHeaderCount');
+  const _setHeaderCount = (text, cls) => {
+    if (!headerCount) return;
+    headerCount.textContent = text;
+    headerCount.className = 'xpath-header-count' + (cls ? ' ' + cls : '');
+    headerCount.style.display = text ? '' : 'none';
+  };
+
   if (isError) {
     countEl.textContent = 'Error';
     countEl.className   = 'xpath-match-count has-error';
     body.innerHTML      = `<div class="xpath-error">${escHtml(errorMsg)}</div>`;
+    _setHeaderCount('Error', 'has-error');
     return;
   }
 
   const n = items.length;
   countEl.textContent = `${n} match${n !== 1 ? 'es' : ''}`;
   countEl.className   = n > 0 ? 'xpath-match-count has-results' : 'xpath-match-count';
+  _setHeaderCount(`${n} match${n !== 1 ? 'es' : ''}`, n > 0 ? 'has-results' : '');
 
   if (n === 0) {
     body.innerHTML = '<div class="xpath-no-results">No matches found for this expression.</div>';
@@ -573,6 +639,8 @@ function clearXPathResults() {
   clearXPathHighlights();
   document.getElementById('xpathResultsPanel')?.classList.remove('visible');
   document.getElementById('outputSection')?.classList.remove('xpath-minimized');
+  const headerCount = document.getElementById('xpathHeaderCount');
+  if (headerCount) { headerCount.style.display = 'none'; headerCount.textContent = ''; }
   setTimeout(() => { eds.out?.layout(); }, 250);
 }
 
