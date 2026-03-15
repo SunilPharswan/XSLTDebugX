@@ -309,6 +309,7 @@
       color: #60a0f8; font-size: 14px; line-height: 1;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       transition: all 0.15s;
+      flex-shrink: 0;
     }
     .kv-add-btn:hover { background: rgba(0,112,242,0.3); }
     .kv-chevron {
@@ -318,10 +319,10 @@
       flex-shrink: 0;
     }
     .kv-panel.collapsed .kv-chevron { transform: rotate(-90deg); }
-    /* When add-btn is present, chevron has no left auto */
-    .kv-add-btn + .kv-chevron { margin-left: 4px; }
-    /* For output panels (no add btn), push chevron right */
-    .kv-header .kv-chevron:last-child { margin-left: auto; }
+    /* add-btn followed by chevron — 6px gap */
+    .kv-add-btn + .kv-chevron { margin-left: 6px; }
+    /* Output panels have no add-btn — push chevron to right */
+    .kv-header .kv-chevron:last-child:not(.kv-add-btn + .kv-chevron) { margin-left: auto; }
 
     .kv-body {
       flex: 1; overflow-y: auto;
