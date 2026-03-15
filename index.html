@@ -288,7 +288,7 @@
   <div class="ex-modal">
     <div class="ex-modal-header">
       <span class="ex-modal-title">Example Library</span>
-      <span class="ex-modal-count" id="exModalCount">24 examples</span>
+      <span class="ex-modal-count" id="exModalCount"></span>
       <div class="ex-search-wrap">
         <svg class="ex-search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6.5" cy="6.5" r="4"/><path d="M11 11l3 3"/></svg>
         <input class="ex-modal-search" id="exModalSearch" placeholder="Search examples…" oninput="filterExamples()" autocomplete="off">
@@ -297,13 +297,7 @@
     </div>
     <div class="ex-modal-body">
       <div class="ex-sidebar" id="exSidebar">
-        <div class="ex-sidebar-label">Categories</div>
-        <button class="ex-cat-btn active" data-cat="all" onclick="setExCat('all')">All <span class="ex-cat-count">24</span></button>
-        <button class="ex-cat-btn" data-cat="transform" onclick="setExCat('transform')">Data Transform <span class="ex-cat-count">4</span></button>
-        <button class="ex-cat-btn" data-cat="aggregation" onclick="setExCat('aggregation')">Aggregation <span class="ex-cat-count">3</span></button>
-        <button class="ex-cat-btn" data-cat="format" onclick="setExCat('format')">Format <span class="ex-cat-count">3</span></button>
-        <button class="ex-cat-btn" data-cat="cpi" onclick="setExCat('cpi')">SAP CPI <span class="ex-cat-count">6</span></button>
-        <button class="ex-cat-btn" data-cat="xpath" onclick="setExCat('xpath')">XPath Explorer <span class="ex-cat-count">8</span></button>
+        <!-- Rendered dynamically by renderExSidebar() from CATEGORIES -->
       </div>
       <div class="ex-grid-wrap" id="exGridWrap">
         <!-- Rendered by renderExGrid() -->
