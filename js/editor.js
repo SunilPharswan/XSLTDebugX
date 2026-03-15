@@ -153,6 +153,8 @@ require(['vs/editor/editor.main'], () => {
     lineHeight: 22,
     minimap: { enabled: false },
     glyphMargin: true,
+    lineNumbersMinChars: 2,
+    lineDecorationsWidth: 6,
     scrollBeyondLastLine: false,
     automaticLayout: true,
     folding: true,

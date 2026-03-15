@@ -74,7 +74,7 @@
     <!-- Collapsed tab (shown only when minimized) -->
     <div class="col-tab" onclick="toggleSideCol('left')">
       <div class="col-tab-dot ind-xml"></div>
-      <span class="col-tab-label">XML Input Message</span>
+      <span class="col-tab-label" id="xmlColTabLabel">Input Message</span>
     </div>
     <!-- Normal content -->
     <div class="col-inner">
@@ -105,7 +105,7 @@
       <!-- ── XML Input Message bar (always visible) ── -->
       <div class="pane-bar" id="xmlPaneBar">
         <div class="pane-indicator ind-xml"></div>
-        <span class="pane-title">XML Input Message</span>
+        <span class="pane-title" id="xmlPaneTitle">Input Message</span>
         <div class="pane-actions">
           <span class="lang-badge">XML</span>
           <button class="pane-act-btn" onclick="fmtEditor('xml')">Format</button>
