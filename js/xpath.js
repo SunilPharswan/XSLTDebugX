@@ -13,7 +13,8 @@ let _xpathPreColCenterCollapsed = false; // colCenter state before XPath was ena
 
 // ── Apply XPath enabled/disabled state to DOM (no logging, no side effects) ──
 function _applyXPathToggleState() {
-  const btn        = document.getElementById('xpathToggle');
+  const btnXslt    = document.getElementById('modeBtnXslt');
+  const btnXpath   = document.getElementById('modeBtnXpath');
   const bar        = document.getElementById('xpathBar');
   const colCenter  = document.getElementById('colCenter');
   const hdrPanel   = document.getElementById('hdrPanel');
@@ -25,7 +26,8 @@ function _applyXPathToggleState() {
   const runBtn     = document.getElementById('runBtn');
   const consoleTtl = document.querySelector('.console-title');
 
-  if (btn) btn.classList.toggle('active', xpathEnabled);
+  if (btnXslt)  btnXslt.classList.toggle('active', !xpathEnabled);
+  if (btnXpath) btnXpath.classList.toggle('active',  xpathEnabled);
   if (bar) bar.style.display = xpathEnabled ? '' : 'none';
 
   // When enabling: always collapse colCenter. When disabling: restore to pre-xpath state.
@@ -350,8 +352,15 @@ function runXPath() {
 
   try {
     const t0      = performance.now();
+    const NS = {
+      xs:   'http://www.w3.org/2001/XMLSchema',
+      fn:   'http://www.w3.org/2005/xpath-functions',
+      math: 'http://www.w3.org/2005/xpath-functions/math',
+      map:  'http://www.w3.org/2005/xpath-functions/map',
+      array:'http://www.w3.org/2005/xpath-functions/array',
+    };
     const docNode = SaxonJS.XPath.evaluate('parse-xml($xml)', [], { params: { xml: xmlSrc } });
-    const raw     = SaxonJS.XPath.evaluate(expr, docNode, {});
+    const raw     = SaxonJS.XPath.evaluate(expr, docNode, { namespaceContext: NS });
     const elapsed = (performance.now() - t0).toFixed(1);
     const items   = _xpathNormalise(raw);
 

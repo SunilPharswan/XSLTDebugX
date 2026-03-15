@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>XSLTDebugX — SAP Cloud Integration XSLT IDE</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
@@ -40,9 +41,15 @@
     Examples
   </button>
 
-  <button class="ex-btn xpath-toggle-btn" id="xpathToggle" onclick="toggleXPath()" title="Toggle XPath evaluator">
-    ƒx XPath
-  </button>
+  <div class="mode-switcher">
+    <button class="mode-btn mode-btn-xslt active" id="modeBtnXslt" onclick="if(xpathEnabled)toggleXPath()" title="XSLT Transform mode">
+      <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M2 3h12v1.5H2V3zm2 3.5h8V8H4V6.5zm2 3.5h4v1.5H6V10z"/></svg>
+      XSLT
+    </button>
+    <button class="mode-btn mode-btn-xpath" id="modeBtnXpath" onclick="if(!xpathEnabled)toggleXPath()" title="XPath evaluator mode">
+      ƒx XPath
+    </button>
+  </div>
 
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light / dark theme">☀️</button>
 
@@ -288,7 +295,7 @@
   <div class="ex-modal">
     <div class="ex-modal-header">
       <span class="ex-modal-title">Example Library</span>
-      <span class="ex-modal-count" id="exModalCount">24 examples</span>
+      <span class="ex-modal-count" id="exModalCount"></span>
       <div class="ex-search-wrap">
         <svg class="ex-search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6.5" cy="6.5" r="4"/><path d="M11 11l3 3"/></svg>
         <input class="ex-modal-search" id="exModalSearch" placeholder="Search examples…" oninput="filterExamples()" autocomplete="off">
@@ -297,13 +304,7 @@
     </div>
     <div class="ex-modal-body">
       <div class="ex-sidebar" id="exSidebar">
-        <div class="ex-sidebar-label">Categories</div>
-        <button class="ex-cat-btn active" data-cat="all" onclick="setExCat('all')">All <span class="ex-cat-count">24</span></button>
-        <button class="ex-cat-btn" data-cat="transform" onclick="setExCat('transform')">Data Transform <span class="ex-cat-count">4</span></button>
-        <button class="ex-cat-btn" data-cat="aggregation" onclick="setExCat('aggregation')">Aggregation <span class="ex-cat-count">3</span></button>
-        <button class="ex-cat-btn" data-cat="format" onclick="setExCat('format')">Format <span class="ex-cat-count">3</span></button>
-        <button class="ex-cat-btn" data-cat="cpi" onclick="setExCat('cpi')">SAP CPI <span class="ex-cat-count">6</span></button>
-        <button class="ex-cat-btn" data-cat="xpath" onclick="setExCat('xpath')">XPath Explorer <span class="ex-cat-count">8</span></button>
+        <!-- Rendered dynamically by renderExSidebar() from CATEGORIES -->
       </div>
       <div class="ex-grid-wrap" id="exGridWrap">
         <!-- Rendered by renderExGrid() -->

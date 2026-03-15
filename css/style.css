@@ -612,11 +612,36 @@
       flex-shrink: 0;
       user-select: none;
     }
-    .xpath-toggle-btn {
-      opacity: 0.5;
+    .mode-switcher {
+      display: flex;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 2px;
+      gap: 2px;
     }
-    .xpath-toggle-btn.active {
-      opacity: 1;
+    .mode-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 4px 11px;
+      border: 1px solid transparent; border-radius: 5px;
+      font-family: 'Syne', sans-serif;
+      font-size: 12px; font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-dim);
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .mode-btn:hover { color: var(--text-primary); }
+    .mode-btn-xslt.active {
+      background: var(--sap-blue);
+      color: #fff;
+      box-shadow: 0 1px 6px rgba(0,112,242,0.4);
+    }
+    .mode-btn-xpath.active {
+      background: rgba(245,165,36,0.2);
+      color: #f5a524;
+      border: 1px solid rgba(245,165,36,0.35);
     }
     .xpath-input {
       flex: 1; min-width: 0;

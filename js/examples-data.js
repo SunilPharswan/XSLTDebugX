@@ -1,4 +1,15 @@
 // ════════════════════════════════════════════
+//  CATEGORIES — single source of truth for labels, accents and order
+// ════════════════════════════════════════════
+const CATEGORIES = {
+  transform:   { label: 'Data Transformation',    accent: '#3fb950' },
+  aggregation: { label: 'Aggregation & Splitting', accent: '#f5a524' },
+  format:      { label: 'Format Conversion',       accent: '#c084fc' },
+  cpi:         { label: 'SAP CPI Patterns',        accent: '#0070f2' },
+  xpath:       { label: 'XPath Explorer',          accent: '#f5a524' },
+};
+
+// ════════════════════════════════════════════
 //  EXAMPLES
 // ════════════════════════════════════════════
 const EXAMPLES = {
@@ -1819,5 +1830,455 @@ const EXAMPLES = {
     ]
   }
 
+
+  ,
+
+  // ── NEW CPI EXAMPLES ─────────────────────────────────────────────────────────
+
+  soapFaultHandling: {
+    label: 'SOAP Fault Handling',
+    icon:  '⚠️',
+    desc:  'Extract faultcode, faultstring and detail from a SOAP Fault response — common in CPI error branches',
+    cat:   'cpi',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope
+  xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <soapenv:Body>
+    <soapenv:Fault>
+      <faultcode>soapenv:Server</faultcode>
+      <faultstring>Internal server error — ERP system unavailable</faultstring>
+      <detail>
+        <errorDetail>
+          <errorCode>SY/530</errorCode>
+          <errorMessage>Connection to backend RFC destination failed</errorMessage>
+          <systemId>PRD</systemId>
+          <timestamp>2024-03-15T10:22:33Z</timestamp>
+        </errorDetail>
+      </detail>
+    </soapenv:Fault>
+  </soapenv:Body>
+</soapenv:Envelope>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+  exclude-result-prefixes="soap">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    SOAP Fault Handler — extract fault details into a clean error envelope.
+    Common in CPI error subprocesses that receive SOAP faults from backend
+    systems (ERP RFC, S/4HANA OData, PI/PO proxies) and need to transform
+    them into a normalised error format for logging or retry flows.
+  -->
+
+  <xsl:template match="/soap:Envelope">
+    <xsl:variable name="fault" select="soap:Body/soap:Fault"/>
+    <ErrorResponse>
+      <FaultCode><xsl:value-of select="$fault/faultcode"/></FaultCode>
+      <FaultString><xsl:value-of select="normalize-space($fault/faultstring)"/></FaultString>
+      <ErrorCode><xsl:value-of select="$fault/detail/errorDetail/errorCode"/></ErrorCode>
+      <ErrorMessage><xsl:value-of select="$fault/detail/errorDetail/errorMessage"/></ErrorMessage>
+      <SystemId><xsl:value-of select="$fault/detail/errorDetail/systemId"/></SystemId>
+      <Timestamp><xsl:value-of select="$fault/detail/errorDetail/timestamp"/></Timestamp>
+      <IsFatal><xsl:value-of select="starts-with($fault/faultcode, 'soapenv:Server')"/></IsFatal>
+    </ErrorResponse>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  conditionalRouting: {
+    label: 'Conditional Routing Headers',
+    icon:  '🔀',
+    desc:  'Set cpi:setHeader routing values based on payload content — controls CPI router steps',
+    cat:   'cpi',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<PurchaseOrder>
+  <Header>
+    <PONumber>PO-2024-88721</PONumber>
+    <Vendor>10000015</Vendor>
+    <TotalAmount currency="EUR">125000.00</TotalAmount>
+    <DocumentType>NB</DocumentType>
+    <CompanyCode>1000</CompanyCode>
+    <PurchOrg>1000</PurchOrg>
+  </Header>
+  <Items>
+    <Item><LineNo>10</LineNo><Material>MAT-001</Material><Qty>5</Qty></Item>
+    <Item><LineNo>20</LineNo><Material>MAT-002</Material><Qty>10</Qty></Item>
+  </Items>
+</PurchaseOrder>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:cpi="http://sap.com/it/cpi/scripting"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="cpi xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <xsl:param name="exchange"/>
+
+  <!--
+    Conditional Routing Header Setting.
+
+    A common CPI pattern: inspect the payload and set message headers
+    that downstream Router steps use to decide which branch to take.
+
+    Rules applied here:
+      - Amount > 100,000 → ApprovalRequired = true, Route = HIGH_VALUE
+      - DocType = NB (standard PO) → Route = STANDARD
+      - Otherwise → Route = REVIEW
+
+    The Router step in the iFlow checks header 'Route' to branch.
+  -->
+
+  <xsl:template match="/PurchaseOrder">
+    <xsl:variable name="amount"  select="xs:decimal(Header/TotalAmount)"/>
+    <xsl:variable name="docType" select="Header/DocumentType"/>
+
+    <!-- Set routing headers via CPI extension -->
+    <xsl:value-of select="cpi:setHeader($exchange, 'CompanyCode',       Header/CompanyCode)"/>
+    <xsl:value-of select="cpi:setHeader($exchange, 'VendorId',          Header/Vendor)"/>
+    <xsl:value-of select="cpi:setHeader($exchange, 'TotalAmount',       Header/TotalAmount)"/>
+    <xsl:value-of select="cpi:setHeader($exchange, 'ApprovalRequired',  string($amount gt 100000))"/>
+    <xsl:value-of select="cpi:setHeader($exchange, 'Route',
+      if      ($amount gt 100000) then 'HIGH_VALUE'
+      else if ($docType = 'NB')   then 'STANDARD'
+      else                             'REVIEW')"/>
+
+    <!-- Pass through the original document unchanged -->
+    <xsl:copy-of select="."/>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  xmlToText: {
+    label: 'XML to Flat Text / CSV',
+    icon:  '📄',
+    desc:  'Convert XML records to pipe-delimited flat file — common for legacy system integration in CPI',
+    cat:   'cpi',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Employees>
+  <Employee>
+    <EmpId>E001</EmpId>
+    <FirstName>Alice</FirstName>
+    <LastName>Martin</LastName>
+    <Department>IT Integration</Department>
+    <CostCenter>CC-4100</CostCenter>
+    <Salary>85000</Salary>
+    <StartDate>2021-06-15</StartDate>
+  </Employee>
+  <Employee>
+    <EmpId>E002</EmpId>
+    <FirstName>Bob</FirstName>
+    <LastName>Chen</LastName>
+    <Department>SAP Basis</Department>
+    <CostCenter>CC-4200</CostCenter>
+    <Salary>91000</Salary>
+    <StartDate>2019-03-01</StartDate>
+  </Employee>
+  <Employee>
+    <EmpId>E003</EmpId>
+    <FirstName>Carol</FirstName>
+    <LastName>Müller</LastName>
+    <Department>Finance</Department>
+    <CostCenter>CC-4300</CostCenter>
+    <Salary>78000</Salary>
+    <StartDate>2022-09-12</StartDate>
+  </Employee>
+</Employees>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="text" encoding="UTF-8"/>
+
+  <!--
+    XML to Pipe-Delimited Flat File.
+
+    Outputs a header row + one data row per Employee.
+    The pipe | delimiter is common in legacy HR and payroll integrations
+    on SAP CPI where the target system expects a flat file format.
+
+    Adapt the delimiter by changing the separator variable.
+    Change method="text" to method="xml" to wrap in a document element instead.
+  -->
+
+  <xsl:variable name="sep" select="'|'"/>
+  <xsl:variable name="nl"  select="'&#10;'"/>
+
+  <xsl:template match="/Employees">
+    <!-- Header row -->
+    <xsl:value-of select="string-join(('EmpId','FirstName','LastName','Department','CostCenter','Salary','StartDate'), $sep)"/>
+    <xsl:value-of select="$nl"/>
+    <!-- Data rows -->
+    <xsl:apply-templates select="Employee"/>
+  </xsl:template>
+
+  <xsl:template match="Employee">
+    <xsl:value-of select="string-join((EmpId,FirstName,LastName,Department,CostCenter,Salary,StartDate), $sep)"/>
+    <xsl:value-of select="$nl"/>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  sfEmployeeMapping: {
+    label: 'SuccessFactors Employee Mapping',
+    icon:  '👤',
+    desc:  'Map SuccessFactors EmpEmployment + EmpJob response to a flat HR integration format',
+    cat:   'cpi',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<EmpEmploymentCollection>
+  <EmpEmployment>
+    <personIdExternal>20655282</personIdExternal>
+    <userId>20655282</userId>
+    <startDate>2018-04-01T00:00:00</startDate>
+    <endDate>9999-12-31T00:00:00</endDate>
+    <employmentStatus>A</employmentStatus>
+    <EmpJob>
+      <jobCode>IT_ARCH_SR</jobCode>
+      <jobTitle>Senior Integration Architect</jobTitle>
+      <department>IT Integration</department>
+      <division>Technology</division>
+      <location>DE_BERLIN</location>
+      <managerId>10001001</managerId>
+      <fte>1.0</fte>
+    </EmpJob>
+    <EmpPayCompensation>
+      <payGroup>DE01</payGroup>
+      <currency>EUR</currency>
+    </EmpPayCompensation>
+  </EmpEmployment>
+  <EmpEmployment>
+    <personIdExternal>20654955</personIdExternal>
+    <userId>20654955</userId>
+    <startDate>2020-01-15T00:00:00</startDate>
+    <endDate>9999-12-31T00:00:00</endDate>
+    <employmentStatus>A</employmentStatus>
+    <EmpJob>
+      <jobCode>FIN_CTRL_JR</jobCode>
+      <jobTitle>Junior Financial Controller</jobTitle>
+      <department>Finance</department>
+      <division>Operations</division>
+      <location>DE_MUNICH</location>
+      <managerId>10001002</managerId>
+      <fte>0.8</fte>
+    </EmpJob>
+    <EmpPayCompensation>
+      <payGroup>DE02</payGroup>
+      <currency>EUR</currency>
+    </EmpPayCompensation>
+  </EmpEmployment>
+</EmpEmploymentCollection>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    SuccessFactors EmpEmployment → HR Integration Format.
+
+    Maps the nested EmpEmployment / EmpJob / EmpPayCompensation structure
+    from a SuccessFactors OData $expand response into a flat HR record
+    suitable for downstream SAP HCM, S/4HANA HR, or third-party payroll.
+
+    Key transformations:
+      - Date truncation: strip time from ISO 8601 datetime strings
+      - End date mapping: 9999-12-31 = no end date → leave blank
+      - FTE: format as percentage
+      - Status: A = Active, I = Inactive, T = Terminated
+  -->
+
+  <xsl:variable name="NO_END_DATE" select="'9999-12-31'"/>
+
+  <xsl:template match="/EmpEmploymentCollection">
+    <HREmployees count="{count(EmpEmployment)}">
+      <xsl:apply-templates select="EmpEmployment"/>
+    </HREmployees>
+  </xsl:template>
+
+  <xsl:template match="EmpEmployment">
+    <xsl:variable name="startDate" select="substring(startDate, 1, 10)"/>
+    <xsl:variable name="endDate"   select="substring(endDate,   1, 10)"/>
+    <xsl:variable name="status"    select="employmentStatus"/>
+
+    <Employee>
+      <PersonId><xsl:value-of select="personIdExternal"/></PersonId>
+      <UserId><xsl:value-of select="userId"/></UserId>
+      <Status>
+        <xsl:value-of select="if ($status='A') then 'Active'
+                         else if ($status='I') then 'Inactive'
+                         else                       'Terminated'"/>
+      </Status>
+      <StartDate><xsl:value-of select="$startDate"/></StartDate>
+      <EndDate>
+        <xsl:if test="$endDate != $NO_END_DATE">
+          <xsl:value-of select="$endDate"/>
+        </xsl:if>
+      </EndDate>
+      <JobCode><xsl:value-of select="EmpJob/jobCode"/></JobCode>
+      <JobTitle><xsl:value-of select="EmpJob/jobTitle"/></JobTitle>
+      <Department><xsl:value-of select="EmpJob/department"/></Department>
+      <Division><xsl:value-of select="EmpJob/division"/></Division>
+      <Location><xsl:value-of select="EmpJob/location"/></Location>
+      <ManagerId><xsl:value-of select="EmpJob/managerId"/></ManagerId>
+      <FTE><xsl:value-of select="format-number(xs:decimal(EmpJob/fte) * 100, '##0.##')"/>%</FTE>
+      <PayGroup><xsl:value-of select="EmpPayCompensation/payGroup"/></PayGroup>
+      <Currency><xsl:value-of select="EmpPayCompensation/currency"/></Currency>
+    </Employee>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  // ── NEW XPATH EXAMPLES ────────────────────────────────────────────────────────
+
+  xpathConditional: {
+    label: 'Conditional & Boolean Logic',
+    icon:  '🔀',
+    desc:  'if/then/else, and/or predicates, not(), exists() — decision logic in XPath expressions',
+    cat:   'xpath',
+    xslt:  '',
+    xpathExpr: "//Order[xs:decimal(Amount) gt 1000 and Status = 'OPEN']",
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Orders xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Order>
+    <Id>ORD-001</Id><Customer>ACME</Customer>
+    <Amount>4500.00</Amount><Status>OPEN</Status><Priority>HIGH</Priority>
+  </Order>
+  <Order>
+    <Id>ORD-002</Id><Customer>Globex</Customer>
+    <Amount>340.00</Amount><Status>OPEN</Status><Priority>LOW</Priority>
+  </Order>
+  <Order>
+    <Id>ORD-003</Id><Customer>Initech</Customer>
+    <Amount>12000.00</Amount><Status>CLOSED</Status><Priority>HIGH</Priority>
+  </Order>
+  <Order>
+    <Id>ORD-004</Id><Customer>Umbrella</Customer>
+    <Amount>890.00</Amount><Status>OPEN</Status><Priority>HIGH</Priority>
+  </Order>
+  <Order>
+    <Id>ORD-005</Id><Customer>Globex</Customer>
+    <Amount>5600.00</Amount><Status>OPEN</Status><Priority>LOW</Priority>
+  </Order>
+</Orders>`,
+    xpathHints: [
+      "//Order[xs:decimal(Amount) gt 1000 and Status='OPEN']         — high value open orders",
+      "//Order[Status='OPEN' or Status='PENDING']                    — open or pending",
+      "//Order[not(Status='CLOSED')]                                  — exclude closed",
+      "//Order[exists(Priority) and Priority='HIGH']                  — has Priority = HIGH",
+      "if (count(//Order[Status='OPEN']) gt 0) then 'Has open' else 'All closed'  — conditional string",
+      "every $o in //Order satisfies xs:decimal($o/Amount) gt 100    — all over 100?",
+      "some $o in //Order satisfies $o/Status = 'OPEN'               — any open?",
+    ]
+  },
+
+  xpathNodeInspection: {
+    label: 'Node Inspection Functions',
+    icon:  '🔬',
+    desc:  'name(), local-name(), namespace-uri(), count(), position(), last() — inspect document structure',
+    cat:   'xpath',
+    xslt:  '',
+    xpathExpr: "//IDOC/*[local-name() != 'EDI_DC40']",
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<IDOC BEGIN="1">
+  <EDI_DC40 SEGMENT="1">
+    <TABNAM>EDI_DC40</TABNAM>
+    <MANDT>100</MANDT>
+    <DOCNUM>0000000000123456</DOCNUM>
+    <DOCREL>755</DOCREL>
+    <MESTYP>ORDERS</MESTYP>
+    <RCVPRT>LS</RCVPRT>
+    <RCVPRN>PARTNERB</RCVPRN>
+  </EDI_DC40>
+  <E1EDK01 SEGMENT="1">
+    <ACTION>000</ACTION>
+    <CURCY>EUR</CURCY>
+    <HWAER>EUR</HWAER>
+    <BSART>NB</BSART>
+  </E1EDK01>
+  <E1EDP01 SEGMENT="1">
+    <POSEX>000010</POSEX>
+    <MATNR>000000000000012345</MATNR>
+    <MENGE>00005.000</MENGE>
+    <MEINS>EA</MEINS>
+  </E1EDP01>
+  <E1EDP01 SEGMENT="1">
+    <POSEX>000020</POSEX>
+    <MATNR>000000000000067890</MATNR>
+    <MENGE>00010.000</MENGE>
+    <MEINS>KG</MEINS>
+  </E1EDP01>
+</IDOC>`,
+    xpathHints: [
+      "//IDOC/*[local-name() != 'EDI_DC40']         — all segments except control record",
+      "name(//IDOC/*[1])                              — name of first child",
+      "local-name(//IDOC/*[2])                        — local name without prefix",
+      "count(//IDOC/*)                                — total segment count",
+      "count(//E1EDP01)                               — line item segment count",
+      "//IDOC/*[last()]                               — last segment",
+      "//IDOC/*[position() = 2]                       — second segment",
+      "/IDOC/@BEGIN                                   — attribute value",
+    ]
+  },
+
+  xpathSOAPNavigation: {
+    label: 'SOAP Envelope Navigation',
+    icon:  '🧩',
+    desc:  'Navigate SOAP envelope headers and body with namespace-aware XPath — daily CPI use case',
+    cat:   'xpath',
+    xslt:  '',
+    xpathExpr: "//*[local-name()='Body']/*[1]",
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope
+  xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+  xmlns:ord="http://sap.com/xi/orders/v1">
+  <soapenv:Header>
+    <wsse:Security>
+      <wsse:UsernameToken>
+        <wsse:Username>svc_cpi_user</wsse:Username>
+        <wsse:Password>**hidden**</wsse:Password>
+      </wsse:UsernameToken>
+    </wsse:Security>
+  </soapenv:Header>
+  <soapenv:Body>
+    <ord:CreateOrderRequest>
+      <ord:OrderHeader>
+        <ord:PONumber>PO-2024-99001</ord:PONumber>
+        <ord:Vendor>10000042</ord:Vendor>
+        <ord:Currency>EUR</ord:Currency>
+        <ord:TotalAmount>18750.00</ord:TotalAmount>
+      </ord:OrderHeader>
+      <ord:OrderLines>
+        <ord:Line lineNo="1">
+          <ord:Material>MAT-001</ord:Material>
+          <ord:Quantity>5</ord:Quantity>
+          <ord:UnitPrice>1500.00</ord:UnitPrice>
+        </ord:Line>
+        <ord:Line lineNo="2">
+          <ord:Material>MAT-002</ord:Material>
+          <ord:Quantity>10</ord:Quantity>
+          <ord:UnitPrice>937.50</ord:UnitPrice>
+        </ord:Line>
+      </ord:OrderLines>
+    </ord:CreateOrderRequest>
+  </soapenv:Body>
+</soapenv:Envelope>`,
+    xpathHints: [
+      "//*[local-name()='Body']/*[1]                           — first child of Body",
+      "//*[local-name()='PONumber']                            — PO number anywhere",
+      "//*[local-name()='OrderHeader']/*[local-name()='Vendor'] — vendor in header",
+      "count(//*[local-name()='Line'])                         — number of order lines",
+      "//*[local-name()='Line']/@lineNo                        — all lineNo attributes",
+      "//*[local-name()='Username']                            — WSSE username",
+      "sum(//*[local-name()='UnitPrice'] * //*[local-name()='Quantity']) — total value attempt",
+    ]
+  }
 
 };

@@ -2,25 +2,38 @@
 //  EXAMPLES LIBRARY MODAL
 // ════════════════════════════════════════════
 
-const CAT_ACCENT = {
-  transform:   '#3fb950',
-  aggregation: '#f5a524',
-  format:      '#c084fc',
-  cpi:         '#0070f2',
-  xpath:       '#f5a524',
-};
-
 let exActiveCat = 'all';
+
+// ── Render sidebar category buttons from CATEGORIES object ───────────────────
+function renderExSidebar() {
+  const sidebar = document.getElementById('exSidebar');
+  if (!sidebar) return;
+
+  const allExamples = Object.values(EXAMPLES);
+  const total = allExamples.length;
+
+  let html = '<div class="ex-sidebar-label">Categories</div>';
+
+  // "All" button
+  html += `<button class="ex-cat-btn${exActiveCat === 'all' ? ' active' : ''}" data-cat="all" onclick="setExCat('all')">All <span class="ex-cat-count">${total}</span></button>`;
+
+  // One button per category — order follows CATEGORIES definition
+  Object.entries(CATEGORIES).forEach(([cat, { label }]) => {
+    const count = allExamples.filter(ex => ex.cat === cat).length;
+    if (count === 0) return; // skip empty categories
+    const isActive = exActiveCat === cat;
+    html += `<button class="ex-cat-btn${isActive ? ' active' : ''}" data-cat="${cat}" onclick="setExCat('${cat}')">${label} <span class="ex-cat-count">${count}</span></button>`;
+  });
+
+  sidebar.innerHTML = html;
+}
 
 function openExModal() {
   document.getElementById('exModalBackdrop').classList.add('open');
   document.getElementById('exModalSearch').value = '';
-  // Pre-select category based on current mode, but show all categories always
+  // Pre-select category based on current mode
   exActiveCat = xpathEnabled ? 'xpath' : 'all';
-  document.querySelectorAll('.ex-cat-btn').forEach(b => {
-    b.style.display = ''; // always show all category buttons
-    b.classList.toggle('active', b.dataset.cat === exActiveCat);
-  });
+  renderExSidebar();
   renderExGrid();
   setTimeout(() => document.getElementById('exModalSearch').focus(), 60);
 }
@@ -49,7 +62,7 @@ document.addEventListener('keydown', e => {
 
 function setExCat(cat) {
   exActiveCat = cat;
-  document.querySelectorAll('.ex-cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+  renderExSidebar();
   renderExGrid();
 }
 
@@ -82,17 +95,18 @@ function renderExGrid() {
     groups[cat].push(k);
   });
 
-  const CAT_LABELS = { transform:'Data Transformation', aggregation:'Aggregation & Splitting', format:'Format Conversion', cpi:'SAP CPI Patterns', xpath:'XPath Explorer' };
-
   let html = '';
-  Object.keys(groups).forEach(cat => {
+  // Preserve CATEGORIES order for section grouping
+  const orderedCats = [...Object.keys(CATEGORIES), ...Object.keys(groups).filter(c => !CATEGORIES[c])];
+  orderedCats.filter(cat => groups[cat]).forEach(cat => {
+    const catDef = CATEGORIES[cat] || { label: cat, accent: 'var(--sap-blue)' };
     if (exActiveCat === 'all') {
-      html += `<div class="ex-grid-section-label">${CAT_LABELS[cat] || cat}</div>`;
+      html += `<div class="ex-grid-section-label">${catDef.label}</div>`;
     }
     html += '<div class="ex-grid">';
     groups[cat].forEach(k => {
       const ex = EXAMPLES[k];
-      const accent = CAT_ACCENT[ex.cat] || 'var(--sap-blue)';
+      const accent = catDef.accent;
       html += `
         <div class="ex-card" style="--card-accent:${accent}" onclick="loadExample('${k}')">
           <div class="ex-card-top">
@@ -101,7 +115,7 @@ function renderExGrid() {
           </div>
           <div class="ex-card-desc">${ex.desc}</div>
           <div class="ex-card-footer">
-            <span class="ex-card-tag">${CAT_LABELS[ex.cat] || ex.cat}</span>
+            <span class="ex-card-tag">${catDef.label}</span>
             <span class="ex-card-load">Load →</span>
           </div>
         </div>`;
