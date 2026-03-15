@@ -591,21 +591,27 @@
       caret-color: var(--sap-blue);
     }
     .xpath-input::placeholder { color: var(--text-dim); }
-    .xpath-run-btn {
+    .xpath-bar-btn {
       flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      height: 24px;
+      border: none; border-radius: 4px; cursor: pointer;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; font-weight: 700;
-      padding: 4px 10px; border-radius: 5px;
-      background: var(--sap-blue);
-      color: #fff; border: none; cursor: pointer;
-      display: flex; align-items: center; gap: 5px;
       transition: background 0.15s, opacity 0.15s;
     }
-    .xpath-run-btn:hover { background: #0060d0; }
-    .xpath-run-btn .kbd {
-      font-size: 9px; opacity: 0.7;
-      font-family: 'JetBrains Mono', monospace;
+    .xpath-copy-btn {
+      width: 26px;
+      background: transparent;
+      color: var(--text-dim);
     }
+    .xpath-copy-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+    .xpath-run-btn {
+      font-size: 10px; font-weight: 700;
+      padding: 0 8px;
+      background: var(--sap-blue);
+      color: #fff;
+    }
+    .xpath-run-btn:hover { background: #0060d0; }
 
     /* Results panel */
     .xpath-results-panel {
@@ -741,6 +747,7 @@
     /* Light theme overrides */
     body.light .xpath-bar { background: var(--bg-panel); }
     body.light .xpath-input { color: var(--text-primary); }
+    body.light .xpath-copy-btn:hover { background: rgba(0,0,0,0.06); }
     body.light .xpath-results-body { background: var(--bg-editor); }
     body.light .xpath-result-item:hover { background: rgba(0,0,0,0.02); }
     body.light .xpath-results-bar { background: var(--bg-panel); }

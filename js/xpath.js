@@ -284,7 +284,10 @@ function runXPath() {
 
 // ── Render results panel ───────────────────────────────────────────────────────
 // Async because monaco.editor.colorize() returns a Promise.
+// Generation counter prevents a slow first run overwriting a faster second run.
+let _showXPathGen = 0;
 async function _showXPathResults(items, errorMsg, isError) {
+  const gen = ++_showXPathGen; // capture generation for this call
   const panel   = document.getElementById('xpathResultsPanel');
   const body    = document.getElementById('xpathResultsBody');
   const countEl = document.getElementById('xpathMatchCount');
@@ -326,6 +329,9 @@ async function _showXPathResults(items, errorMsg, isError) {
     return escHtml(text);
   }));
 
+  // Bail if a newer run has started while we were awaiting colorize
+  if (gen !== _showXPathGen) return;
+
   body.innerHTML = serialized.map(({ type }, i) => {
     const typeLabel = type === 'node' ? 'Node' : type === 'text' ? 'Text' : 'Value';
     return `<div class="xpath-result-item">
@@ -349,6 +355,29 @@ function clearXPathResults() {
 // ── Restore output section when a transform runs ──────────────────────────────
 function restoreOutputSection() {
   document.getElementById('outputSection')?.classList.remove('xpath-minimized');
+  // Collapse XPath results panel and clear editor highlights — mirror of output being minimized during XPath run
+  document.getElementById('xpathResultsPanel')?.classList.remove('visible');
+  clearXPathHighlights();
+}
+
+// ── Copy XPath expression to clipboard ────────────────────────────────────────
+function copyXPathInput() {
+  const expr = document.getElementById('xpathInput')?.value?.trim();
+  if (!expr) return clog('XPath bar is empty — nothing to copy', 'warn');
+  const onSuccess = () => clog(`ƒx  Expression copied to clipboard ✓`, 'success');
+  const onFail    = () => {
+    const ta = document.createElement('textarea');
+    ta.value = expr;
+    ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    const ok = (() => { try { return document.execCommand('copy'); } catch(_) { return false; } })();
+    document.body.removeChild(ta);
+    ok ? onSuccess() : clog('Clipboard access denied', 'error');
+  };
+  if (window.navigator?.clipboard?.writeText) {
+    navigator.clipboard.writeText(expr).then(onSuccess, onFail);
+  } else { onFail(); }
 }
 
 // ── Copy results to clipboard ──────────────────────────────────────────────────

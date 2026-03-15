@@ -1600,7 +1600,7 @@ const EXAMPLES = {
     icon:  '🔗',
     desc:  'Split delimited CPI property strings and reassemble — common in batch and routing flows',
     cat:   'xpath',
-    xpathExpr: "tokenize(//BatchKeys, ';')",
+    xpathExpr: "string-join(tokenize(//BatchKeys, ';'), ',')",
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <CPIContext>
   <!-- Semicolon-delimited keys saved before $batch call — typical CPI pattern -->

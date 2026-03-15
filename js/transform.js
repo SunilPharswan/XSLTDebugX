@@ -152,148 +152,140 @@ function runTransform() {
   btn.disabled = true;
   setStatus('Transforming…', 'busy');
 
-  const xmlSrc = eds.xml?.getValue()?.trim();
-  let xsltSrc  = eds.xslt?.getValue()?.trim();
-
-  if (!xmlSrc)  { clog('XML Source is empty',       'error'); resetBtn(); return; }
-  if (!xsltSrc) { clog('XSLT Stylesheet is empty',  'error'); resetBtn(); return; }
-
-  // ── Pre-flight validation ──
-  setStatus('Validating…', 'busy');
-  if (!preflight(xmlSrc, xsltSrc)) {
-    resetBtn();
-    return;
-  }
-
-  const t0 = performance.now();
-  clog(`Starting XSLT transform — XML ${xmlSrc.length} chars · XSLT ${xsltSrc.length} chars`, 'info');
-
-  // Extract cpi: calls BEFORE stripping so we can show them in output panels
-  const hasCPI   = /cpi:set(?:Header|Property)/.test(xsltSrc);
-  const cpiCalls = hasCPI ? extractCPICalls(xsltSrc) : { headers: {}, properties: {} };
-  let cpiLineOffset = 0;
-  if (hasCPI) {
-    const { stripped, offset } = stripCPICalls(xsltSrc);
-    xsltSrc       = stripped;
-    cpiLineOffset = offset;
-    const _hc = Object.keys(cpiCalls.headers).length;
-    const _pc = Object.keys(cpiCalls.properties).length;
-    const _parts = ['CPI extension calls detected'];
-    if (_hc) _parts.push(`${_hc} header${_hc > 1 ? 's' : ''}`);
-    if (_pc) _parts.push(`${_pc} propert${_pc > 1 ? 'ies' : 'y'}`);
-    if (!_hc && !_pc) _parts.push('dynamic values only — output panels will show — none —');
-    clog(_parts.join(' — '), 'info');
-  }
-
-  // Log which params are being passed
-  const namedParams = [...kvData.headers, ...kvData.properties].filter(r => r.name.trim());
-  if (namedParams.length) {
-    clog(`Passing xsl:params: ${namedParams.map(r => r.name).join(', ')}`, 'info');
-  }
-
-  const paramsXPath = buildParamsXPath();
-
-  // ── Intercept xsl:message output ──────────────────────────────────────────
-  // Saxon-JS routes xsl:message to console.log("xsl:message: <text>").
-  // Temporarily patch console.log to capture those and route them to clog.
-  const _xslMessages  = [];
-  const _origConsoleLog = console.log;
-  console.log = function(...args) {
-    const first = args[0];
-    if (typeof first === 'string' && first.startsWith('xsl:message: ')) {
-      _xslMessages.push(first.slice(13));
-    } else {
-      _origConsoleLog.apply(console, args);
-    }
-  };
-
   try {
-    const output = SaxonJS.XPath.evaluate(
-      `transform(map {
-        'stylesheet-text' : $xslt,
-        'source-node'     : parse-xml($xml),
-        'delivery-format' : 'serialized'
-        ${paramsXPath}
-      })?output`,
-      [],
-      { params: { xslt: xsltSrc, xml: xmlSrc } }
-    );
+    const xmlSrc = eds.xml?.getValue()?.trim();
+    let xsltSrc  = eds.xslt?.getValue()?.trim();
 
-    const elapsed = (performance.now() - t0).toFixed(1);
+    if (!xmlSrc)  { clog('XML Source is empty',      'error'); setStatus('Ready', 'ok'); return; }
+    if (!xsltSrc) { clog('XSLT Stylesheet is empty', 'error'); setStatus('Ready', 'ok'); return; }
 
-    // Restore output section if it was minimised by XPath panel
-    if (typeof restoreOutputSection === 'function') restoreOutputSection();
+    // ── Pre-flight validation ──
+    setStatus('Validating…', 'busy');
+    if (!preflight(xmlSrc, xsltSrc)) return;
 
-    // Flush xsl:message lines before completion log — fires in natural execution order
-    _xslMessages.forEach(m => clog(`xsl:message → ${m}`, 'warn'));
+    const t0 = performance.now();
+    clog(`Starting XSLT transform — XML ${xmlSrc.length} chars · XSLT ${xsltSrc.length} chars`, 'info');
 
-    eds.out.updateOptions({ readOnly: false });
-    eds.out.setValue(output.trimStart().startsWith('<') ? prettyXML(output) : output);
-    eds.out.updateOptions({ readOnly: true });
-
-    // Show output panels: CPI-set values take priority, then pass-through input headers + properties
-    const outHdrs  = { ...cpiCalls.headers };
-    const outProps = { ...cpiCalls.properties };
-    kvData.headers.filter(r => r.name.trim() && !(r.name in outHdrs))
-                  .forEach(r => { outHdrs[r.name] = r.value; });
-    kvData.properties.filter(r => r.name.trim() && !(r.name in outProps))
-                     .forEach(r => { outProps[r.name] = r.value; });
-    renderOutputKV(outHdrs, outProps);
-
-    clog(`Transform complete in ${elapsed} ms ✓`, 'success');
-    setStatus(`Done · ${elapsed} ms`, 'ok');
-
-    // Auto-expand output pane on first successful run
-    const colRight = document.getElementById('colRight');
-    if (colRight.classList.contains('collapsed')) {
-      colRight.classList.remove('collapsed');
-      scheduleSave();
-      setTimeout(() => {
-        eds.xml?.layout();
-        eds.xslt?.layout();
-        eds.out?.layout();
-      }, 250);
+    // Extract cpi: calls BEFORE stripping so we can show them in output panels
+    const hasCPI   = /cpi:set(?:Header|Property)/.test(xsltSrc);
+    const cpiCalls = hasCPI ? extractCPICalls(xsltSrc) : { headers: {}, properties: {} };
+    let cpiLineOffset = 0;
+    if (hasCPI) {
+      const { stripped, offset } = stripCPICalls(xsltSrc);
+      xsltSrc       = stripped;
+      cpiLineOffset = offset;
+      const _hc = Object.keys(cpiCalls.headers).length;
+      const _pc = Object.keys(cpiCalls.properties).length;
+      const _parts = ['CPI extension calls detected'];
+      if (_hc) _parts.push(`${_hc} header${_hc > 1 ? 's' : ''}`);
+      if (_pc) _parts.push(`${_pc} propert${_pc > 1 ? 'ies' : 'y'}`);
+      if (!_hc && !_pc) _parts.push('dynamic values only — output panels will show — none —');
+      clog(_parts.join(' — '), 'info');
     }
 
-  } catch (err) {
-    // Flush xsl:message lines before error — trace should precede the failure it caused
-    _xslMessages.forEach(m => clog(`xsl:message → ${m}`, 'warn'));
+    // Log which params are being passed
+    const namedParams = [...kvData.headers, ...kvData.properties].filter(r => r.name.trim());
+    if (namedParams.length) {
+      clog(`Passing xsl:params: ${namedParams.map(r => r.name).join(', ')}`, 'info');
+    }
 
-    const fullMsg = err.message || String(err);
-    const msg = fullMsg.split('\n')[0];
+    const paramsXPath = buildParamsXPath();
 
-    // Detect terminate="yes" — Saxon throws "Terminated with <message text>"
-    // Log it as a warn (not error) since it's an intentional halt, not a bug.
-    // Error-highlight block is skipped — there's no broken line to mark.
-    const terminateMatch = msg.match(/^Terminated with (.+)$/i);
-    if (terminateMatch) {
-      clog(`xsl:message terminate="yes" — ${terminateMatch[1]}`, 'warn');
-    } else {
-      clog(`Error: ${msg}`, 'error');
-      // Strategy 1: Saxon embeds the failing XPath expression in {…} in the error message.
-      // Search for that expression directly in the original (unstripped) XSLT — immune to
-      // any line-count drift caused by stripCPICalls. Pass saxonReportedLine + cpiLineOffset
-      // as a hint so duplicate expressions resolve to the closest occurrence.
-      // Strategy 2 (fallback): add the stripped-line offset to Saxon's reported line number.
-      const originalXslt = eds.xslt?.getValue() ?? '';
-      const saxonLine    = parseSaxonErrorLine(fullMsg);
-      const errLine =
-        findXPathExpressionLine(fullMsg, originalXslt, saxonLine, cpiLineOffset) ||
-        (saxonLine !== null ? saxonLine + cpiLineOffset : null);
-      if (errLine) {
-        xsltDecorations = markErrorLine(eds.xslt, errLine, msg, xsltDecorations);
-        clog(`↳ Error at line ${errLine} (highlighted in XSLT editor)`, 'error');
+    // ── Intercept xsl:message output ──────────────────────────────────────────
+    // Saxon-JS routes xsl:message to console.log("xsl:message: <text>").
+    // Temporarily patch console.log to capture those and route them to clog.
+    const _xslMessages    = [];
+    const _origConsoleLog = console.log;
+    console.log = function(...args) {
+      const first = args[0];
+      if (typeof first === 'string' && first.startsWith('xsl:message: ')) {
+        _xslMessages.push(first.slice(13));
+      } else {
+        _origConsoleLog.apply(console, args);
       }
+    };
+
+    try {
+      const output = SaxonJS.XPath.evaluate(
+        `transform(map {
+          'stylesheet-text' : $xslt,
+          'source-node'     : parse-xml($xml),
+          'delivery-format' : 'serialized'
+          ${paramsXPath}
+        })?output`,
+        [],
+        { params: { xslt: xsltSrc, xml: xmlSrc } }
+      );
+
+      const elapsed = (performance.now() - t0).toFixed(1);
+
+      // Restore output section if it was minimised by XPath panel
+      if (typeof restoreOutputSection === 'function') restoreOutputSection();
+
+      // Flush xsl:message lines before completion log — fires in natural execution order
+      _xslMessages.forEach(m => clog(`xsl:message → ${m}`, 'warn'));
+
+      eds.out.updateOptions({ readOnly: false });
+      eds.out.setValue(output.trimStart().startsWith('<') ? prettyXML(output) : output);
+      eds.out.updateOptions({ readOnly: true });
+
+      // Show output panels: CPI-set values take priority, then pass-through input headers + properties
+      const outHdrs  = { ...cpiCalls.headers };
+      const outProps = { ...cpiCalls.properties };
+      kvData.headers.filter(r => r.name.trim() && !(r.name in outHdrs))
+                    .forEach(r => { outHdrs[r.name] = r.value; });
+      kvData.properties.filter(r => r.name.trim() && !(r.name in outProps))
+                       .forEach(r => { outProps[r.name] = r.value; });
+      renderOutputKV(outHdrs, outProps);
+
+      clog(`Transform complete in ${elapsed} ms ✓`, 'success');
+      setStatus(`Done · ${elapsed} ms`, 'ok');
+
+      // Auto-expand output pane on first successful run
+      const colRight = document.getElementById('colRight');
+      if (colRight.classList.contains('collapsed')) {
+        colRight.classList.remove('collapsed');
+        scheduleSave();
+        setTimeout(() => {
+          eds.xml?.layout();
+          eds.xslt?.layout();
+          eds.out?.layout();
+        }, 250);
+      }
+
+    } catch (err) {
+      // Flush xsl:message lines before error — trace should precede the failure it caused
+      _xslMessages.forEach(m => clog(`xsl:message → ${m}`, 'warn'));
+
+      const fullMsg = err.message || String(err);
+      const msg = fullMsg.split('\n')[0];
+
+      // Detect terminate="yes" — Saxon throws "Terminated with <message text>"
+      // Log it as a warn (not error) since it's an intentional halt, not a bug.
+      const terminateMatch = msg.match(/^Terminated with (.+)$/i);
+      if (terminateMatch) {
+        clog(`xsl:message terminate="yes" — ${terminateMatch[1]}`, 'warn');
+      } else {
+        clog(`Error: ${msg}`, 'error');
+        const originalXslt = eds.xslt?.getValue() ?? '';
+        const saxonLine    = parseSaxonErrorLine(fullMsg);
+        const errLine =
+          findXPathExpressionLine(fullMsg, originalXslt, saxonLine, cpiLineOffset) ||
+          (saxonLine !== null ? saxonLine + cpiLineOffset : null);
+        if (errLine) {
+          xsltDecorations = markErrorLine(eds.xslt, errLine, msg, xsltDecorations);
+          clog(`↳ Error at line ${errLine} (highlighted in XSLT editor)`, 'error');
+        }
+      }
+
+      setStatus('Transform failed', 'err');
+    } finally {
+      // Always restore console.log — even if Saxon throws
+      console.log = _origConsoleLog;
     }
 
-    setStatus('Transform failed', 'err');
   } finally {
-    // Always restore console.log — even if Saxon throws
-    // Messages already flushed above in try/catch at the right point in the log order
-    console.log = _origConsoleLog;
+    // Always re-enable the Run button — even if preflight, param building, or anything else throws
+    resetBtn();
   }
-
-  resetBtn();
 }
-
-

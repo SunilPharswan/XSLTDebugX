@@ -86,11 +86,14 @@
         <span class="xpath-icon">ƒx</span>
         <input class="xpath-input" id="xpathInput"
           placeholder="XPath 3.0 — e.g. //Order[@status='OPEN'] or count(//Item)"
-          onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();runXPath();}"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();runXPath();}"
           oninput="scheduleSave()"
           autocomplete="off" spellcheck="false"/>
-        <button class="xpath-run-btn" onclick="runXPath()">
-          Run <span class="kbd">⌘↵</span>
+        <button class="xpath-bar-btn xpath-copy-btn" onclick="copyXPathInput()" title="Copy expression">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M4 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2V6.5L8.5 4H4zm0 1h4v2.5A.5.5 0 0 0 8.5 6H11v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1h1v-1a.5.5 0 0 1 .5-.5H10l2 2v6a.5.5 0 0 1-.5.5H11v1h.5A1.5 1.5 0 0 0 14 9V3.5L11.5 1 9 0H6.5z"/></svg>
+        </button>
+        <button class="xpath-bar-btn xpath-run-btn" onclick="runXPath()" title="Run XPath (⌘↵)">
+          Run
         </button>
       </div>
 
