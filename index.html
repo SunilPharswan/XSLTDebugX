@@ -40,9 +40,15 @@
     Examples
   </button>
 
-  <button class="ex-btn xpath-toggle-btn" id="xpathToggle" onclick="toggleXPath()" title="Toggle XPath evaluator">
-    ƒx XPath
-  </button>
+  <div class="mode-switcher">
+    <button class="mode-btn mode-btn-xslt active" id="modeBtnXslt" onclick="if(xpathEnabled)toggleXPath()" title="XSLT Transform mode">
+      <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M2 3h12v1.5H2V3zm2 3.5h8V8H4V6.5zm2 3.5h4v1.5H6V10z"/></svg>
+      XSLT
+    </button>
+    <button class="mode-btn mode-btn-xpath" id="modeBtnXpath" onclick="if(!xpathEnabled)toggleXPath()" title="XPath evaluator mode">
+      ƒx XPath
+    </button>
+  </div>
 
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light / dark theme">☀️</button>
 

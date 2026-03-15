@@ -13,7 +13,8 @@ let _xpathPreColCenterCollapsed = false; // colCenter state before XPath was ena
 
 // ── Apply XPath enabled/disabled state to DOM (no logging, no side effects) ──
 function _applyXPathToggleState() {
-  const btn        = document.getElementById('xpathToggle');
+  const btnXslt    = document.getElementById('modeBtnXslt');
+  const btnXpath   = document.getElementById('modeBtnXpath');
   const bar        = document.getElementById('xpathBar');
   const colCenter  = document.getElementById('colCenter');
   const hdrPanel   = document.getElementById('hdrPanel');
@@ -25,7 +26,8 @@ function _applyXPathToggleState() {
   const runBtn     = document.getElementById('runBtn');
   const consoleTtl = document.querySelector('.console-title');
 
-  if (btn) btn.classList.toggle('active', xpathEnabled);
+  if (btnXslt)  btnXslt.classList.toggle('active', !xpathEnabled);
+  if (btnXpath) btnXpath.classList.toggle('active',  xpathEnabled);
   if (bar) bar.style.display = xpathEnabled ? '' : 'none';
 
   // When enabling: always collapse colCenter. When disabling: restore to pre-xpath state.
