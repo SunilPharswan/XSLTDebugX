@@ -340,8 +340,160 @@ require(['vs/editor/editor.main'], () => {
   setupAutoClose(eds.xml);
   setupAutoClose(eds.xslt);
 
+  // ── Custom context menu actions ───────────────────────────────────────────
 
-  // Debounced live validation — runs 800ms after the user stops typing
+  // Helper: toggle XML comment on selected lines
+  function _toggleXmlComment(editor) {
+    const model = editor.getModel();
+    const sel   = editor.getSelection();
+    const startLine = sel.startLineNumber;
+    const endLine   = sel.endLineNumber;
+
+    // Collect lines in selection
+    const lines = [];
+    for (let i = startLine; i <= endLine; i++) lines.push(model.getLineContent(i));
+
+    // Detect if ALL non-empty lines are already commented
+    const nonEmpty   = lines.filter(l => l.trim());
+    const allCommented = nonEmpty.length > 0 &&
+      nonEmpty.every(l => l.trim().startsWith('<!--') && l.trim().endsWith('-->'));
+
+    const edits = [];
+    if (allCommented) {
+      // Uncomment: strip <!-- and -->
+      for (let i = startLine; i <= endLine; i++) {
+        const line = model.getLineContent(i);
+        const stripped = line.replace(/^(\s*)<!--\s?/, '$1').replace(/\s?-->(\s*)$/, '$1');
+        edits.push({ range: new monaco.Range(i, 1, i, line.length + 1), text: stripped });
+      }
+    } else {
+      // Comment: wrap each non-empty line
+      for (let i = startLine; i <= endLine; i++) {
+        const line = model.getLineContent(i);
+        if (!line.trim()) continue;
+        edits.push({ range: new monaco.Range(i, 1, i, line.length + 1), text: `<!-- ${line} -->` });
+      }
+    }
+    if (edits.length) editor.executeEdits('toggle-comment', edits);
+  }
+
+  // ── XML editor actions ──
+  eds.xml.addAction({
+    id:    'xd-format-xml',
+    label: 'Format XML',
+    contextMenuGroupId: '1_modification',
+    contextMenuOrder: 10,
+    run(ed) {
+      const src = ed.getValue();
+      if (!src.trim()) return;
+      const fmt = prettyXML(src);
+      ed.executeEdits('format-xml', [{
+        range: ed.getModel().getFullModelRange(), text: fmt
+      }]);
+      clog('XML formatted ✓', 'success');
+    }
+  });
+
+  eds.xml.addAction({
+    id:    'xd-minify-xml',
+    label: 'Minify XML',
+    contextMenuGroupId: '1_modification',
+    contextMenuOrder: 11,
+    run(ed) {
+      const src = ed.getValue().trim();
+      if (!src) return;
+      const minified = src.replace(/>\s+</g, '><').replace(/\s{2,}/g, ' ');
+      ed.executeEdits('minify-xml', [{
+        range: ed.getModel().getFullModelRange(), text: minified
+      }]);
+      clog('XML minified ✓', 'success');
+    }
+  });
+
+  eds.xml.addAction({
+    id:    'xd-comment-xml',
+    label: 'Comment / Uncomment Lines',
+    contextMenuGroupId: '1_modification',
+    contextMenuOrder: 12,
+    run(ed) { _toggleXmlComment(ed); }
+  });
+
+  eds.xml.addAction({
+    id:    'xd-copy-xpath-indexed',
+    label: 'Copy XPath — Exact  (e.g. /Orders/Order[2]/Amount)',
+    contextMenuGroupId: '1_modification',
+    contextMenuOrder: 21,
+    run(ed) {
+      const result = typeof getXPathAtCursor === 'function' ? getXPathAtCursor(ed) : null;
+      if (!result) { clog('Could not determine XPath — place cursor inside an element', 'warn'); return; }
+      const xpath = result.indexed;
+      const input = document.getElementById('xpathInput');
+      if (input) { input.value = xpath; scheduleSave(); if (typeof runXPath === 'function') runXPath(); }
+      const onSuccess = () => clog(`XPath (exact) copied: ${xpath}`, 'success');
+      const onFail = () => {
+        const ta = document.createElement('textarea');
+        ta.value = xpath; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        const ok = (() => { try { return document.execCommand('copy'); } catch(_) { return false; } })();
+        document.body.removeChild(ta);
+        ok ? onSuccess() : clog('Clipboard access denied', 'error');
+      };
+      if (window.navigator?.clipboard?.writeText) navigator.clipboard.writeText(xpath).then(onSuccess, onFail);
+      else onFail();
+    }
+  });
+
+  eds.xml.addAction({
+    id:    'xd-copy-xpath-general',
+    label: 'Copy XPath — General  (e.g. /Orders/Order/Amount)',
+    contextMenuGroupId: '1_modification',
+    contextMenuOrder: 22,
+    run(ed) {
+      const result = typeof getXPathAtCursor === 'function' ? getXPathAtCursor(ed) : null;
+      if (!result) { clog('Could not determine XPath — place cursor inside an element', 'warn'); return; }
+      const xpath = result.general;
+      const input = document.getElementById('xpathInput');
+      if (input) { input.value = xpath; scheduleSave(); if (typeof runXPath === 'function') runXPath(); }
+      const onSuccess = () => clog(`XPath (general) copied: ${xpath}`, 'success');
+      const onFail = () => {
+        const ta = document.createElement('textarea');
+        ta.value = xpath; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        const ok = (() => { try { return document.execCommand('copy'); } catch(_) { return false; } })();
+        document.body.removeChild(ta);
+        ok ? onSuccess() : clog('Clipboard access denied', 'error');
+      };
+      if (window.navigator?.clipboard?.writeText) navigator.clipboard.writeText(xpath).then(onSuccess, onFail);
+      else onFail();
+    }
+  });
+
+  // ── XSLT editor actions ──
+  eds.xslt.addAction({
+    id:    'xd-format-xslt',
+    label: 'Format XML',
+    contextMenuGroupId: '1_modification',
+    contextMenuOrder: 10,
+    run(ed) {
+      const src = ed.getValue();
+      if (!src.trim()) return;
+      const fmt = prettyXML(src);
+      ed.executeEdits('format-xml', [{
+        range: ed.getModel().getFullModelRange(), text: fmt
+      }]);
+      clog('XSLT formatted ✓', 'success');
+    }
+  });
+
+  eds.xslt.addAction({
+    id:    'xd-comment-xslt',
+    label: 'Comment / Uncomment Lines',
+    contextMenuGroupId: '1_modification',
+    contextMenuOrder: 11,
+    run(ed) { _toggleXmlComment(ed); }
+  });
+
+
 
   function runXsltValidation() {
     const src = eds.xslt.getValue().trim();

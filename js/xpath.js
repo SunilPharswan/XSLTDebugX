@@ -282,6 +282,115 @@ function runXPath() {
   }
 }
 
+// ── Build an absolute XPath for a DOM element node ───────────────────────────
+// indexed=true  → /Orders/Order[2]/Amount  (positional, exact)
+// indexed=false → /Orders/Order/Amount     (general, pattern)
+function _buildXPathFromNode(el, indexed = true) {
+  const parts = [];
+  let node = el;
+  while (node && node.nodeType === 1) {
+    const tag      = node.nodeName;
+    const siblings = node.parentNode
+      ? [...node.parentNode.children].filter(c => c.nodeName === tag)
+      : [node];
+    const idx = siblings.indexOf(node) + 1;
+    parts.unshift(
+      indexed && siblings.length > 1 ? `${tag}[${idx}]` : tag
+    );
+    node = node.parentNode;
+  }
+  return '/' + parts.join('/');
+}
+
+// ── Public: get XPath at current cursor position in the XML editor ────────────
+// Returns { indexed, general } — both absolute XPath strings, or null.
+function getXPathAtCursor(editor) {
+  const model  = editor.getModel();
+  const pos    = editor.getPosition();
+  const offset = model.getOffsetAt(pos);
+  const src    = model.getValue();
+  const domNode = _getXPathDomNodeAtOffset(src, offset);
+  if (!domNode) return null;
+  return {
+    indexed: _buildXPathFromNode(domNode, true),
+    general: _buildXPathFromNode(domNode, false),
+  };
+}
+
+// ── Find the element at a character offset in raw XML source ─────────────────
+function _getXPathDomNodeAtOffset(xmlSrc, offset) {
+  const parser = new DOMParser();
+  const doc    = parser.parseFromString(xmlSrc, 'application/xml');
+  if (doc.querySelector('parsererror')) return null;
+
+  const tagRe = /<([\w:.-]+)(?=[\s>/])/g;
+  let m;
+  const tagOccurrences = {};
+  let bestTag = null, bestOcc = 0, bestStart = -1;
+
+  while ((m = tagRe.exec(xmlSrc)) !== null) {
+    const tag = m[1];
+    if (tag.startsWith('/') || tag.startsWith('?') || tag.startsWith('!')) continue;
+    tagOccurrences[tag] = (tagOccurrences[tag] || 0) + 1;
+    const occ   = tagOccurrences[tag];
+    const range = _findNodeRangeByTag(xmlSrc, tag, occ);
+    if (!range) continue;
+    if (offset >= range.startOffset && offset <= range.endOffset) {
+      if (range.startOffset >= bestStart) {
+        bestTag = tag; bestOcc = occ; bestStart = range.startOffset;
+      }
+    }
+  }
+
+  if (!bestTag) return null;
+  const allNodes = [...doc.getElementsByTagName('*')].filter(el => el.nodeName === bestTag);
+  return allNodes[bestOcc - 1] ?? null;
+}
+
+// Variant of _findNodeRange that takes tag + occurrence directly (no DOM element needed)
+function _findNodeRangeByTag(xmlSrc, tag, occurrenceIndex) {
+  const openOffset = _nthTagOpen(xmlSrc, tag, occurrenceIndex);
+  if (openOffset === -1) return null;
+
+  let i = openOffset + tag.length + 1;
+  let inDouble = false, inSingle = false;
+  while (i < xmlSrc.length) {
+    const ch = xmlSrc[i];
+    if (!inDouble && !inSingle) {
+      if (ch === '"')  { inDouble = true;  i++; continue; }
+      if (ch === "'")  { inSingle = true;  i++; continue; }
+      if (ch === '>')  { i++; break; }
+    } else if (inDouble && ch === '"') { inDouble = false; }
+      else if (inSingle && ch === "'") { inSingle = false; }
+    i++;
+  }
+  const openTagEnd = i;
+  if (xmlSrc[i - 2] === '/') return { startOffset: openOffset, endOffset: openTagEnd };
+
+  let depth = 1, j = openTagEnd;
+  const openRe  = new RegExp(`<${tag}(?=[\\s>/])`, 'g');
+  const closeRe = new RegExp(`<\\/${tag}(?=[\\s>])`, 'g');
+  while (depth > 0) {
+    openRe.lastIndex  = j;
+    closeRe.lastIndex = j;
+    const nextOpen  = openRe.exec(xmlSrc);
+    const nextClose = closeRe.exec(xmlSrc);
+    if (!nextClose) break;
+    if (nextOpen && nextOpen.index < nextClose.index) {
+      depth++;
+      j = nextOpen.index + nextOpen[0].length;
+    } else {
+      depth--;
+      if (depth === 0) {
+        const closeEnd = xmlSrc.indexOf('>', nextClose.index);
+        return { startOffset: openOffset, endOffset: closeEnd === -1 ? nextClose.index + nextClose[0].length : closeEnd + 1 };
+      }
+      j = nextClose.index + nextClose[0].length;
+    }
+  }
+  return { startOffset: openOffset, endOffset: openTagEnd };
+}
+
 // ── Render results panel ───────────────────────────────────────────────────────
 // Async because monaco.editor.colorize() returns a Promise.
 // Generation counter prevents a slow first run overwriting a faster second run.
