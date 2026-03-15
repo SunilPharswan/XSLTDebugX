@@ -111,25 +111,21 @@ function setConsoleFilter(filter) {
 function toggleTheme() {
   const isLight = document.body.classList.toggle('light');
   document.getElementById('themeToggle').textContent = isLight ? '☀️' : '🌙';
-  localStorage.setItem('xforge-theme', isLight ? 'light' : 'dark');
+  localStorage.setItem('xdebugx-theme', isLight ? 'light' : 'dark');
 
   // Switch Monaco editor themes
-  const monacoTheme = isLight ? 'xforge-light' : 'xforge';
+  const monacoTheme = isLight ? 'xdebugx-light' : 'xdebugx';
   if (typeof monaco !== 'undefined') {
     monaco.editor.setTheme(monacoTheme);
   }
-  // theme switch is self-evident — no console log needed
 }
 
 // Restore saved theme preference
 (function() {
-  const saved = localStorage.getItem('xforge-theme');
+  const saved = localStorage.getItem('xdebugx-theme');
   if (saved === 'dark') {
     document.body.classList.remove('light');
-    // Update button emoji once DOM is accessible (script is at bottom of body so DOM is ready)
     const btn = document.getElementById('themeToggle');
     if (btn) btn.textContent = '🌙';
   }
-  // Default is light (body has class="light" in HTML), emoji is already ☀️
 })();
-

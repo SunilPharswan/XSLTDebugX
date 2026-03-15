@@ -132,12 +132,12 @@ require(['vs/editor/editor.main'], () => {
     }
   };
 
-  monaco.editor.defineTheme('xforge',       _darkThemeDef);
-  monaco.editor.defineTheme('xforge-light', _lightThemeDef);
+  monaco.editor.defineTheme('xdebugx',       _darkThemeDef);
+  monaco.editor.defineTheme('xdebugx-light', _lightThemeDef);
 
   // Apply saved theme to Monaco if light was restored from localStorage
   if (document.body.classList.contains('light')) {
-    monaco.editor.setTheme('xforge-light');
+    monaco.editor.setTheme('xdebugx-light');
   }
 
   // Override XML language to remove <> auto-close (our custom handler does tags)
@@ -147,7 +147,7 @@ require(['vs/editor/editor.main'], () => {
   });
 
   const shared = {
-    theme: document.body.classList.contains('light') ? 'xforge-light' : 'xforge',
+    theme: document.body.classList.contains('light') ? 'xdebugx-light' : 'xdebugx',
     fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
     fontSize: 13,
     lineHeight: 22,

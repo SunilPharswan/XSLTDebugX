@@ -95,7 +95,7 @@ Everything auto-saved to `localStorage` 800ms after you stop typing:
 |---|---|
 | `xdebugx-session-v1` | XML, XSLT, headers, properties, column states, XPath expression, current mode |
 | `xdebugx-xpath-history` | Last 20 XPath expressions (persists across reloads) |
-| `xforge-theme` | Light / dark preference |
+| `xdebugx-theme` | Light / dark preference |
 
 Restore log: `Session restored · saved 2m ago · XPath mode ✓`
 
@@ -252,6 +252,10 @@ pako → Monaco loader → SaxonJS2.js → state.js → validate.js → panes.js
 ### Dynamic categories
 
 `CATEGORIES` in `examples-data.js` is the single source of truth for category labels, accent colours, and sidebar order. `renderExSidebar()` in `modal.js` reads it at runtime — adding a new category requires only one line in `CATEGORIES` plus examples with the matching `cat` value.
+
+### Monaco editor themes
+
+Two custom themes are registered at startup: `xdebugx` (dark) and `xdebugx-light` (light). The active theme is stored in `localStorage` under `xdebugx-theme`. A migration shim in `ui.js` automatically reads and migrates the old `xforge-theme` key from earlier versions of the app.
 
 ### XPath expression history
 
