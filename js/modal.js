@@ -182,6 +182,7 @@ function loadExample(key) {
   }
 
   closeExModal();
+  window.goatcounter?.count({ path: `example-${key}`, title: `Example: ${ex.label}` });
 
   // ── Step 3: Post-load layout and actions ──
   if (ex.xpathExpr) {

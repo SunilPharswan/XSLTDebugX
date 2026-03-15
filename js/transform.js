@@ -170,6 +170,7 @@ function runTransform() {
 
     const t0 = performance.now();
     clog(`Starting XSLT transform — XML ${xmlSrc.length} chars · XSLT ${xsltSrc.length} chars`, 'info');
+  window.goatcounter?.count({ path: 'run-xslt', title: 'Run XSLT' });
 
     // Extract cpi: calls BEFORE stripping so we can show them in output panels
     const hasCPI   = /cpi:set(?:Header|Property)/.test(xsltSrc);

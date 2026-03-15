@@ -153,8 +153,10 @@ function toggleXPath() {
   if (!xpathEnabled) {
     clearXPathResults();
     clog('Switched to XSLT mode', 'info');
+    window.goatcounter?.count({ path: 'mode-xslt', title: 'Switch to XSLT Mode' });
   } else {
     clog('Switched to XPath mode', 'info');
+    window.goatcounter?.count({ path: 'mode-xpath', title: 'Switch to XPath Mode' });
   }
   scheduleSave();
   setTimeout(() => { eds.xml?.layout(); eds.xslt?.layout(); eds.out?.layout(); }, 50);
@@ -406,6 +408,7 @@ function runXPath() {
   }
 
   clog(`ƒx  ${expr}`, 'info');
+  window.goatcounter?.count({ path: 'run-xpath', title: 'Run XPath' });
   _xpathHistoryPush(expr);
   _xpathHistoryCursor = -1;
 
