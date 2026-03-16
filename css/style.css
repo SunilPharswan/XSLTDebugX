@@ -895,23 +895,8 @@
 
     /* ── THEME TOGGLE ── */
     /* ── THEME TOGGLE ── */
-    .theme-toggle {
-      width: 32px; height: 32px;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      cursor: pointer;
-      color: var(--text-secondary);
-      font-size: 15px;
-      transition: all 0.15s;
-      flex-shrink: 0;
-    }
-    .theme-toggle:hover {
-      color: var(--text-primary);
-      border-color: var(--border-bright);
-      background: var(--bg-header);
-    }
+    /* theme-toggle emoji size — all other styles from .header-icon-btn */
+    .theme-toggle { font-size: 15px; }
 
     /* ── EXAMPLES BUTTON ── */
     .ex-btn {
@@ -930,18 +915,38 @@
     .ex-btn:hover { color: var(--text-primary); border-color: var(--border-bright); background: var(--bg-header); }
     .ex-btn svg { width: 12px; height: 12px; }
 
+    /* ── GROUP 1: unified text+icon secondary buttons (Share, Examples, Clear Session) ── */
     .clear-session-btn {
-      display: flex; align-items: center; gap: 5px;
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
-      background: transparent;
-      border: 1px solid var(--border); border-radius: 6px;
-      color: var(--text-dim); cursor: pointer;
-      padding: 5px 10px; transition: all 0.15s;
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600;
+      background: var(--bg-panel);
+      border: 1px solid var(--border); border-radius: 7px;
+      color: var(--text-secondary); cursor: pointer;
+      padding: 7px 13px; transition: all 0.15s;
+      white-space: nowrap;
     }
     .clear-session-btn:hover {
       color: var(--error);
       border-color: var(--error);
       background: rgba(248,81,73,0.08);
+    }
+
+    /* ── GROUP 2: icon-only utility buttons (Theme, Help) ── */
+    .header-icon-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .header-icon-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--border-bright);
+      background: var(--bg-header);
     }
 
     /* ── EXAMPLES LIBRARY MODAL ── */
@@ -1215,6 +1220,118 @@
       font-size: 10px; color: var(--text-dim);
       line-height: 1.5;
     }
+
+    /* ── HELP MODAL ── */
+    .help-modal {
+      width: min(620px, 94vw);
+      max-height: 80vh;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-bright);
+      border-radius: 14px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.35);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalIn 0.18s ease;
+    }
+    .help-modal-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+    .help-modal-title {
+      font-size: 15px; font-weight: 800; letter-spacing: -0.3px;
+      color: var(--text-primary);
+    }
+    .help-tabs {
+      display: flex; gap: 4px;
+      margin-left: 8px;
+      flex: 1;
+    }
+    .help-tab {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+      padding: 4px 12px; border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .help-tab:hover { color: var(--text-secondary); background: rgba(255,255,255,0.05); }
+    .help-tab.active {
+      color: var(--sap-blue);
+      border-color: rgba(0,112,242,0.3);
+      background: rgba(0,112,242,0.1);
+    }
+    .help-tab-content {
+      display: none;
+      overflow-y: auto;
+      padding: 6px 0 12px;
+    }
+    .help-tab-content.active { display: block; }
+    .help-section {
+      padding: 10px 20px 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .help-section:last-child { border-bottom: none; }
+    .help-section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--sap-blue);
+      margin-bottom: 8px;
+    }
+    .help-row {
+      display: flex; align-items: baseline; gap: 12px;
+      padding: 4px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .help-row span:last-child { flex: 1; color: var(--text-dim); }
+    .help-row code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      background: rgba(255,255,255,0.06);
+      padding: 1px 5px; border-radius: 3px;
+      color: var(--text-secondary);
+    }
+    .help-key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      min-width: 90px;
+      flex-shrink: 0;
+    }
+    .help-row kbd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700;
+      background: var(--bg-base);
+      border: 1px solid var(--border-bright);
+      border-radius: 4px;
+      padding: 2px 7px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      min-width: 90px;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+    .help-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; font-weight: 700;
+      padding: 2px 8px; border-radius: 4px;
+      white-space: nowrap;
+      min-width: 90px;
+      flex-shrink: 0;
+      text-align: center;
+    }
+    .mode-xslt-badge { background: rgba(0,112,242,0.15); color: var(--sap-blue); border: 1px solid rgba(0,112,242,0.3); }
+    .mode-xpath-badge { background: rgba(245,165,36,0.15); color: var(--sap-gold); border: 1px solid rgba(245,165,36,0.3); }
 
 /* ── Trademark notice (status bar item) ── */
 .tm-notice {

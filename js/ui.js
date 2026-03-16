@@ -141,3 +141,25 @@ function toggleTheme() {
     if (btn) btn.textContent = '🌙';
   }
 })();
+// ════════════════════════════════════════════
+//  HELP MODAL
+// ════════════════════════════════════════════
+function openHelpModal() {
+  document.getElementById('helpModalBackdrop').classList.add('open');
+}
+
+function closeHelpModal() {
+  document.getElementById('helpModalBackdrop').classList.remove('open');
+}
+
+function handleHelpBackdropClick(e) {
+  if (e.target === document.getElementById('helpModalBackdrop')) closeHelpModal();
+}
+
+function switchHelpTab(tab) {
+  document.querySelectorAll('.help-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  document.getElementById('helpTabFeatures').classList.toggle('active', tab === 'features');
+  document.getElementById('helpTabShortcuts').classList.toggle('active', tab === 'shortcuts');
+}

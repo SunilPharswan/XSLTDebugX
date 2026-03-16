@@ -51,6 +51,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeExModal();
     if (typeof closeShareModal === 'function') closeShareModal();
+    if (typeof closeHelpModal  === 'function') closeHelpModal();
     return;
   }
   // Ctrl+Enter / Cmd+Enter → mode-aware run (works even when KV inputs have focus)

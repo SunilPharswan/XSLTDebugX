@@ -52,7 +52,11 @@
     </button>
   </div>
 
-  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light / dark theme">☀️</button>
+  <button class="header-icon-btn theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light / dark theme">☀️</button>
+
+  <button class="header-icon-btn help-btn" id="helpBtn" onclick="openHelpModal()" title="Help — features & shortcuts">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13"><circle cx="8" cy="8" r="6.5"/><path d="M6 6.2c0-1.1.9-2 2-2s2 .9 2 2c0 .9-.6 1.6-1.4 1.9C8 8.4 8 9 8 9.5" stroke-linecap="round"/><circle cx="8" cy="11.5" r=".7" fill="currentColor" stroke="none"/></svg>
+  </button>
 
   <button onclick="clearSavedState()" title="Clear saved session" id="clearSessionBtn" class="clear-session-btn">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="12" height="12"><path d="M2 4h12M6 4V2h4v2M13 4l-1 10H4L3 4"/></svg>
@@ -361,6 +365,83 @@
     </a>
   </div>
   <div class="stat tm-notice" title="SAP® and SAP Cloud Platform Integration (CPI) are registered trademarks of SAP SE. This tool is not affiliated with or endorsed by SAP SE.">SAP® trademark of SAP SE</div>
+</div>
+
+<!-- Help Modal -->
+<div class="ex-modal-backdrop" id="helpModalBackdrop" onclick="handleHelpBackdropClick(event)">
+  <div class="help-modal">
+    <div class="help-modal-header">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><circle cx="8" cy="8" r="6.5"/><path d="M6 6.2c0-1.1.9-2 2-2s2 .9 2 2c0 .9-.6 1.6-1.4 1.9C8 8.4 8 9 8 9.5" stroke-linecap="round"/><circle cx="8" cy="11.5" r=".7" fill="currentColor" stroke="none"/></svg>
+      <span class="help-modal-title">Help</span>
+      <div class="help-tabs">
+        <button class="help-tab active" data-tab="features" onclick="switchHelpTab('features')">Features</button>
+        <button class="help-tab" data-tab="shortcuts" onclick="switchHelpTab('shortcuts')">Shortcuts</button>
+      </div>
+      <button class="ex-modal-close" onclick="closeHelpModal()" title="Close">✕</button>
+    </div>
+
+    <!-- Features Tab -->
+    <div class="help-tab-content active" id="helpTabFeatures">
+      <div class="help-section">
+        <div class="help-section-title">Two Modes</div>
+        <div class="help-row"><span class="help-badge mode-xslt-badge">XSLT</span><span>Transform XML with a full XSLT 3.0 stylesheet — edit XML + XSLT side by side, run, inspect output</span></div>
+        <div class="help-row"><span class="help-badge mode-xpath-badge">XPath</span><span>Evaluate XPath 3.0 expressions against your XML — results highlighted in the editor with match count</span></div>
+      </div>
+      <div class="help-section">
+        <div class="help-section-title">Editor</div>
+        <div class="help-row"><span class="help-key">↵ wrap</span><span>Word wrap toggle per pane — click the wrap icon in any pane bar</span></div>
+        <div class="help-row"><span class="help-key">Format</span><span>Pretty-print XML / XSLT — toolbar button or right-click menu</span></div>
+        <div class="help-row"><span class="help-key">Minify</span><span>Collapse to single line — right-click menu on XML or XSLT pane</span></div>
+        <div class="help-row"><span class="help-key">Right-click</span><span>Format, Minify, Comment/Uncomment, Copy XPath — Exact or General</span></div>
+        <div class="help-row"><span class="help-key">Drag & drop</span><span>Drop any .xml or .xslt file directly onto the XML or XSLT pane</span></div>
+      </div>
+      <div class="help-section">
+        <div class="help-section-title">XPath Expression Bar</div>
+        <div class="help-row"><span class="help-key">Colorized</span><span>Live syntax coloring — functions <span style="color:var(--xpt-fn)">amber</span>, attributes <span style="color:var(--xpt-attr)">lavender</span>, strings <span style="color:var(--xpt-str)">green</span>, operators <span style="color:var(--xpt-op)">pink</span>, variables <span style="color:var(--xpt-attr)">$var</span></span></div>
+        <div class="help-row"><span class="help-key">Auto-grow</span><span>Bar expands to show the full expression — no horizontal scrolling</span></div>
+        <div class="help-row"><span class="help-key">History</span><span>Last 20 expressions saved — browse with ▲ ▼ buttons or ↑ ↓ keys</span></div>
+      </div>
+      <div class="help-section">
+        <div class="help-section-title">SAP CPI Simulation</div>
+        <div class="help-row"><span class="help-key">Headers</span><span>Add CPI headers in the left panel — injected as <code>xsl:param</code> values</span></div>
+        <div class="help-row"><span class="help-key">Properties</span><span>Add CPI properties — same injection mechanism as headers</span></div>
+        <div class="help-row"><span class="help-key">cpi:set/get</span><span>setHeader, setProperty, getHeader, getProperty all fully simulated with dynamic values</span></div>
+        <div class="help-row"><span class="help-key">xsl:message</span><span>Logged to console in amber · <code>terminate="yes"</code> shown as warning not error</span></div>
+      </div>
+      <div class="help-section">
+        <div class="help-section-title">Session & Share</div>
+        <div class="help-row"><span class="help-key">Auto-save</span><span>Everything saved to browser storage 800ms after you stop typing</span></div>
+        <div class="help-row"><span class="help-key">Clear session</span><span>Mode-aware — resets only what's relevant to current mode, stays in same mode</span></div>
+        <div class="help-row"><span class="help-key">Share</span><span>Encodes XML + XSLT + headers + properties into a single shareable URL</span></div>
+      </div>
+    </div>
+
+    <!-- Shortcuts Tab -->
+    <div class="help-tab-content" id="helpTabShortcuts">
+      <div class="help-section">
+        <div class="help-section-title">Running</div>
+        <div class="help-row"><kbd>Ctrl+Enter</kbd><span>Run XSLT transform (XSLT mode) · Run XPath expression (XPath mode)</span></div>
+        <div class="help-row"><kbd>Enter</kbd><span>Run XPath expression (when cursor is in the XPath bar)</span></div>
+      </div>
+      <div class="help-section">
+        <div class="help-section-title">XPath History</div>
+        <div class="help-row"><kbd>↑</kbd><span>Previous expression from history (when cursor is in XPath bar)</span></div>
+        <div class="help-row"><kbd>↓</kbd><span>Next expression / back to current draft</span></div>
+      </div>
+      <div class="help-section">
+        <div class="help-section-title">Modals</div>
+        <div class="help-row"><kbd>Escape</kbd><span>Close any open modal (Examples, Share, Help)</span></div>
+      </div>
+      <div class="help-section">
+        <div class="help-section-title">Editor (right-click menu)</div>
+        <div class="help-row"><span class="help-key">Format XML/XSLT</span><span>Pretty-print the active pane</span></div>
+        <div class="help-row"><span class="help-key">Minify XML/XSLT</span><span>Collapse to single line</span></div>
+        <div class="help-row"><span class="help-key">Comment / Uncomment</span><span>Toggle XML comment on selected lines</span></div>
+        <div class="help-row"><span class="help-key">Copy XPath — Exact</span><span>e.g. <code>/Orders/Order[2]/Amount</code> — positional</span></div>
+        <div class="help-row"><span class="help-key">Copy XPath — General</span><span>e.g. <code>/Orders/Order/Amount</code> — pattern</span></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- JS modules — load order matters: state → domain logic → UI → editor init -->
