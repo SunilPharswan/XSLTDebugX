@@ -190,6 +190,8 @@
             <button class="console-filter-btn"         data-filter="error" onclick="setConsoleFilter('error')">ERROR</button>
           </div>
           <div class="pane-divider"></div>
+          <input class="console-search" id="consoleSearch" type="text" placeholder="search…" oninput="applyConsoleSearch(this.value)" title="Filter console by text"/>
+          <div class="pane-divider"></div>
           <button class="pane-act-btn" id="consoleCopyBtn" title="Copy console output" onclick="copyConsole()">Copy</button>
           <button class="pane-act-btn" id="consoleClearBtn" title="Clear console" onclick="clearConsole()">Clear</button>
         </div>

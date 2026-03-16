@@ -55,11 +55,13 @@ function updateConsoleErrBadge() {
 
 function copyConsole() {
   const body = document.getElementById('consoleBody');
-  const text = [...body.querySelectorAll('.log-line')].map(l => {
-    const ts  = l.querySelector('.ts')?.textContent  ?? '';
-    const msg = l.querySelector('.msg')?.textContent ?? '';
-    return `${ts}  ${msg}`;
-  }).join('\n');
+  const text = [...body.querySelectorAll('.log-line')]
+    .filter(l => l.style.display !== 'none')
+    .map(l => {
+      const ts  = l.querySelector('.ts')?.textContent  ?? '';
+      const msg = l.querySelector('.msg')?.textContent ?? '';
+      return `${ts}  ${msg}`;
+    }).join('\n');
   if (!text.trim()) return clog('Console is empty — nothing to copy', 'warn');
 
   const onSuccess = () => clog('Console copied to clipboard ✓', 'success');
@@ -96,13 +98,23 @@ function setConsoleFilter(filter) {
     btn.classList.toggle('active', btn.dataset.filter === filter);
   });
 
-  // Apply filter via data attribute — CSS hides non-matching lines
-  const body = document.getElementById('consoleBody');
-  if (filter === 'all') {
-    body.removeAttribute('data-filter');
-  } else {
-    body.setAttribute('data-filter', filter);
-  }
+  // Delegate all filtering (type + text) to applyConsoleSearch
+  const searchVal = document.getElementById('consoleSearch')?.value ?? '';
+  applyConsoleSearch(searchVal);
+}
+
+function applyConsoleSearch(query) {
+  const term = query.trim().toLowerCase();
+  const typeFilter = consoleFilter || 'all';
+  document.querySelectorAll('#consoleBody .log-line').forEach(line => {
+    const t = line.dataset.type;
+    // INFO filter shows both info and success (success is a positive outcome, not a separate category)
+    const matchesType = typeFilter === 'all'
+      || t === typeFilter
+      || (typeFilter === 'info' && t === 'success');
+    const matchesText = !term || line.textContent.toLowerCase().includes(term);
+    line.style.display = matchesType && matchesText ? '' : 'none';
+  });
 }
 
 // ════════════════════════════════════════════

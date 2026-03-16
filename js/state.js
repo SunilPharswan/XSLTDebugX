@@ -19,8 +19,15 @@ function clog(msg, type = 'info') {
   const body = document.getElementById('consoleBody');
   const line = document.createElement('div');
   line.className = `log-line ${type}`;
+  line.dataset.type = type;
   const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
   line.innerHTML = `<span class="ts">${ts}</span><span class="msg">${escHtml(msg)}</span>`;
+  // Apply current search filter to new line before appending
+  const term = document.getElementById('consoleSearch')?.value.trim().toLowerCase() ?? '';
+  const typeFilter = consoleFilter || 'all';
+  const matchesType = typeFilter === 'all' || type === typeFilter || (typeFilter === 'info' && type === 'success');
+  const matchesText = !term || msg.toLowerCase().includes(term);
+  if (!matchesType || !matchesText) line.style.display = 'none';
   body.appendChild(line);
   body.scrollTop = body.scrollHeight;
   // Track errors/warnings for the minimised-console badge
@@ -40,11 +47,12 @@ function escHtml(s) {
 function clearConsole() {
   const body = document.getElementById('consoleBody');
   body.innerHTML = '';
-  body.removeAttribute('data-filter');
   consoleErrCount = 0;
   updateConsoleErrBadge();
-  // Reset filter buttons to ALL
+  // Reset filter buttons to ALL and clear search
   if (typeof setConsoleFilter === 'function') setConsoleFilter('all');
+  const search = document.getElementById('consoleSearch');
+  if (search) search.value = '';
 }
 
 // ════════════════════════════════════════════

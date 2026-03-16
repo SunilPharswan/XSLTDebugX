@@ -499,6 +499,224 @@ require(['vs/editor/editor.main'], () => {
     run(ed) { _toggleXmlComment(ed); }
   });
 
+  // ── CPI namespace auto-injector ──────────────────────────────────────────────
+  // Called before inserting any cpi: snippet — ensures xmlns:cpi is declared
+  // on the xsl:stylesheet element and removes it from exclude-result-prefixes.
+  function _ensureCpiNamespace(ed) {
+    const src = ed.getValue();
+    if (src.includes('xmlns:cpi=')) return; // already declared
+
+    // Inject xmlns:cpi onto xsl:stylesheet or xsl:transform opening tag
+    const CPI_NS = ' xmlns:cpi="http://sap.com/it/cpi/scripting"';
+    let updated = src.replace(
+      /(<xsl:(?:stylesheet|transform)\b)/,
+      `$1${CPI_NS}`
+    );
+
+    // Remove 'cpi' from exclude-result-prefixes if present (it's needed now)
+    // Also ensure it's NOT in exclude-result-prefixes
+    updated = updated.replace(
+      /(exclude-result-prefixes\s*=\s*)(["'])([^"']*)\2/g,
+      (_, attr, q, val) => {
+        const parts = val.split(/\s+/).filter(p => p !== 'cpi' && p !== '');
+        return attr + q + parts.join(' ') + q;
+      }
+    );
+
+    if (updated === src) {
+      // No xsl:stylesheet found — warn but still insert snippet
+      clog('⚠ Could not auto-add xmlns:cpi — add it manually to xsl:stylesheet', 'warn');
+      return;
+    }
+
+    _suppressNextValidation = true;
+    ed.pushUndoStop();
+    ed.executeEdits('inject-cpi-ns', [{
+      range: ed.getModel().getFullModelRange(),
+      text: updated
+    }]);
+    ed.pushUndoStop();
+    clog('xmlns:cpi="http://sap.com/it/cpi/scripting" added to xsl:stylesheet ✓', 'success');
+  }
+
+
+  // Inserts snippet at cursor position using executeEdits so it's undoable.
+  function _insertSnippet(ed, snippet) {
+    const pos  = ed.getPosition();
+    const line = ed.getModel().getLineContent(pos.lineNumber);
+    // Detect indentation of current line and apply to snippet
+    const indent = line.match(/^(\s*)/)[1];
+    const indented = snippet
+      .split('\n')
+      .map((l, i) => i === 0 ? l : indent + l)
+      .join('\n');
+    ed.executeEdits('snippet', [{
+      range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column),
+      text: indented
+    }]);
+    ed.focus();
+    clog(`Snippet inserted ✓`, 'info');
+  }
+
+  const _xsltSnippets = [
+    {
+      id: 'snip-for-each', order: 1,
+      label: 'Snippet → xsl:for-each',
+      snippet:
+`<xsl:for-each select="(: sequence to iterate e.g. //Item :)">
+  <xsl:value-of select="(: child element e.g. Name :)"/>
+</xsl:for-each>`
+    },
+    {
+      id: 'snip-choose', order: 2,
+      label: 'Snippet → xsl:choose / when / otherwise',
+      snippet:
+`<xsl:choose>
+  <xsl:when test="(: condition e.g. Status = 'OPEN' :)">
+    <!-- logic for first condition -->
+  </xsl:when>
+  <xsl:when test="(: condition e.g. Status = 'CLOSED' :)">
+    <!-- logic for second condition -->
+  </xsl:when>
+  <xsl:otherwise>
+    <!-- default logic -->
+  </xsl:otherwise>
+</xsl:choose>`
+    },
+    {
+      id: 'snip-if', order: 3,
+      label: 'Snippet → xsl:if',
+      snippet:
+`<xsl:if test="(: condition e.g. Status = 'OPEN' or count(//Item) gt 0 :)">
+  <!-- content -->
+</xsl:if>`
+    },
+    {
+      id: 'snip-variable', order: 4,
+      label: 'Snippet → xsl:variable',
+      snippet: `<xsl:variable name="(: variable name e.g. orderCount :)" select="(: XPath expression or element path :)"/>`
+    },
+    {
+      id: 'snip-value-of', order: 5,
+      label: 'Snippet → xsl:value-of',
+      snippet: `<xsl:value-of select="(: XPath expression or element path :)"/>`
+    },
+    {
+      id: 'snip-copy-of', order: 6,
+      label: 'Snippet → xsl:copy-of',
+      snippet: `<xsl:copy-of select="(: node or tree to copy e.g. //Order :)"/>`
+    },
+    {
+      id: 'snip-template-named', order: 7,
+      label: 'Snippet → xsl:template (named)',
+      snippet:
+`<xsl:template name="(: template name e.g. formatDate :)">
+  <xsl:param name="(: param name e.g. inputDate :)"/>
+  <!-- template content -->
+</xsl:template>`
+    },
+    {
+      id: 'snip-call-template', order: 8,
+      label: 'Snippet → xsl:call-template',
+      snippet:
+`<xsl:call-template name="(: template name to call :)">
+  <xsl:with-param name="(: param name :)" select="(: XPath expression or value :)"/>
+</xsl:call-template>`
+    },
+    {
+      id: 'snip-for-each-group', order: 9,
+      label: 'Snippet → xsl:for-each-group (group-by)',
+      snippet:
+`<xsl:for-each-group select="(: sequence e.g. //Item :)" group-by="(: grouping key e.g. Category :)">
+  <Group key="{current-grouping-key()}">
+    <xsl:for-each select="current-group()">  
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
+  </Group>
+</xsl:for-each-group>`
+    },
+    {
+      id: 'snip-try-catch', order: 10,
+      label: 'Snippet → xsl:try / catch',
+      snippet:
+`<xsl:try>
+  <xsl:value-of select="(: expression that might fail e.g. xs:decimal(Amount) :)"/>
+  <xsl:catch errors="(: * for all errors or specific error code e.g. err:FORG0001 :)">
+    <xsl:message>Error: <xsl:value-of select="$err:description"/></xsl:message>
+  </xsl:catch>
+</xsl:try>`
+    },
+    {
+      id: 'snip-cpi-set-header', order: 11,
+      label: 'Snippet → cpi:setHeader',
+      snippet: `<xsl:value-of select="cpi:setHeader($exchange, '(: header name e.g. ContentType :)', '(: header value or XPath :)')"/>`
+    },
+    {
+      id: 'snip-cpi-get-header', order: 12,
+      label: 'Snippet → cpi:getHeader',
+      snippet: `<xsl:variable name="(: variable name :)" select="cpi:getHeader($exchange, '(: header name to read :)')"/>`
+    },
+    {
+      id: 'snip-cpi-set-property', order: 13,
+      label: 'Snippet → cpi:setProperty',
+      snippet: `<xsl:value-of select="cpi:setProperty($exchange, '(: property name e.g. OrderStatus :)', '(: property value or XPath :)')"/>`
+    },
+    {
+      id: 'snip-cpi-get-property', order: 14,
+      label: 'Snippet → cpi:getProperty',
+      snippet: `<xsl:variable name="(: variable name :)" select="cpi:getProperty($exchange, '(: property name to read :)')"/>`
+    },
+    {
+      id: 'snip-param', order: 15,
+      label: 'Snippet → xsl:param',
+      snippet: `<xsl:param name="(: param name e.g. SAPClient :)"/>`
+    },
+    {
+      id: 'snip-message', order: 16,
+      label: 'Snippet → xsl:message (debug)',
+      snippet: `<xsl:message select="(: concat('DEBUG label=', //Element) :)"/>`
+    },
+    {
+      id: 'snip-string-join', order: 17,
+      label: 'Snippet → string-join()',
+      snippet: `<xsl:value-of select="string-join((: sequence e.g. //Order/Id :), ', ')"/>`
+    },
+    {
+      id: 'snip-stylesheet', order: 18,
+      label: 'Snippet → xsl:stylesheet (CPI skeleton)',
+      snippet:
+`<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:cpi="http://sap.com/it/cpi/scripting"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="cpi xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <xsl:param name="exchange"/>
+
+  <xsl:template match="/">
+    <!-- mapping logic here -->
+  </xsl:template>
+
+</xsl:stylesheet>`
+    },
+  ];
+
+  _xsltSnippets.forEach(({ id, label, order, snippet }) => {
+    eds.xslt.addAction({
+      id,
+      label,
+      contextMenuGroupId: '9_snippets',
+      contextMenuOrder: order,
+      run(ed) {
+        // CPI snippets need xmlns:cpi — auto-inject if missing
+        if (id.startsWith('snip-cpi-')) _ensureCpiNamespace(ed);
+        _insertSnippet(ed, snippet);
+      }
+    });
+  });
+
 
 
   function runXsltValidation() {

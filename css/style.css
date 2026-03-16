@@ -432,6 +432,23 @@
     .console-filters {
       display: flex; align-items: center; gap: 2px;
     }
+    .console-search {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      padding: 2px 7px;
+      width: 110px;
+      outline: none;
+      transition: border-color 0.15s, width 0.2s;
+    }
+    .console-search::placeholder { color: var(--text-dim); }
+    .console-search:focus {
+      border-color: var(--border-focus);
+      width: 150px;
+    }
     .console-filter-btn {
       font-family: 'JetBrains Mono', monospace;
       font-size: 9px; font-weight: 700;
