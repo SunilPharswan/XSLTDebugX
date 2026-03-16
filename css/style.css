@@ -431,6 +431,7 @@
       font-size: 10px; font-weight: 600;
       letter-spacing: 1px; text-transform: uppercase;
       color: var(--text-secondary);
+      flex-shrink: 0;
     }
     .console-err-badge {
       display: none;
@@ -466,39 +467,41 @@
       width: 150px;
     }
     .console-filter-btn {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px; font-weight: 700;
-      letter-spacing: 0.6px;
-      padding: 2px 7px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px;
+      padding: 0; border-radius: 4px;
       border: 1px solid transparent;
       background: transparent;
-      color: var(--text-dim);
       cursor: pointer;
       transition: color 0.15s, background 0.15s, border-color 0.15s;
+      flex-shrink: 0;
     }
-    .console-filter-btn:hover {
-      color: var(--text-secondary);
-      background: rgba(255,255,255,0.05);
-    }
+    .console-filter-btn:hover { background: rgba(255,255,255,0.05); }
+    /* Inactive — each dot has its own muted color so they're distinguishable */
+    .console-filter-btn[data-filter="all"]   { color: #4a6080; }
+    .console-filter-btn[data-filter="info"]  { color: #2a5a9a; }
+    .console-filter-btn[data-filter="warn"]  { color: #7a5a14; }
+    .console-filter-btn[data-filter="error"] { color: #7a2828; }
+    /* Active states — full saturation + border + background tint */
     .console-filter-btn.active[data-filter="all"] {
       color: var(--text-secondary);
-      border-color: var(--border-focus);
+      border-color: var(--border-bright);
       background: rgba(255,255,255,0.06);
     }
     .console-filter-btn.active[data-filter="info"] {
-      color: var(--text-secondary);
-      border-color: var(--border-focus);
-      background: rgba(255,255,255,0.06);
+      color: var(--sap-blue);
+      border-color: var(--sap-blue);
+      background: rgba(0,112,242,0.12);
     }
     .console-filter-btn.active[data-filter="warn"] {
       color: var(--warning);
       border-color: var(--warning);
-      background: rgba(245,165,36,0.1);
+      background: rgba(245,165,36,0.12);
     }
     .console-filter-btn.active[data-filter="error"] {
       color: var(--error);
       border-color: var(--error);
-      background: rgba(248,81,73,0.1);
+      background: rgba(248,81,73,0.12);
     }
     /* Hide non-matching log lines when a filter is active */
     #consoleBody[data-filter="info"]  .log-line:not(.info):not(.success) { display: none; }
@@ -640,19 +643,15 @@
     }
 
     /* ── LIGHT THEME: console filter buttons ── */
-    body.light .console-filter-btn:hover {
-      background: rgba(0,0,0,0.05);
-    }
-    body.light .console-filter-btn.active[data-filter="all"],
-    body.light .console-filter-btn.active[data-filter="info"] {
-      background: rgba(0,0,0,0.06);
-    }
-    body.light .console-filter-btn.active[data-filter="warn"] {
-      background: rgba(200,120,0,0.1);
-    }
-    body.light .console-filter-btn.active[data-filter="error"] {
-      background: rgba(207,34,46,0.08);
-    }
+    body.light .console-filter-btn:hover { background: rgba(0,0,0,0.05); }
+    body.light .console-filter-btn[data-filter="all"]   { color: #8090a8; }
+    body.light .console-filter-btn[data-filter="info"]  { color: #5a8ac0; }
+    body.light .console-filter-btn[data-filter="warn"]  { color: #c89030; }
+    body.light .console-filter-btn[data-filter="error"] { color: #c04040; }
+    body.light .console-filter-btn.active[data-filter="all"]   { color: var(--text-secondary); background: rgba(0,0,0,0.06); }
+    body.light .console-filter-btn.active[data-filter="info"]  { color: var(--sap-blue);  border-color: var(--sap-blue);  background: rgba(0,112,242,0.08); }
+    body.light .console-filter-btn.active[data-filter="warn"]  { color: var(--warning);   border-color: var(--warning);   background: rgba(200,120,0,0.1); }
+    body.light .console-filter-btn.active[data-filter="error"] { color: var(--error);     border-color: var(--error);     background: rgba(207,34,46,0.08); }
 
 
     /* ════════════════════════════════════════════

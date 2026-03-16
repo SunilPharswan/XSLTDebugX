@@ -220,7 +220,7 @@ function _applyXPathToggleState() {
     modePill.textContent = xpathEnabled ? 'XPath' : 'XSLT';
     modePill.className = xpathEnabled ? 'mode-pill mode-xpath' : 'mode-pill mode-xslt';
   }
-  if (consoleTtl) consoleTtl.textContent = xpathEnabled ? 'Console · XPath Mode' : 'Console · XSLT Mode';
+  if (consoleTtl) consoleTtl.textContent = xpathEnabled ? 'Console · XPath' : 'Console · XSLT';
 
   // Move console: XPath mode → below workspace; XSLT mode → inside colCenter (below XSLT editor)
   if (console_ && colCenter && workspace) {

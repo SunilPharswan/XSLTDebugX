@@ -189,10 +189,10 @@
         <span class="console-err-badge" id="consoleErrBadge">0</span>
         <div class="console-bar-actions" onclick="event.stopPropagation()">
           <div class="console-filters">
-            <button class="console-filter-btn active" data-filter="all"   onclick="setConsoleFilter('all')">ALL</button>
-            <button class="console-filter-btn"         data-filter="info"  onclick="setConsoleFilter('info')">INFO</button>
-            <button class="console-filter-btn"         data-filter="warn"  onclick="setConsoleFilter('warn')">WARN</button>
-            <button class="console-filter-btn"         data-filter="error" onclick="setConsoleFilter('error')">ERROR</button>
+            <button class="console-filter-btn active" data-filter="all"   onclick="setConsoleFilter('all')"   title="Show all messages"><svg viewBox="0 0 10 10" width="10" height="10"><circle cx="5" cy="5" r="4.5" fill="currentColor"/></svg></button>
+            <button class="console-filter-btn"         data-filter="info"  onclick="setConsoleFilter('info')"  title="Info only"><svg viewBox="0 0 10 10" width="10" height="10"><circle cx="5" cy="5" r="4.5" fill="currentColor"/></svg></button>
+            <button class="console-filter-btn"         data-filter="warn"  onclick="setConsoleFilter('warn')"  title="Warnings only"><svg viewBox="0 0 10 10" width="10" height="10"><circle cx="5" cy="5" r="4.5" fill="currentColor"/></svg></button>
+            <button class="console-filter-btn"         data-filter="error" onclick="setConsoleFilter('error')" title="Errors only"><svg viewBox="0 0 10 10" width="10" height="10"><circle cx="5" cy="5" r="4.5" fill="currentColor"/></svg></button>
           </div>
           <div class="pane-divider"></div>
           <input class="console-search" id="consoleSearch" type="text" placeholder="search…" oninput="applyConsoleSearch(this.value)" title="Filter console by text"/>
