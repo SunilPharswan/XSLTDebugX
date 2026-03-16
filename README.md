@@ -14,7 +14,7 @@ XSLTDebugX runs entirely in the browser. Nothing to install, no build step, no s
 
 ## Two Modes
 
-A segmented **XSLT | ƒx XPath** control in the header switches between modes. The active mode is always visible in the status bar pill (`XSLT` in blue, `XPath` in amber). Loading an example from the library automatically switches to the correct mode.
+A segmented **XSLT | ƒx XPath** control in the header switches between modes. The active mode is always visible in the status bar pill. Loading an example automatically switches to the correct mode.
 
 ### XSLT Mode (default)
 
@@ -22,10 +22,7 @@ A segmented **XSLT | ƒx XPath** control in the header switches between modes. T
 [ Input ] [ XSLT Stylesheet + Console ] [ Output ]
 ```
 
-- Edit XML and XSLT side by side
-- Run with **Run XSLT** or `Ctrl+Enter`
-- CPI headers and properties injected as `xsl:param` values
-- Output shown formatted with Output Headers / Properties panels
+Edit XML and XSLT side by side. Run with **Run XSLT** or `Ctrl+Enter`. CPI headers and properties injected as `xsl:param` values. Output shown formatted with Output Headers / Properties panels.
 
 ### XPath Mode
 
@@ -34,55 +31,44 @@ A segmented **XSLT | ƒx XPath** control in the header switches between modes. T
       [ Console — full width ]
 ```
 
-- **XQuery** pane-bar at the top of the left column with Copy, Clear, and ▲▼ history buttons
-- Expression bar auto-grows and applies live syntax colorization as you type
-- Type an XPath 3.0 expression and press **Enter** or **Run XPath**
-- Matched nodes highlighted in amber in the XML editor with scroll to first match
-- Results syntax-coloured using the Monaco XML tokenizer
-- Match count badge in the XQuery header updates after every run
-- XSLT pane, Headers, Properties, Output, and Share button all hidden — focused layout
-- Console spans full width below both panes
-- Left pane title switches between **Input** (XSLT mode) and **XML Source** (XPath mode)
+Type an XPath 3.0 expression and press **Enter** or **Run XPath**. Matched nodes highlighted in amber in the XML editor. Results syntax-coloured. Expression bar auto-grows and applies live syntax colorization as you type. XSLT pane, Headers, Properties, and Output all hidden for a focused layout.
 
 ---
 
 ## Features
 
 ### Editor
-- **Monaco Editor** — same engine as VS Code: XML syntax highlighting, bracket pair colourisation, auto-close tags, attribute `=""` insertion, indent guides
+- **Monaco Editor** — XML syntax highlighting, bracket pair colourisation, auto-close tags, indent guides
 - **Live validation** — XML and XSLT validated as you type with inline squiggles and glyph markers
 - **Format / Minify** — pretty-print or minify any pane via toolbar button or right-click menu
-- **Word wrap toggle** — per-pane wrap icon button in each pane bar; independent state for XML, XSLT, and Output; highlighted blue when active
+- **Word wrap toggle** — per-pane wrap icon button in each pane bar; independent state for XML, XSLT, and Output
 - **Upload / Download / Drag-drop** — load files directly into XML or XSLT pane
-- **Right-click context menu** — Format XML/XSLT, Minify XML/XSLT, Comment/Uncomment Lines, Copy XPath — Exact, Copy XPath — General
+- **Right-click context menu** — Format XML/XSLT, Minify XML/XSLT, Comment/Uncomment Lines, Copy XPath — Exact or General
 
 ### XPath Evaluator
 - **XPath 3.0** evaluated against XML input using Saxon-JS
-- **Namespace bindings auto-provided** — `xs`, `fn`, `math`, `map`, `array` available in all expressions without declaration
-- **Expression bar** — auto-growing textarea; wraps long expressions across multiple lines rather than scrolling horizontally
-- **Expression syntax colorization** — live token coloring as you type: functions (amber), attributes `@` (lavender), string literals (green), numbers (orange), operators `and/or/not/eq` (pink/italic), path separators `/` (dim), predicates `[ ]` (blue), variables `$exchange` (lavender), node names (teal) — full dark and light theme support
-- **Syntax-coloured results** — rendered with the Monaco XML tokenizer and current theme
-- **Match count badge** — `3 matches` / `Error` / hidden — shown in the XQuery pane-bar header
-- **Expression history** — last 20 expressions persisted to `localStorage`; browse with ▲ ▼ buttons in the header or `↑ / ↓` keys in the input; console logs position (`History 2/8: //Order[...]`)
+- **Namespace bindings auto-provided** — `xs`, `fn`, `math`, `map`, `array` available without declaration
+- **Expression syntax colorization** — live token coloring: functions (amber), attributes (lavender), strings (green), numbers (orange), operators (pink), variables `$exchange` (lavender), predicates `[ ]` (blue)
+- **Expression history** — last 20 expressions persisted; browse with ▲ ▼ buttons or `↑ ↓` keys
 - **Editor highlighting** — amber glyph markers and line backgrounds on matched nodes
-- **Copy XPath of Element** — right-click any element to copy its XPath (exact or general) and populate the XQuery bar
+- **Copy XPath of Element** — right-click any element to copy its XPath (exact or general)
 
 ### Transform Engine
 - **XSLT 3.0** via [Saxon-JS 2.x](https://www.saxonica.com/saxon-js/documentation/index.html) — `xsl:iterate`, higher-order functions, maps, arrays, `xsl:message`
 - **Pre-flight validation** — well-formedness checked before Saxon runs
 - **Pretty-printed output** — XML auto-formatted; non-XML shown as-is
-- **Run button feedback** — spinner shown for a minimum 300ms so feedback is always visible even on fast transforms
+- **Run button feedback** — spinner shown for minimum 300ms so feedback is always visible
 
 ### SAP CPI Simulation
 - **Headers and Properties** — name/value pairs injected as `xsl:param` values as the CPI runtime does
-- **`cpi:setHeader` / `cpi:setProperty`** — fully evaluated using Saxon-JS's `js:` namespace bridge; static strings, variables, `concat()`, XPath expressions all work correctly; values shown in Output panels
-- **`cpi:getHeader` / `cpi:getProperty`** — reads from the Headers / Properties panels; returns the entered value, empty string if not found (warns in console)
+- **`cpi:setHeader` / `cpi:setProperty`** — fully evaluated; static strings, variables, `concat()`, XPath expressions all work; values shown in Output panels
+- **`cpi:getHeader` / `cpi:getProperty`** — reads from the Headers / Properties panels; returns empty string if not found (warns in console)
 - **`$exchange` param** — always injected automatically
 - **`xsl:message` in console** — amber entries in correct execution order
 - **`terminate="yes"` as intentional halt** — logged as warning, not error
 
 ### Examples Library
-32 built-in examples across 5 categories. All categories and counts are fully dynamic — adding a new category to `CATEGORIES` in `examples-data.js` automatically creates its sidebar button, grid section, and card tags.
+32 built-in examples across 5 categories. All categories are fully dynamic — adding a new category to `CATEGORIES` in `examples-data.js` automatically creates its sidebar button, grid section, and card tags.
 
 | Category | Count | Examples |
 |---|---|---|
@@ -93,27 +79,10 @@ A segmented **XSLT | ƒx XPath** control in the header switches between modes. T
 | **XPath Explorer** | 11 | Navigation & Predicates, Aggregation, String Functions, tokenize/string-join, Regex, Date & Duration, Namespace-Agnostic, Batch Error Detection, Conditional & Boolean Logic, Node Inspection, SOAP Envelope Navigation |
 
 ### Share
-XML, XSLT, headers, and properties encoded into a single URL. Recipients always land in XSLT mode. Encoding: JSON → `TextEncoder` → `pako.deflateRaw` (level 9) → base64url in the URL hash. Never hits a server. XPath expressions and XPath mode are not shared.
+XML, XSLT, headers, and properties encoded into a single URL. Recipients always land in XSLT mode. Never hits a server. XPath expressions and XPath mode are not shared.
 
 ### Session Persistence
-Everything auto-saved to `localStorage` 800ms after you stop typing:
-
-| Key | Contents |
-|---|---|
-| `xdebugx-session-v1` | XML, XSLT, headers, properties, column states, XPath expression, current mode |
-| `xdebugx-xpath-history` | Last 20 XPath expressions (persists across reloads) |
-| `xdebugx-theme` | Light / dark preference |
-
-Restore log: `Session restored · saved 2m ago · XPath mode ✓`
-
-**Clear Session is mode-aware:**
-- In **XSLT mode** — resets XML + XSLT to identity transform, clears KV panels and output, stays in XSLT mode. Logs: `XSLT session cleared — editors reset to defaults.`
-- In **XPath mode** — resets XML to the Navigation & Predicates example, resets expression bar to `//Item[@status='active']`, clears results and highlights, stays in XPath mode. Logs: `XPath session cleared — XML and expression reset to defaults.`
-
-In both cases, XPath expression history is also fully cleared from `localStorage` and memory.
-
-### Status Bar
-Left to right: status dot + message · Saxon-JS info · **cursor position** (`XML  Ln 12/48 · Col 7 · 1,247 chars`, updates per pane on focus/cursor move) · **mode pill** (`XSLT` blue / `XPath` amber) · Saved indicator · author links · SAP® notice
+Everything auto-saved to `localStorage` 800ms after you stop typing. **Clear Session is mode-aware** — in XSLT mode resets editors to identity transform; in XPath mode resets XML and expression to defaults. Both modes stay in their current mode and wipe XPath expression history.
 
 ---
 
@@ -136,11 +105,9 @@ XSLTDebugX rewrites `cpi:` calls to Saxon-JS's `js:` namespace before running th
 **`cpi:setHeader` / `cpi:setProperty`** — captured and shown in Output Headers / Output Properties panels:
 
 ```xslt
-<!-- All of these work and show correct values in Output panels -->
 <xsl:value-of select="cpi:setHeader($exchange, 'ContentType', 'application/xml')"/>
 <xsl:value-of select="cpi:setHeader($exchange, 'OrderRef', concat('REF-', Id))"/>
 <xsl:value-of select="cpi:setHeader($exchange, 'Customer', //Header/CustomerName)"/>
-<xsl:value-of select="cpi:setHeader($exchange, 'Client', $SAPClient)"/>
 <xsl:value-of select="cpi:setProperty($exchange, 'Status', if (Amount gt 1000) then 'HIGH' else 'LOW')"/>
 ```
 
@@ -151,34 +118,20 @@ XSLTDebugX rewrites `cpi:` calls to Saxon-JS's `js:` namespace before running th
 <xsl:variable name="target" select="cpi:getProperty($exchange, 'TargetSystem')"/>
 ```
 
-If the name is not found in the panel, returns empty string and warns in console. Names are case-sensitive and whitespace-trimmed.
-
-**Rewrite steps before Saxon runs:**
-1. `xmlns:cpi="..."` → `xmlns:js="http://saxonica.com/ns/globalJS"`
-2. `cpi` removed from `exclude-result-prefixes`; `js` added (or injected if missing)
-3. `cpi:setHeader(` → `js:cpiSetHeader(`, `cpi:getHeader(` → `js:cpiGetHeader(`, etc.
-
-The `js:` namespace is always excluded from serialized output, mirroring CPI runtime behaviour.
-
 ### Namespace declarations for CPI stylesheets
 
 ```xslt
 <xsl:stylesheet version="3.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:cpi="http://sap.com/it/cpi/scripting"
-  xmlns:sap="http://www.sap.com"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  exclude-result-prefixes="cpi sap xs fn">
+  exclude-result-prefixes="cpi xs">
 ```
-
-For multi-mapping add `xmlns:multimap="http://sap.com/xi/XI/SplitAndMerge"`.
 
 ### Using `xsl:message` for debugging
 
 ```xslt
 <xsl:message select="concat('DEBUG orderCount = ', $orderCount)"/>
-<xsl:message select="concat('DEBUG processing ', position(), ' of ', last())"/>
 <xsl:message terminate="yes" select="concat('FATAL: unknown status [', $status, ']')"/>
 ```
 
@@ -188,8 +141,6 @@ In XPath mode, right-click any element for:
 
 - **Copy XPath — Exact**: `/Orders/Order[2]/Amount` — positional, targets specific occurrence
 - **Copy XPath — General**: `/Orders/Order/Amount` — pattern, matches all siblings
-
-Both populate the XQuery bar and run immediately. In XSLT mode, same options copy to clipboard only.
 
 ---
 
@@ -217,13 +168,13 @@ No build step. No `npm install`. No server required.
 | `Enter` (in XQuery bar) | — | Run XPath |
 | `↑` (in XQuery bar) | — | Previous expression from history |
 | `↓` (in XQuery bar) | — | Next expression / back to draft |
-| `Escape` | Close modal | Close modal |
+| `Escape` | Close any open modal | Close any open modal |
 
 ---
 
 ## Deployment
 
-Hosted on **Cloudflare Pages** at [xsltdebugx.pages.dev](https://xsltdebugx.pages.dev). Every push to the `main` branch auto-deploys — no manual steps needed.
+Hosted on **Cloudflare Pages** at [xsltdebugx.pages.dev](https://xsltdebugx.pages.dev). Every push to `main` auto-deploys.
 
 ### Cloudflare Pages setup
 
@@ -231,7 +182,6 @@ Hosted on **Cloudflare Pages** at [xsltdebugx.pages.dev](https://xsltdebugx.page
 2. Framework preset: **None** (static site)
 3. Build command: leave empty
 4. Output directory: `/` (root)
-5. Save — Cloudflare deploys on every push to `main`
 
 ### CDN dependencies
 
@@ -249,7 +199,7 @@ Saxon-JS is bundled locally in `lib/SaxonJS2.js` — no CDN dependency.
 
 ```
 XSLTDebugX/
-├── favicon.svg             # SVG favicon — XD logo mark
+├── favicon.svg
 ├── index.html              # App shell — layout, modals, script tags
 ├── css/
 │   └── style.css           # All styles, themes (light/dark), component CSS
@@ -261,69 +211,13 @@ XSLTDebugX/
 │   ├── examples-data.js    # CATEGORIES object + 32 built-in examples
 │   ├── modal.js            # Examples library, dynamic sidebar, loadExample
 │   ├── files.js            # Upload, download, drag-and-drop
-│   ├── ui.js               # Column collapse, console, theme toggle
-│   ├── share.js            # Share URL encode/decode, force XSLT on receive
+│   ├── ui.js               # Column collapse, console, theme toggle, help modal
+│   ├── share.js            # Share URL encode/decode
 │   ├── xpath.js            # XPath evaluator, expression colorization, history, highlighting, mode toggle
 │   └── editor.js           # Monaco init, context menu, cursor stat, session restore
 └── lib/
     └── SaxonJS2.js         # Saxon-JS 2.x (bundled, no CDN)
 ```
-
-### Script load order
-
-```
-pako → Monaco loader → SaxonJS2.js → state.js → validate.js → panes.js
-→ transform.js → examples-data.js → modal.js → files.js → ui.js
-→ share.js → xpath.js → editor.js
-```
-
----
-
-## Architecture Notes
-
-### Two-mode layout system
-
-`_applyXPathToggleState()` in `xpath.js` is the single function for all DOM changes on mode switch. It drives: XQuery bar visibility, XSLT column collapse (saving pre-XPath state in `_xpathPreColCenterCollapsed`), KV panels, Output section, Share button, Run button label and `onclick` handler, XSLT/XPath mode buttons active state, mode pill, console label, console panel DOM position (`insertAdjacentElement` / `appendChild`), and the left pane title (`Input` in XSLT mode, `XML Source` in XPath mode).
-
-The XML input editor (`eds.xml`) is shared between both modes — switching mode never recreates or resets the editor, so XML content persists across mode switches.
-
-### XPath expression colorization
-
-The XPath bar uses an overlay div technique: the `<textarea>` has `color: transparent` and `caret-color` set, with a positioned `<div class="xpath-overlay">` behind it. `_highlightXPath()` in `xpath.js` tokenizes the expression character-by-character using ordered regex passes and injects `<span class="xpt-*">` tokens into the overlay. Token order: string literals → functions (lookahead `(`) → attributes `@` → numbers → keywords/operators → path separators → predicates → variables `$` → node names → fallback. All token colors use CSS variables (`--xpt-attr`, `--xpt-fn`, etc.) defined in both dark and light theme blocks in `style.css` — theme switching is free.
-
-### Dynamic categories
-
-`CATEGORIES` in `examples-data.js` is the single source of truth for category labels, accent colours, and sidebar order. `renderExSidebar()` in `modal.js` reads it at runtime — adding a new category requires only one line in `CATEGORIES` plus examples with the matching `cat` value.
-
-### Monaco editor themes
-
-Two custom themes are registered at startup: `xdebugx` (dark) and `xdebugx-light` (light). The active theme is stored in `localStorage` under `xdebugx-theme`.
-
-### XPath expression history
-
-Stored in `_xpathHistory[]` (most-recent-first, max 20), persisted to `localStorage` under `xdebugx-xpath-history`. `_xpathHistoryCursor` tracks position during browsing; `-1` means viewing the current draft saved in `_xpathDraftExpr`. Deduplicates on push.
-
-### XPath namespace bindings
-
-`SaxonJS.XPath.evaluate` is called with a `namespaceContext` providing `xs`, `fn`, `math`, `map`, and `array` prefixes — so expressions like `xs:date(...)`, `fn:concat(...)`, or `math:sqrt(...)` work without any namespace declaration in the XML input.
-
-### CPI extension function bridge
-
-`rewriteCPICalls()` in `transform.js` rewrites the XSLT source before Saxon runs — swapping `xmlns:cpi` for `xmlns:js` (`http://saxonica.com/ns/globalJS`) and renaming all `cpi:setHeader(`, `cpi:getHeader(`, `cpi:setProperty(`, `cpi:getProperty(` calls to their `js:` equivalents. Saxon-JS maps `js:funcName(args)` directly to `window.funcName(args)`, so Saxon fully evaluates all arguments before calling the JS interceptor — dynamic expressions, variables, and XPath paths all resolve correctly.
-
-`ensureJsExcluded()` always runs after any XSLT processing to guarantee `js` is present in `exclude-result-prefixes`, preventing the `xmlns:js` declaration from leaking into serialized output. This mirrors CPI runtime behaviour where extension namespaces are never visible in the output XML.
-
-Interceptors are registered on `window` before Saxon runs and restored (or deleted) in a `finally` block, even if Saxon throws.
-
-### Share URL encoding
-
-```
-{ xml, xslt, headers, properties }
-  → JSON.stringify → TextEncoder → pako.deflateRaw (level 9)
-  → chunked btoa → base64url → URL hash #share/<encoded>
-```
-
-Hash stripped via `history.replaceState` after decoding. Recipients always land in XSLT mode.
 
 ---
 
@@ -332,10 +226,9 @@ Hash stripped via `history.replaceState` after decoding. Recipients always land 
 ### Adding an XSLT example
 
 ```js
-// In js/examples-data.js — inside EXAMPLES object
 myExample: {
   label: 'My Example', icon: '🗂️', desc: 'One sentence',
-  cat: 'cpi',   // transform | aggregation | format | cpi — or a new key in CATEGORIES
+  cat: 'cpi',   // transform | aggregation | format | cpi | xpath
   xml:  `<Root>...</Root>`,
   xslt: `<xsl:stylesheet version="3.0" ...>...</xsl:stylesheet>`,
   headers:    [['Content-Type', 'application/xml']],  // optional
@@ -350,15 +243,14 @@ myXPathExample: {
   label: 'My XPath Example', icon: '🔍', desc: 'One sentence',
   cat: 'xpath',
   xml:       `<Root>...</Root>`,
-  xslt:      '',    // always empty for XPath examples
-  xpathExpr: '//Element[@attr="value"]',  // pre-filled and auto-runs on load
+  xslt:      '',
+  xpathExpr: '//Element[@attr="value"]',
 }
 ```
 
 ### Adding a new category
 
 ```js
-// In js/examples-data.js — inside CATEGORIES object
 odata: { label: 'OData Patterns', accent: '#e879f9' },
 ```
 
@@ -381,48 +273,14 @@ Sidebar button, count badge, grid section label, and card tag all appear automat
 
 | Limitation | Detail |
 |---|---|
-| Unsupported `cpi:` functions | `cpi:getHeaders()`, `cpi:getProperties()`, `cpi:throwFault()`, `cpi:getBody()`, `cpi:setBody()` are not intercepted — Saxon will throw a namespace error if used |
-| `$exchange` not a real object | Injected as a dummy string `'exchange'` — only works as the first argument to `cpi:set*/get*` |
-| Runtime adapter headers | `CamelFileName`, `CamelHttpResponseCode`, adapter-specific headers must be added manually to the Headers panel |
-| Multi-step iFlow chaining | Single transform only — output of one step cannot feed the next automatically |
-| XPath colours after theme switch | Colorised results don't update on theme change — re-run the expression to refresh |
+| `$exchange` not a real object | Injected as a dummy string — only works as the first argument to `cpi:set*/get*` |
 | Share is XSLT only | XPath expressions and XPath mode are not included in share URLs |
 
 ---
 
-## Analytics & Privacy
+## Analytics
 
-XSLTDebugX uses [GoatCounter](https://www.goatcounter.com) for anonymous, privacy-friendly usage analytics.
-
-### What is collected
-
-| Event | When |
-|---|---|
-| Page view | Every visit to the app |
-| `run-xslt` | User runs a transform |
-| `run-xpath` | User evaluates an XPath expression |
-| `mode-xslt` | User switches to XSLT mode |
-| `mode-xpath` | User switches to XPath mode |
-| `example-<key>` | User loads a specific example (e.g. `example-soapFaultHandling`) |
-
-GoatCounter also records anonymous aggregate data per page view: approximate country, browser, screen size, and referrer.
-
-### What is NOT collected
-
-- No personal data
-- No names, email addresses, or user accounts
-- No IP addresses stored
-- No cookies set
-- No browser fingerprinting
-- No cross-site tracking
-
-### Why
-
-This helps understand which features are most used (e.g. are more users running XSLT transforms or XPath queries?) and which examples are most popular, so development effort can be focused on what matters most to CPI developers.
-
-### Opting out
-
-If you run XSLTDebugX locally (`file://` or `localhost`) GoatCounter does not load. Any standard ad blocker (uBlock Origin, Privacy Badger, etc.) will also block the GoatCounter script — the app works fully without it.
+XSLTDebugX uses [GoatCounter](https://www.goatcounter.com) for anonymous, privacy-friendly analytics — no personal data, no cookies, no cross-site tracking. Blocked by any standard ad blocker. Not loaded on `file://` or `localhost`.
 
 ---
 
@@ -434,11 +292,9 @@ MIT — with an additional request that this software is not used for commercial
 
 ## Third-Party Licenses
 
-This project uses the following open source libraries:
-
 | Library | License | Usage |
 |---|---|---|
-| [Saxon-JS 2.x](https://www.saxonica.com/saxon-js/documentation/index.html) by Saxonica | [MPL-2.0](https://www.mozilla.org/en-US/MPL/2.0/) | XSLT 3.0 engine and XPath evaluator — bundled locally in `lib/SaxonJS2.js`, unmodified |
+| [Saxon-JS 2.x](https://www.saxonica.com/saxon-js/documentation/index.html) by Saxonica | [MPL-2.0](https://www.mozilla.org/en-US/MPL/2.0/) | XSLT 3.0 engine and XPath evaluator — bundled in `lib/SaxonJS2.js` |
 | [Monaco Editor](https://microsoft.github.io/monaco-editor/) by Microsoft | [MIT](https://github.com/microsoft/monaco-editor/blob/main/LICENSE.md) | Code editor — loaded from CDN |
 | [Pako](https://github.com/nodeca/pako) by Nodeca | [MIT](https://github.com/nodeca/pako/blob/master/LICENSE) | Compression for share URLs — loaded from CDN |
 | [JetBrains Mono](https://www.jetbrains.com/legalforms/fonts/) by JetBrains | [OFL-1.1](https://scripts.sil.org/OFL) | Monospace font — loaded from Google Fonts |
