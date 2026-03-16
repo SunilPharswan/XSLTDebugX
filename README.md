@@ -19,7 +19,7 @@ A segmented **XSLT | ƒx XPath** control in the header switches between modes. T
 ### XSLT Mode (default)
 
 ```
-[ XML Input Message ] [ XSLT Stylesheet + Console ] [ Output Message ]
+[ Input ] [ XSLT Stylesheet + Console ] [ Output ]
 ```
 
 - Edit XML and XSLT side by side
@@ -35,12 +35,14 @@ A segmented **XSLT | ƒx XPath** control in the header switches between modes. T
 ```
 
 - **XQuery** pane-bar at the top of the left column with Copy, Clear, and ▲▼ history buttons
+- Expression bar auto-grows and applies live syntax colorization as you type
 - Type an XPath 3.0 expression and press **Enter** or **Run XPath**
 - Matched nodes highlighted in amber in the XML editor with scroll to first match
 - Results syntax-coloured using the Monaco XML tokenizer
 - Match count badge in the XQuery header updates after every run
 - XSLT pane, Headers, Properties, Output, and Share button all hidden — focused layout
 - Console spans full width below both panes
+- Left pane title switches between **Input** (XSLT mode) and **XML Source** (XPath mode)
 
 ---
 
@@ -50,12 +52,15 @@ A segmented **XSLT | ƒx XPath** control in the header switches between modes. T
 - **Monaco Editor** — same engine as VS Code: XML syntax highlighting, bracket pair colourisation, auto-close tags, attribute `=""` insertion, indent guides
 - **Live validation** — XML and XSLT validated as you type with inline squiggles and glyph markers
 - **Format / Minify** — pretty-print or minify any pane via toolbar button or right-click menu
+- **Word wrap toggle** — per-pane wrap icon button in each pane bar; independent state for XML, XSLT, and Output; highlighted blue when active
 - **Upload / Download / Drag-drop** — load files directly into XML or XSLT pane
-- **Right-click context menu** — Format XML, Minify XML, Comment/Uncomment Lines, Copy XPath — Exact, Copy XPath — General
+- **Right-click context menu** — Format XML/XSLT, Minify XML/XSLT, Comment/Uncomment Lines, Copy XPath — Exact, Copy XPath — General
 
 ### XPath Evaluator
 - **XPath 3.0** evaluated against XML input using Saxon-JS
 - **Namespace bindings auto-provided** — `xs`, `fn`, `math`, `map`, `array` available in all expressions without declaration
+- **Expression bar** — auto-growing textarea; wraps long expressions across multiple lines rather than scrolling horizontally
+- **Expression syntax colorization** — live token coloring as you type: functions (amber), attributes `@` (lavender), string literals (green), numbers (orange), operators `and/or/not/eq` (pink/italic), path separators `/` (dim), predicates `[ ]` (blue), variables `$exchange` (lavender), node names (teal) — full dark and light theme support
 - **Syntax-coloured results** — rendered with the Monaco XML tokenizer and current theme
 - **Match count badge** — `3 matches` / `Error` / hidden — shown in the XQuery pane-bar header
 - **Expression history** — last 20 expressions persisted to `localStorage`; browse with ▲ ▼ buttons in the header or `↑ / ↓` keys in the input; console logs position (`History 2/8: //Order[...]`)
@@ -66,6 +71,7 @@ A segmented **XSLT | ƒx XPath** control in the header switches between modes. T
 - **XSLT 3.0** via [Saxon-JS 2.x](https://www.saxonica.com/saxon-js/documentation/index.html) — `xsl:iterate`, higher-order functions, maps, arrays, `xsl:message`
 - **Pre-flight validation** — well-formedness checked before Saxon runs
 - **Pretty-printed output** — XML auto-formatted; non-XML shown as-is
+- **Run button feedback** — spinner shown for a minimum 300ms so feedback is always visible even on fast transforms
 
 ### SAP CPI Simulation
 - **Headers and Properties** — name/value pairs injected as `xsl:param` values as the CPI runtime does
@@ -99,6 +105,12 @@ Everything auto-saved to `localStorage` 800ms after you stop typing:
 | `xdebugx-theme` | Light / dark preference |
 
 Restore log: `Session restored · saved 2m ago · XPath mode ✓`
+
+**Clear Session is mode-aware:**
+- In **XSLT mode** — resets XML + XSLT to identity transform, clears KV panels and output, stays in XSLT mode. Logs: `XSLT session cleared — editors reset to defaults.`
+- In **XPath mode** — resets XML to the Navigation & Predicates example, resets expression bar to `//Item[@status='active']`, clears results and highlights, stays in XPath mode. Logs: `XPath session cleared — XML and expression reset to defaults.`
+
+In both cases, XPath expression history is also fully cleared from `localStorage` and memory.
 
 ### Status Bar
 Left to right: status dot + message · Saxon-JS info · **cursor position** (`XML  Ln 12/48 · Col 7 · 1,247 chars`, updates per pane on focus/cursor move) · **mode pill** (`XSLT` blue / `XPath` amber) · Saved indicator · author links · SAP® notice
@@ -244,14 +256,14 @@ XSLTDebugX/
 ├── js/
 │   ├── state.js            # Global state, console, status bar, localStorage
 │   ├── validate.js         # XML validation, Monaco markers
-│   ├── panes.js            # clearPane, copyPane, prettyXML, fmtEditor
+│   ├── panes.js            # clearPane, copyPane, prettyXML, fmtEditor, toggleWordWrap
 │   ├── transform.js        # CPI simulation, KV panels, runTransform
 │   ├── examples-data.js    # CATEGORIES object + 32 built-in examples
 │   ├── modal.js            # Examples library, dynamic sidebar, loadExample
 │   ├── files.js            # Upload, download, drag-and-drop
 │   ├── ui.js               # Column collapse, console, theme toggle
 │   ├── share.js            # Share URL encode/decode, force XSLT on receive
-│   ├── xpath.js            # XPath evaluator, history, highlighting, mode toggle
+│   ├── xpath.js            # XPath evaluator, expression colorization, history, highlighting, mode toggle
 │   └── editor.js           # Monaco init, context menu, cursor stat, session restore
 └── lib/
     └── SaxonJS2.js         # Saxon-JS 2.x (bundled, no CDN)
@@ -271,7 +283,13 @@ pako → Monaco loader → SaxonJS2.js → state.js → validate.js → panes.js
 
 ### Two-mode layout system
 
-`_applyXPathToggleState()` in `xpath.js` is the single function for all DOM changes on mode switch. It drives: XQuery bar visibility, XSLT column collapse (saving pre-XPath state in `_xpathPreColCenterCollapsed`), KV panels, Output section, Share button, Run button label and `onclick` handler, XSLT/XPath mode buttons active state, mode pill, console label, and console panel DOM position (`insertAdjacentElement` / `appendChild`).
+`_applyXPathToggleState()` in `xpath.js` is the single function for all DOM changes on mode switch. It drives: XQuery bar visibility, XSLT column collapse (saving pre-XPath state in `_xpathPreColCenterCollapsed`), KV panels, Output section, Share button, Run button label and `onclick` handler, XSLT/XPath mode buttons active state, mode pill, console label, console panel DOM position (`insertAdjacentElement` / `appendChild`), and the left pane title (`Input` in XSLT mode, `XML Source` in XPath mode).
+
+The XML input editor (`eds.xml`) is shared between both modes — switching mode never recreates or resets the editor, so XML content persists across mode switches.
+
+### XPath expression colorization
+
+The XPath bar uses an overlay div technique: the `<textarea>` has `color: transparent` and `caret-color` set, with a positioned `<div class="xpath-overlay">` behind it. `_highlightXPath()` in `xpath.js` tokenizes the expression character-by-character using ordered regex passes and injects `<span class="xpt-*">` tokens into the overlay. Token order: string literals → functions (lookahead `(`) → attributes `@` → numbers → keywords/operators → path separators → predicates → variables `$` → node names → fallback. All token colors use CSS variables (`--xpt-attr`, `--xpt-fn`, etc.) defined in both dark and light theme blocks in `style.css` — theme switching is free.
 
 ### Dynamic categories
 
