@@ -116,9 +116,15 @@ function loadSavedState() {
 
 function clearSavedState() {
   localStorage.removeItem(STORAGE_KEY);
+  // Clear XPath expression history — both persisted and in-memory
+  localStorage.removeItem('xdebugx-xpath-history');
+  if (typeof _xpathHistory !== 'undefined') _xpathHistory.length = 0;
+  _xpathHistoryCursor = -1;
 
   // Reset editors to default example — suppress save so the cleared state isn't immediately re-written
-  if (eds.xml)  { _suppressNextSave = true; eds.xml.setValue(EXAMPLES.identityTransform.xml); }
+  // In XPath mode load the navigation example XML + expression; in XSLT mode load identity transform
+  const _isXPath = typeof xpathEnabled !== 'undefined' && xpathEnabled;
+  if (eds.xml)  { _suppressNextSave = true; eds.xml.setValue(_isXPath ? EXAMPLES.xpathNavigation.xml : EXAMPLES.identityTransform.xml); }
   if (eds.xslt) { _suppressNextSave = true; eds.xslt.setValue(EXAMPLES.identityTransform.xslt); }
   _suppressNextSave = false;
   if (eds.out)  { eds.out.updateOptions({ readOnly: false }); eds.out.setValue(''); eds.out.updateOptions({ readOnly: true }); }
@@ -138,7 +144,12 @@ function clearSavedState() {
   if (eds.xml && eds.xslt) clearAllMarkers();
   if (typeof clearXPathResults === 'function') clearXPathResults();
   const xpathInput = document.getElementById('xpathInput');
-  if (xpathInput) xpathInput.value = '';
+  if (xpathInput) {
+    // Always restore default XPath expression — ready whether user is in XSLT or XPath mode
+    const _defaultExpr = EXAMPLES.xpathNavigation.xpathExpr ?? '';
+    if (typeof _syncXPathInput === 'function') _syncXPathInput(_defaultExpr);
+    else xpathInput.value = _defaultExpr;
+  }
   // Reset XPath toggle to default (off)
   if (typeof xpathEnabled !== 'undefined') {
     xpathEnabled = false;

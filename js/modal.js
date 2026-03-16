@@ -194,7 +194,8 @@ function loadExample(key) {
     clog(`Example loaded: "${ex.label}" — XPath pre-filled, running…`, 'success');
     const xpathInput = document.getElementById('xpathInput');
     if (xpathInput) {
-      xpathInput.value = ex.xpathExpr;
+      if (typeof _syncXPathInput === 'function') _syncXPathInput(ex.xpathExpr);
+      else xpathInput.value = ex.xpathExpr;
       setTimeout(() => { if (typeof runXPath === 'function') runXPath(); }, 350);
     }
   } else {

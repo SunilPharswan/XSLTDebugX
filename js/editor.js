@@ -835,7 +835,10 @@ require(['vs/editor/editor.main'], () => {
         // Restore XPath expression
         if (_savedSession.xpathExpr) {
           const xpathInput = document.getElementById('xpathInput');
-          if (xpathInput) xpathInput.value = _savedSession.xpathExpr;
+          if (xpathInput) {
+            if (typeof _syncXPathInput === 'function') _syncXPathInput(_savedSession.xpathExpr);
+            else xpathInput.value = _savedSession.xpathExpr;
+          }
         }
         // Restore XPath toggle state (default off if not in session)
         xpathEnabled = _savedSession.xpathEnabled === true;
@@ -848,6 +851,11 @@ require(['vs/editor/editor.main'], () => {
           document.getElementById('colCenter')?.classList.add('collapsed');
         }
         if (typeof _applyXPathToggleState === 'function') _applyXPathToggleState();
+        // After bar is shown, recalculate textarea height — scrollHeight is 0 while hidden
+        if (xpathEnabled) {
+          const _ta = document.getElementById('xpathInput');
+          if (_ta) { _ta.style.height = 'auto'; _ta.style.height = _ta.scrollHeight + 'px'; }
+        }
         // Relay Monaco after potential column changes
         setTimeout(() => { eds.xml?.layout(); eds.xslt?.layout(); eds.out?.layout(); }, 260);
 
