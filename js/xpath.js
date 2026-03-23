@@ -792,6 +792,63 @@ function clearXPathInput() {
   const input = document.getElementById('xpathInput');
   if (input) { input.value = ''; input.style.height = 'auto'; _highlightXPath(''); input.focus(); scheduleSave(); }
   clearXPathResults();
+  renderXPathHints(null);
+}
+
+// ── XPath Hints Strip ──────────────────────────────────────────────────────────
+function renderXPathHints(hints) {
+  const strip = document.getElementById('xpathHintsStrip');
+  if (!strip) return;
+
+  if (!hints || hints.length === 0) {
+    strip.style.display = 'none';
+    strip.classList.remove('expanded');
+    strip.innerHTML = '';
+    return;
+  }
+
+  strip.innerHTML = '';
+  strip.classList.remove('expanded');
+
+  const label = document.createElement('span');
+  label.className = 'xpath-hint-label';
+  label.textContent = 'Try:';
+  strip.appendChild(label);
+
+  hints.forEach(hint => {
+    // Each hint is "expression — description", split on em dash
+    const dashIdx = hint.indexOf('—');
+    const expr = dashIdx >= 0 ? hint.slice(0, dashIdx).trim() : hint.trim();
+    const desc = dashIdx >= 0 ? hint.slice(dashIdx + 1).trim() : '';
+
+    const chip = document.createElement('button');
+    chip.className = 'xpath-hint-chip';
+    chip.textContent = expr;
+    chip.title = desc ? `${expr}\n\n${desc}` : expr;
+    chip.addEventListener('click', () => {
+      if (typeof _syncXPathInput === 'function') _syncXPathInput(expr);
+      else {
+        const input = document.getElementById('xpathInput');
+        if (input) { input.value = expr; _highlightXPath(expr); }
+      }
+      if (typeof runXPath === 'function') runXPath();
+    });
+    strip.appendChild(chip);
+  });
+
+  // Chevron toggle button — only shown when chips wrap beyond one row
+  const toggle = document.createElement('button');
+  toggle.className = 'xpath-hints-toggle';
+  toggle.title = 'Show more hints';
+  toggle.innerHTML = '<svg viewBox="0 0 10 6" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 1l4 4 4-4"/></svg>';
+  toggle.addEventListener('click', () => {
+    const isExpanded = strip.classList.toggle('expanded');
+    toggle.classList.toggle('expanded', isExpanded);
+    toggle.title = isExpanded ? 'Show less' : 'Show more hints';
+  });
+  strip.appendChild(toggle);
+
+  strip.style.display = 'flex';
 }
 
 // ── Copy XPath expression to clipboard ────────────────────────────────────────

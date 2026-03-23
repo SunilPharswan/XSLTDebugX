@@ -108,6 +108,8 @@
               autocomplete="off" spellcheck="false"></textarea>
           </div>
         </div>
+        <!-- ── XPath Hints Strip ── -->
+        <div class="xpath-hints-strip" id="xpathHintsStrip" style="display:none"></div>
       </div>
       <!-- ── XML Input Message bar (always visible) ── -->
       <div class="pane-bar" id="xmlPaneBar">
@@ -215,7 +217,7 @@
     <!-- Collapsed tab -->
     <div class="col-tab" onclick="toggleSideCol('right')">
       <div class="col-tab-dot ind-out"></div>
-      <span class="col-tab-label">Output / XPath</span>
+      <span class="col-tab-label">Output</span>
     </div>
     <!-- Normal content -->
     <div class="col-inner">
@@ -242,12 +244,12 @@
           <div class="pane-actions">
             <button class="collapse-btn" title="Collapse panel" onclick="toggleSideCol('right')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg></button>
             <div class="pane-divider"></div>
-            <span class="lang-badge">XML</span>
+            <span class="lang-badge" id="outLangBadge">XML</span>
             <button class="pane-act-btn" onclick="copyPane('out')">Copy</button>
             <button class="pane-act-btn" onclick="clearPane('out')">Clear</button>
             <div class="pane-divider"></div>
             <button class="pane-icon-btn wrap-toggle-btn" id="wrapToggleOut" title="Toggle word wrap" onclick="toggleWordWrap('out')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="13" height="13"><path d="M2 4h12M2 8h8a2 2 0 0 1 0 4H8m2-2l-2 2 2 2"/></svg></button>
-            <button class="pane-icon-btn" title="Download output as XML" onclick="downloadPane('out','output.xml')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg></button>
+            <button class="pane-icon-btn" id="outDownloadBtn" title="Download output as XML" onclick="downloadPane('out','output.xml')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg></button>
           </div>
         </div>
         <div class="editor-wrap" id="outEdWrap">
@@ -398,9 +400,10 @@
       </div>
       <div class="help-section">
         <div class="help-section-title">Examples Library</div>
-        <div class="help-row"><span class="help-key">32 examples</span><span>Built-in examples across 5 categories — Data Transformation, Aggregation, Format Conversion, SAP CPI Patterns, XPath Explorer</span></div>
+        <div class="help-row"><span class="help-key">47 examples</span><span>Built-in examples across 5 categories — Data Transformation, Aggregation, Format Conversion, SAP CPI Patterns, XPath Explorer</span></div>
         <div class="help-row"><span class="help-key">Search</span><span>Filter examples by name or description — type in the search box inside the modal</span></div>
         <div class="help-row"><span class="help-key">Auto-run</span><span>XPath examples pre-fill the expression bar and run immediately on load</span></div>
+        <div class="help-row"><span class="help-key">Hints strip</span><span>Clickable XPath chips appear below the expression bar when an XPath example is loaded — click any chip to run it</span></div>
       </div>
       <div class="help-section">
         <div class="help-section-title">XPath Expression Bar</div>

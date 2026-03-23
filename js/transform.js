@@ -300,8 +300,33 @@ function runTransform() {
       // Flush xsl:message lines before completion log — fires in natural execution order
       _xslMessages.forEach(m => clog(`xsl:message → ${m}`, 'warn'));
 
+      // Detect output language from actual content (CPI-relevant: XML, JSON, plain text/CSV/fixed)
+      const _trimmed = output.trimStart();
+      let _outLang = 'plaintext';
+      let _outValue = output;
+      if (_trimmed.startsWith('<')) {
+        _outLang  = 'xml';
+        _outValue = prettyXML(output);
+      } else if (_trimmed.startsWith('{') || _trimmed.startsWith('[')) {
+        try { _outValue = JSON.stringify(JSON.parse(_trimmed), null, 2); _outLang = 'json'; } catch (_) { /* not valid JSON, treat as plaintext */ }
+      }
+      // everything else (CSV, fixed-length, EDI, etc.) stays as plaintext
+      monaco.editor.setModelLanguage(eds.out.getModel(), _outLang);
+
+      // Update lang badge + download filename to match actual output type
+      const _extMap = { xml: 'xml', json: 'json', plaintext: 'txt' };
+      const _labelMap = { xml: 'XML', json: 'JSON', plaintext: 'TEXT' };
+      const _ext = _extMap[_outLang] ?? 'txt';
+      const _badge = document.getElementById('outLangBadge');
+      const _dlBtn = document.getElementById('outDownloadBtn');
+      if (_badge) _badge.textContent = _labelMap[_outLang] ?? 'TEXT';
+      if (_dlBtn) {
+        _dlBtn.title = `Download output as ${_ext.toUpperCase()}`;
+        _dlBtn.onclick = () => downloadPane('out', `output.${_ext}`);
+      }
+
       eds.out.updateOptions({ readOnly: false });
-      eds.out.setValue(output.trimStart().startsWith('<') ? prettyXML(output) : output);
+      eds.out.setValue(_outValue);
       eds.out.updateOptions({ readOnly: true });
 
       // Show output panels: CPI-captured values (dynamic + static) take priority,
@@ -325,7 +350,7 @@ function runTransform() {
 
       renderOutputKV(outHdrs, outProps);
 
-      clog(`Transform complete in ${elapsed} ms ✓`, 'success');
+      clog(`Transform complete in ${elapsed} ms · output: ${_outLang.toUpperCase()} ✓`, 'success');
       setStatus(`Done · ${elapsed} ms`, 'ok');
 
       // Auto-expand output pane on first successful run

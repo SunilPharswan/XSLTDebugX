@@ -882,6 +882,18 @@ require(['vs/editor/editor.main'], () => {
             })()
           : '';
         clog(`Session restored${ago ? ' · saved ' + ago : ''} · ${xpathEnabled ? 'XPath' : 'XSLT'} mode ✓`, 'success');
+        // Restore hints strip if session was on an XPath example
+        if (xpathEnabled && _savedSession.lastExampleKey) {
+          window._lastExampleKey = _savedSession.lastExampleKey;
+          const _ex = EXAMPLES[_savedSession.lastExampleKey];
+          if (_ex?.xpathHints && typeof renderXPathHints === 'function') {
+            renderXPathHints(_ex.xpathHints);
+          }
+        }
+        // Auto-run XPath on restore — expression already in bar, lightweight to re-evaluate
+        if (xpathEnabled) {
+          setTimeout(() => { if (typeof runXPath === 'function') runXPath(); }, 400);
+        }
       } else {
         clog('Identity Transform loaded. Use Examples menu to load CPI scenarios.', 'info');
         // Apply default XPath state (off) on fresh load

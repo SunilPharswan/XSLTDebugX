@@ -186,6 +186,7 @@ function loadExample(key) {
 
   closeExModal();
   window.goatcounter?.count({ path: `example-${key}`, title: `Example: ${ex.label}` });
+  window._lastExampleKey = key;
 
   // ── Step 3: Post-load layout and actions ──
   if (ex.xpathExpr) {
@@ -199,12 +200,16 @@ function loadExample(key) {
       else xpathInput.value = ex.xpathExpr;
       setTimeout(() => { if (typeof runXPath === 'function') runXPath(); }, 350);
     }
+    // Render hints strip if example has hints
+    if (typeof renderXPathHints === 'function') renderXPathHints(ex.xpathHints ?? null);
   } else {
     const colRight = document.getElementById('colRight');
     if (!colRight.classList.contains('collapsed')) {
       colRight.classList.add('collapsed');
       setTimeout(() => { eds.xml?.layout(); eds.xslt?.layout(); eds.out?.layout(); }, 250);
     }
+    // Hide hints strip for XSLT examples
+    if (typeof renderXPathHints === 'function') renderXPathHints(null);
     clog(`Example loaded: "${ex.label}" — press Run Transform to execute`, 'success');
   }
 
