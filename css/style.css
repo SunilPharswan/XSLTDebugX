@@ -756,6 +756,87 @@
     .xpt-sep  { color: var(--xpt-sep);  }
     .xpath-input::placeholder { color: var(--text-dim); }
 
+    /* XPath Hints Strip */
+    .xpath-hints-strip {
+      display: flex;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 4px 5px;
+      padding: 5px 28px 5px 10px;
+      flex-shrink: 0;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      max-height: 32px;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+    .xpath-hints-strip.expanded {
+      max-height: 300px;
+    }
+    .xpath-hints-toggle {
+      position: absolute;
+      right: 6px;
+      top: 5px;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-bright);
+      border-radius: 3px;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: color 0.12s, border-color 0.12s, transform 0.2s;
+      padding: 0;
+    }
+    .xpath-hints-toggle:hover {
+      color: var(--sap-blue);
+      border-color: var(--sap-blue);
+    }
+    .xpath-hints-toggle.expanded {
+      transform: rotate(180deg);
+    }
+    .xpath-hint-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      flex-shrink: 0;
+      align-self: flex-start;
+      font-family: 'Syne', sans-serif;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      padding-right: 3px;
+      line-height: 1.8;
+    }
+    .xpath-hint-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border-bright);
+      background: rgba(0,112,242,0.07);
+      color: var(--sap-blue);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      white-space: nowrap;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.12s, border-color 0.12s;
+      line-height: 1.6;
+
+    }
+    .xpath-hint-chip:hover {
+      background: rgba(0,112,242,0.18);
+      border-color: var(--sap-blue);
+      color: #5aa0ff;
+    }
+    .xpath-hint-chip:active {
+      background: rgba(0,112,242,0.28);
+    }
+
     /* Results panel */
     .xpath-results-panel {
       display: none;

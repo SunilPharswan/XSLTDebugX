@@ -52,11 +52,13 @@ Type an XPath 3.0 expression and press **Enter** or **Run XPath**. Matched nodes
 - **Expression history** — last 20 expressions persisted; browse with ▲ ▼ buttons or `↑ ↓` keys
 - **Editor highlighting** — amber glyph markers and line backgrounds on matched nodes
 - **Copy XPath of Element** — right-click any element to copy its XPath (exact or general)
+- **Hints strip** — clickable XPath expression chips appear below the input bar when an XPath example is loaded; click any chip to instantly run that expression
 
 ### Transform Engine
 - **XSLT 3.0** via [Saxon-JS 2.x](https://www.saxonica.com/saxon-js/documentation/index.html) — `xsl:iterate`, higher-order functions, maps, arrays, `xsl:message`
 - **Pre-flight validation** — well-formedness checked before Saxon runs
-- **Pretty-printed output** — XML auto-formatted; non-XML shown as-is
+- **Output language detection** — auto-detects XML, JSON, and plain text (CSV, fixed-length, EDI) from actual output content; switches Monaco language mode and updates the download filename accordingly
+- **Pretty-printed output** — XML auto-formatted; JSON pretty-printed with 2-space indent; plain text shown as-is
 - **Run button feedback** — spinner shown for minimum 300ms so feedback is always visible
 
 ### SAP CPI Simulation
@@ -68,15 +70,15 @@ Type an XPath 3.0 expression and press **Enter** or **Run XPath**. Matched nodes
 - **`terminate="yes"` as intentional halt** — logged as warning, not error
 
 ### Examples Library
-32 built-in examples across 5 categories. All categories are fully dynamic — adding a new category to `CATEGORIES` in `examples-data.js` automatically creates its sidebar button, grid section, and card tags.
+47 built-in examples across 5 categories. All categories are fully dynamic — adding a new category to `CATEGORIES` in `examples-data.js` automatically creates its sidebar button, grid section, and card tags.
 
 | Category | Count | Examples |
 |---|---|---|
-| **Data Transformation** | 4 | Identity Transform, Rename Elements & Attributes, Filter / Conditional Output, Namespace Handling |
-| **Aggregation & Splitting** | 3 | Aggregate Line Items, Multi-Source Merge, Group By Key |
-| **Format Conversion** | 3 | XML to Flat File, Flat File to XML, IDoc Segments to XML |
-| **SAP CPI Patterns** | 11 | SOAP Fault Handling, Conditional Routing Headers, XML to Flat Text/CSV, SuccessFactors Employee Mapping, Set Headers & Properties, Batch Key Recovery, xsl:message Debugging, and more |
-| **XPath Explorer** | 11 | Navigation & Predicates, Aggregation, String Functions, tokenize/string-join, Regex, Date & Duration, Namespace-Agnostic, Batch Error Detection, Conditional & Boolean Logic, Node Inspection, SOAP Envelope Navigation |
+| **Data Transformation** | 8 | Identity Transform, Rename Elements, Filter / Conditional Output, Namespace Handling, Unwrap / Rewrap Payload, Sort Records, Deep Copy + Field Injection, Empty Element Cleanup |
+| **Aggregation & Splitting** | 3 | Group-by & Aggregate, Split Message, Merge / Collect Records |
+| **Format Conversion** | 6 | Date Format Conversion, Currency & Amount Formatting, Multi-Currency Consolidation, XML → JSON Output, XML → CSV Output, XML → Fixed-Length Output |
+| **SAP CPI Patterns** | 14 | IDoc ORDERS05, IDoc INVOIC01, Value Mapping / Lookup, Headers & Properties, Error Handling (xsl:try), Batch Processing, Batch Key Recovery, xsl:message Debugging, SOAP Fault Handling, Conditional Routing Headers, XML to Flat Text/CSV, SuccessFactors Employee Mapping, Strip SOAP Envelope, Add XML Wrapper |
+| **XPath Explorer** | 16 | Navigation & Predicates, Aggregation, String Functions, tokenize/string-join, Regex, Date & Duration, Namespace-Agnostic, Batch Error Detection, Conditional & Boolean, Node Inspection, SOAP Envelope Navigation, distinct-values(), Sibling Axes, index-of() & subsequence(), deep-equal(), xs: Type Casting |
 
 ### Share
 XML, XSLT, headers, and properties encoded into a single URL. Recipients always land in XSLT mode. Never hits a server. XPath expressions and XPath mode are not shared.
@@ -208,7 +210,7 @@ XSLTDebugX/
 │   ├── validate.js         # XML validation, Monaco markers
 │   ├── panes.js            # clearPane, copyPane, prettyXML, fmtEditor, toggleWordWrap
 │   ├── transform.js        # CPI simulation, KV panels, runTransform
-│   ├── examples-data.js    # CATEGORIES object + 32 built-in examples
+│   ├── examples-data.js    # CATEGORIES object + 47 built-in examples
 │   ├── modal.js            # Examples library, dynamic sidebar, loadExample
 │   ├── files.js            # Upload, download, drag-and-drop
 │   ├── ui.js               # Column collapse, console, theme toggle, help modal

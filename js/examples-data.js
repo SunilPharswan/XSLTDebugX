@@ -1480,6 +1480,14 @@ const EXAMPLES = {
       "//Item[last()]                           — last item",
       "//Item[position() <= 2]                  — first two items",
       "//Item[Category='Pumps']/@status         — status attrs of Pumps",
+      "//Item[UnitPrice = max(//Item/UnitPrice)]  — item with highest price",
+      "/SalesOrder/Header/ancestor::*             — ancestors of Header",
+      "//Item/parent::Items                       — parent of Item nodes",
+      "//Item[Qty * UnitPrice > 500]              — lines with value over 500",
+      "//Item[@status='active']/LineNo            — line numbers of active items",
+      "string-join(//Item[@status='active']/Material, ', ') — active materials joined",
+      "concat(//Header/OrderId, ' — ', //Header/Customer)   — order label",
+      "distinct-values(//Item/Category)           — unique categories",
     ]
   },
 
@@ -1531,6 +1539,13 @@ const EXAMPLES = {
       "max(//Item/UnitPrice)                     — most expensive item",
       "min(//Item/Qty)                           — smallest quantity",
       "avg(//Item/UnitPrice)                     — average unit price",
+      "sum(//Item/(xs:decimal(UnitPrice) * xs:decimal(Qty))) — weighted total value",
+      "//Item[UnitPrice = max(//Item/UnitPrice)]  — most expensive line",
+      "//Item[Confirmed='true']/(xs:decimal(Qty) * xs:decimal(UnitPrice)) — confirmed line values",
+      "format-number(sum(//Item/UnitPrice),'#,##0.00') — formatted sum",
+      "count(//Item[Confirmed='false'])            — unconfirmed line count",
+      "string-join(//Item/Material, ', ')          — all materials as string",
+      "//Item[Confirmed='true']/parent::Items/parent::PurchaseOrder/@id — PO id via parent axis",
     ]
   },
 
@@ -1585,6 +1600,11 @@ const EXAMPLES = {
       "string-length(//Employee[1]/Name)                       — name length",
       "substring-before(//Employee[1]/Email,'@')               — local part of email",
       "concat(//Employee[1]/Name,' (',//Employee[1]/EmpId,')')  — build display label",
+      "lower-case(//Employee[2]/Status)                        — to lowercase",
+      "ends-with(//Employee[1]/Email,'.com')                   — email domain check",
+      "translate(//Employee[3]/Email,'@','_')                  — replace char",
+      "string-join(//Employee[Department='IT Integration']/Name,', ') — join names",
+      "//Employee[ends-with(Email,'.de')]                       — German email domain",
     ]
   },
 
@@ -1619,6 +1639,11 @@ const EXAMPLES = {
       "string-join(//Record/Id, ', ')                         — join element values",
       "string-join(tokenize(//RoutingCategories,',')[position()<=2],';') — slice & rejoin",
       "//Record[tokenize(Tags,',') = 'urgent']                — filter by tag in list",
+      "tokenize(//ErrorCodes,'\\|')                             — split pipe-delimited",
+      "count(tokenize(//RoutingCategories,','))                  — category count",
+      "tokenize(//BatchKeys,';')[starts-with(.,'userId')]        — filter tokens by prefix",
+      "string-join(for $r in //Record return $r/Id, ' | ')      — join with custom sep",
+      "tokenize(//BatchKeys,';')[last()]                         — last token",
     ]
   },
 
@@ -1663,6 +1688,10 @@ const EXAMPLES = {
       "matches(//Invoice[2]/VATNumber, '^DE[0-9]{9}$')         — validate German VAT",
       "matches(//Invoice[3]/Amount, '^[0-9]+(\.[0-9]+)?$')    — validate numeric",
       "//Invoice[matches(VATNumber, '^DE[0-9]{9}$')]           — filter valid VAT only",
+      "replace(//Invoice[1]/Amount, '[^0-9.]', '')              — strip to numeric only",
+      "matches(//Invoice[3]/Amount, '^[0-9]+(\\.[0-9]+)?$')   — is it a valid number?",
+      "//Invoice[not(matches(VATNumber, '^DE[0-9]{9}$'))]      — flag invalid VAT numbers",
+      "replace(//Invoice[1]/Phone, '^\\+49\\s?\\(0\\)', '+49') — normalise prefix",
     ]
   },
 
@@ -1709,6 +1738,11 @@ const EXAMPLES = {
       "format-date(xs:date(//Order[1]/OrderDate),'[D01]/[M01]/[Y0001]') — reformat date",
       "year-from-date(xs:date(//Order[1]/OrderDate))            — extract year",
       "month-from-date(xs:date(//Order[1]/OrderDate))           — extract month",
+      "day-from-date(xs:date(//Order[1]/DeliveryDate))           — extract day",
+      "days-from-duration(xs:date(//Order[2]/DeliveryDate) - current-date()) — days until delivery",
+      "//Order[xs:date(DeliveryDate) - xs:date(OrderDate) > xs:dayTimeDuration('P30D')] — lead > 30 days",
+      "count(//Order[xs:date(DeliveryDate) gt current-date()])    — future delivery count",
+      "max(for $o in //Order return xs:date($o/DeliveryDate))     — latest delivery date",
     ]
   },
 
@@ -1753,6 +1787,13 @@ const EXAMPLES = {
       "string(//*[local-name()='InvoiceId'])                   — get ID value",
       "sum(//*[local-name()='Item']/*[local-name()='Amount'])  — sum line amounts",
       "namespace-uri(//*[local-name()='Amount'][1])            — inspect namespace URI",
+      "//*[local-name()='Item']/*[local-name()='Amount']       — Amount inside Item",
+      "//*[namespace-uri()='http://sap.com/xi/AP/FI/Global']   — all ns0: elements",
+      "//*[local-name()='Header']/*[local-name()='Currency']   — Currency in Header",
+      "count(//*[namespace-uri()='http://sap.com/xi/AP/Common/Global']) — ns1 element count",
+      "//*[local-name()='Item'][*[local-name()='Amount'] > 10000] — high-value items",
+      "string-join(//*[local-name()='CostCenter'], ', ')         — all cost centres joined",
+      "concat(//*[local-name()='InvoiceId'], ' / ', //*[local-name()='Currency']) — id + currency label",
     ]
   },
 
@@ -1827,6 +1868,13 @@ const EXAMPLES = {
       "count(//batchChangeSetPartResponse[statusCode = '200']) — success count",
       "//batchChangeSetPartResponse[statusCode != '200']/body/error/message — error msgs",
       "every $r in //batchChangeSetPartResponse satisfies $r/statusCode = '200' — all ok?",
+      "some $r in //batchChangeSetPartResponse satisfies $r/statusCode = '500'  — any server error?",
+      "//batchChangeSetPartResponse[statusCode != '200']/body/error/code        — error codes",
+      "//batchChangeSetPartResponse[statusCode != '200']/body/error/message     — error messages",
+      "string-join(//batchChangeSetPartResponse[statusCode!='200']/statusCode, ',') — failure codes joined",
+      "//batchChangeSetPartResponse[statusCode='200']/body//key                 — successful keys",
+      "for $r in //batchChangeSetPartResponse[statusCode!='200'] return $r/statusCode — failure codes sequence",
+      "string-join(//batchChangeSetPartResponse[statusCode='200']/body//key, '; ') — successful keys joined",
     ]
   }
 
@@ -2175,6 +2223,13 @@ const EXAMPLES = {
       "if (count(//Order[Status='OPEN']) gt 0) then 'Has open' else 'All closed'  — conditional string",
       "every $o in //Order satisfies xs:decimal($o/Amount) gt 100    — all over 100?",
       "some $o in //Order satisfies $o/Status = 'OPEN'               — any open?",
+      "//Order[Priority = 'HIGH' and not(Status = 'CLOSED')]              — open high priority",
+      "if (some $o in //Order satisfies $o/Priority='HIGH') then 'Urgent' else 'Normal' — urgency label",
+      "//Order[xs:decimal(Amount) = max(//Order/xs:decimal(Amount))]      — order with max amount",
+      "count(//Order[Status='OPEN' and xs:decimal(Amount) gt 1000])        — high-value open count",
+      "string-join(//Order[Status='OPEN']/Customer, ', ')                  — open order customers joined",
+      "//Order[Priority='HIGH']/Id/parent::Order/Amount                    — navigate to amount via parent",
+      "distinct-values(//Order[not(Status='CLOSED')]/Customer)             — unique non-closed customers",
     ]
   },
 
@@ -2224,6 +2279,11 @@ const EXAMPLES = {
       "//IDOC/*[last()]                               — last segment",
       "//IDOC/*[position() = 2]                       — second segment",
       "/IDOC/@BEGIN                                   — attribute value",
+      "for $s in //IDOC/* return local-name($s)         — segment names as sequence",
+      "distinct-values(for $s in //IDOC/* return local-name($s)) — unique segment types",
+      "//IDOC/*[@SEGMENT]                                — all segments with SEGMENT attr",
+      "//IDOC/*[count(preceding-sibling::*) = 0]        — first child (alt to [1])",
+      "string-join(for $n in //IDOC/* return local-name($n), ', ') — all segment names joined",
     ]
   },
 
@@ -2277,8 +2337,1176 @@ const EXAMPLES = {
       "count(//*[local-name()='Line'])                         — number of order lines",
       "//*[local-name()='Line']/@lineNo                        — all lineNo attributes",
       "//*[local-name()='Username']                            — WSSE username",
-      "sum(//*[local-name()='UnitPrice'] * //*[local-name()='Quantity']) — total value attempt",
+      "sum(//*[local-name()='Line']/(xs:decimal(*[local-name()='UnitPrice']) * xs:decimal(*[local-name()='Quantity']))) — total order value (XPath 3.0)",
+      "//*[local-name()='Header']/*                           — all Header children",
+      "//*[local-name()='Security']//*[local-name()='Username'] — drill into WSSecurity",
+      "count(//*[local-name()='Line'])                         — line count",
+      "//*[local-name()='Line'][@lineNo='2']/*[local-name()='Material'] — material on line 2",
+      "string(//*[local-name()='TotalAmount'])                 — total amount as string",
     ]
-  }
+  },
+
+
+
+  // ── DATA TRANSFORMATION (continued) ─────────────────────────────
+
+  unwrapRewrap: {
+    label: 'Unwrap / Rewrap Payload',
+    icon:  '📦',
+    desc:  'Strip an outer envelope and re-wrap content under a new root \u2014 common adapter mapping pattern in CPI',
+    cat:   'transform',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<ns0:MT_PurchaseOrder_Out
+  xmlns:ns0="http://acme.com/interfaces/purchasing/out">
+  <MessageHeader>
+    <SenderId>SAP-ERP</SenderId>
+    <ReceiverId>PARTNER-B2B</ReceiverId>
+    <Timestamp>2024-11-15T09:30:00Z</Timestamp>
+    <MessageId>MSG-20241115-00042</MessageId>
+  </MessageHeader>
+  <PurchaseOrder>
+    <PONumber>4500099001</PONumber>
+    <Vendor>V-100042</Vendor>
+    <Currency>EUR</Currency>
+    <Items>
+      <Item>
+        <LineNo>10</LineNo>
+        <Material>MAT-001</Material>
+        <Qty>5</Qty>
+        <NetValue>2250.00</NetValue>
+      </Item>
+      <Item>
+        <LineNo>20</LineNo>
+        <Material>MAT-002</Material>
+        <Qty>2</Qty>
+        <NetValue>960.00</NetValue>
+      </Item>
+    </Items>
+  </PurchaseOrder>
+</ns0:MT_PurchaseOrder_Out>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:ns0="http://acme.com/interfaces/purchasing/out"
+  exclude-result-prefixes="ns0">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Unwrap / Rewrap Pattern.
+
+    Strips the source interface envelope (ns0:MT_PurchaseOrder_Out)
+    and re-wraps the inner payload under a new canonical root
+    expected by the target system.
+
+    Also promotes MessageHeader fields as attributes on the new root
+    for traceability — common in CPI audit logging patterns.
+
+    Key technique: match the outer element by local-name() so the
+    XSLT stays namespace-tolerant if the prefix ever changes.
+  -->
+
+  <xsl:template match="/*">
+    <CanonicalPurchaseOrder
+      messageId="{MessageHeader/MessageId}"
+      sender="{MessageHeader/SenderId}"
+      receiver="{MessageHeader/ReceiverId}"
+      timestamp="{MessageHeader/Timestamp}">
+      <xsl:apply-templates select="PurchaseOrder/*"/>
+    </CanonicalPurchaseOrder>
+  </xsl:template>
+
+  <!-- Copy inner content as-is using identity -->
+  <xsl:template match="@* | node()">
+    <xsl:copy>
+      <xsl:apply-templates select="@* | node()"/>
+    </xsl:copy>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  sortRecords: {
+    label: 'Sort Records',
+    icon:  '🔄',
+    desc:  'Multi-key sort with xsl:sort \u2014 order invoice lines by priority then net value descending',
+    cat:   'transform',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Invoices>
+  <Invoice>
+    <InvoiceNo>INV-1003</InvoiceNo>
+    <Vendor>Siemens AG</Vendor>
+    <NetValue>12500.00</NetValue>
+    <DueDate>2024-04-30</DueDate>
+    <Priority>LOW</Priority>
+    <Status>OPEN</Status>
+  </Invoice>
+  <Invoice>
+    <InvoiceNo>INV-1001</InvoiceNo>
+    <Vendor>Bosch GmbH</Vendor>
+    <NetValue>4200.00</NetValue>
+    <DueDate>2024-03-15</DueDate>
+    <Priority>HIGH</Priority>
+    <Status>OPEN</Status>
+  </Invoice>
+  <Invoice>
+    <InvoiceNo>INV-1004</InvoiceNo>
+    <Vendor>ABB Ltd</Vendor>
+    <NetValue>8750.00</NetValue>
+    <DueDate>2024-03-20</DueDate>
+    <Priority>HIGH</Priority>
+    <Status>OPEN</Status>
+  </Invoice>
+  <Invoice>
+    <InvoiceNo>INV-1002</InvoiceNo>
+    <Vendor>Schneider Electric</Vendor>
+    <NetValue>1350.00</NetValue>
+    <DueDate>2024-05-10</DueDate>
+    <Priority>LOW</Priority>
+    <Status>PAID</Status>
+  </Invoice>
+</Invoices>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Multi-key sort with xsl:sort.
+
+    Sort order applied:
+      1. Priority: HIGH before LOW (ascending alpha on H < L)
+      2. NetValue: highest first (descending numeric)
+      3. DueDate: earliest first (ascending)
+
+    In CPI this pattern is used when preparing payment runs,
+    approval queues, or ranked output for downstream systems
+    that process records in sequence.
+
+    Note: data-type="number" is essential for numeric sort \u2014
+    lexicographic sort of "12500" vs "4200" gives wrong order.
+  -->
+
+  <xsl:template match="Invoices">
+    <SortedInvoices total="{count(Invoice)}"
+                    totalValue="{format-number(sum(Invoice/xs:decimal(NetValue)),'#,##0.00')}">
+      <xsl:apply-templates select="Invoice">
+        <xsl:sort select="Priority"  order="ascending"  data-type="text"/>
+        <xsl:sort select="xs:decimal(NetValue)" order="descending" data-type="number"/>
+        <xsl:sort select="DueDate"   order="ascending"  data-type="text"/>
+      </xsl:apply-templates>
+    </SortedInvoices>
+  </xsl:template>
+
+  <xsl:template match="Invoice">
+    <Invoice rank="{position()}">
+      <xsl:copy-of select="*"/>
+    </Invoice>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  fieldInjection: {
+    label: 'Deep Copy + Field Injection',
+    icon:  '💉',
+    desc:  'Identity transform variant that adds or overrides specific fields mid-copy \u2014 enrich without rewriting the full structure',
+    cat:   'transform',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<DeliveryNote>
+  <Header>
+    <DeliveryNo>LF-2024-00881</DeliveryNo>
+    <ShipToParty>C-10042</ShipToParty>
+    <ShipDate>2024-11-20</ShipDate>
+    <CarrierId>DHL-EXPRESS</CarrierId>
+  </Header>
+  <Items>
+    <Item>
+      <LineNo>10</LineNo>
+      <Material>MAT-001</Material>
+      <Description>Hydraulic Pump 50bar</Description>
+      <Qty>5</Qty>
+      <UoM>EA</UoM>
+      <BatchNo>BT-20241101-A</BatchNo>
+    </Item>
+    <Item>
+      <LineNo>20</LineNo>
+      <Material>MAT-003</Material>
+      <Description>Pressure Gauge 0-100bar</Description>
+      <Qty>10</Qty>
+      <UoM>EA</UoM>
+      <BatchNo>BT-20241105-C</BatchNo>
+    </Item>
+  </Items>
+</DeliveryNote>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Deep Copy with Field Injection.
+
+    Extends the identity transform to:
+      - Add a ProcessedAt timestamp to the root element
+      - Override CarrierId with a normalised value
+      - Inject a TrackingRef into each Item
+
+    The key pattern: use the identity template as the default,
+    then write specific templates ONLY for the nodes you need
+    to change. Everything else copies through untouched.
+
+    This is far safer than rebuilding the full structure from
+    scratch \u2014 new source fields added later pass through
+    automatically.
+  -->
+
+  <!-- Identity: copy everything by default -->
+  <xsl:template match="@* | node()">
+    <xsl:copy>
+      <xsl:apply-templates select="@* | node()"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <!-- Inject ProcessedAt attribute onto root -->
+  <xsl:template match="DeliveryNote">
+    <xsl:copy>
+      <xsl:attribute name="processedAt" select="current-dateTime()"/>
+      <xsl:apply-templates select="@* | node()"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <!-- Normalise CarrierId: map legacy codes to standard names -->
+  <xsl:template match="CarrierId">
+    <CarrierId>
+      <xsl:choose>
+        <xsl:when test=". = 'DHL-EXPRESS'">DHL_EXPRESS</xsl:when>
+        <xsl:when test=". = 'UPS-STD'">UPS_STANDARD</xsl:when>
+        <xsl:otherwise><xsl:value-of select="."/></xsl:otherwise>
+      </xsl:choose>
+    </CarrierId>
+  </xsl:template>
+
+  <!-- Inject TrackingRef into each Item -->
+  <xsl:template match="Item">
+    <xsl:copy>
+      <xsl:apply-templates select="@* | node()"/>
+      <TrackingRef>
+        <xsl:value-of select="concat(ancestor::Header/DeliveryNo,'-',LineNo)"/>
+      </TrackingRef>
+    </xsl:copy>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  emptyElementCleanup: {
+    label: 'Empty Element Cleanup',
+    icon:  '🧹',
+    desc:  'Remove blank and whitespace-only elements, normalize internal whitespace \u2014 data quality step before sending to downstream',
+    cat:   'transform',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<CustomerMaster>
+  <Customer id="C-10042">
+    <Name>Acme Industries GmbH</Name>
+    <TaxId>DE123456789</TaxId>
+    <Email></Email>
+    <Phone>  </Phone>
+    <Website>https://acme-industries.de</Website>
+    <Address>
+      <Street>Industriestrasse   42</Street>
+      <City>Frankfurt</City>
+      <PostalCode>60528</PostalCode>
+      <Region></Region>
+      <Country>DE</Country>
+    </Address>
+    <Contacts>
+      <Contact>
+        <Name>  Hans   Mueller  </Name>
+        <Role>Purchasing</Role>
+        <Email>h.mueller@acme-industries.de</Email>
+        <Mobile></Mobile>
+      </Contact>
+      <Contact>
+        <Name></Name>
+        <Role></Role>
+        <Email></Email>
+        <Mobile></Mobile>
+      </Contact>
+    </Contacts>
+  </Customer>
+</CustomerMaster>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Empty Element Cleanup.
+
+    Removes elements whose text content is empty or whitespace-only,
+    normalizes internal whitespace in text nodes, and removes
+    Contact entries where ALL child elements are blank.
+
+    Two passes of the identity template with targeted overrides:
+      1. Text nodes: normalize-space() to collapse internal gaps
+      2. Elements:   suppress if normalize-space(.) = ''
+      3. Contact:    suppress entire block if all children are blank
+
+    Common in CPI before sending to Salesforce, S/4HANA OData,
+    or any API that rejects empty string fields.
+  -->
+
+  <!-- Default: copy everything -->
+  <xsl:template match="@* | node()">
+    <xsl:copy>
+      <xsl:apply-templates select="@* | node()"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <!-- Suppress elements with empty or whitespace-only content -->
+  <xsl:template match="*[not(*) and normalize-space(.) = '']"/>
+
+  <!-- Normalize whitespace in text nodes -->
+  <xsl:template match="text()">
+    <xsl:value-of select="normalize-space(.)"/>
+  </xsl:template>
+
+  <!-- Suppress Contact blocks where every child is blank -->
+  <xsl:template match="Contact[every $c in * satisfies normalize-space($c) = '']"/>
+
+</xsl:stylesheet>`
+  },
+
+  // ── SAP CPI PATTERNS (continued) ────────────────────────────────
+
+  stripSoapEnvelope: {
+    label: 'Strip SOAP Envelope',
+    icon:  '✂️',
+    desc:  'Extract the Body payload from a SOAP message \u2014 used when CPI receives SOAP but routes to a REST or plain-XML adapter',
+    cat:   'cpi',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope
+  xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:ord="http://sap.com/xi/orders/v2">
+  <soapenv:Header>
+    <soapenv:Action>CreateOrder</soapenv:Action>
+  </soapenv:Header>
+  <soapenv:Body>
+    <ord:CreateOrderRequest>
+      <ord:PONumber>PO-2024-00991</ord:PONumber>
+      <ord:Vendor>10000042</ord:Vendor>
+      <ord:Currency>EUR</ord:Currency>
+      <ord:TotalAmount>18750.00</ord:TotalAmount>
+      <ord:Items>
+        <ord:Item lineNo="1">
+          <ord:Material>MAT-001</ord:Material>
+          <ord:Quantity>5</ord:Quantity>
+          <ord:UnitPrice>1500.00</ord:UnitPrice>
+        </ord:Item>
+        <ord:Item lineNo="2">
+          <ord:Material>MAT-002</ord:Material>
+          <ord:Quantity>10</ord:Quantity>
+          <ord:UnitPrice>937.50</ord:UnitPrice>
+        </ord:Item>
+      </ord:Items>
+    </ord:CreateOrderRequest>
+  </soapenv:Body>
+</soapenv:Envelope>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+  exclude-result-prefixes="soap">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Strip SOAP Envelope.
+
+    Extracts the first child element of soapenv:Body and outputs
+    it as the document root, stripping the envelope and header.
+    Namespace prefixes on the payload are preserved as-is.
+
+    Common CPI patterns where this is used:
+      - SOAP \u2192 REST adapter bridge (body becomes the JSON source)
+      - SOAP \u2192 XI/SOAP forwarding with envelope re-wrap
+      - Content-based routing where the router reads the bare payload
+
+    The /* in soap:Body/* selects any child regardless of namespace,
+    so this works with any SOAP service without changing the XSLT.
+  -->
+
+  <xsl:template match="/">
+    <xsl:apply-templates select="/soap:Envelope/soap:Body/*[1]"/>
+  </xsl:template>
+
+  <!-- Identity: copy the payload and all descendants as-is -->
+  <xsl:template match="@* | node()">
+    <xsl:copy>
+      <xsl:apply-templates select="@* | node()"/>
+    </xsl:copy>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  addXmlWrapper: {
+    label: 'Add XML Wrapper / Envelope',
+    icon:  '📋',
+    desc:  'Wrap a bare payload under a new root with sender, receiver and timestamp metadata \u2014 common before PI/PO or B2B handoff',
+    cat:   'cpi',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<GoodsReceipt>
+  <DocumentNo>5000012345</DocumentNo>
+  <PostingDate>2024-11-15</PostingDate>
+  <Plant>1000</Plant>
+  <StorageLocation>0001</StorageLocation>
+  <Items>
+    <Item>
+      <LineNo>1</LineNo>
+      <PurchaseOrder>4500099001</PurchaseOrder>
+      <POLine>10</POLine>
+      <Material>MAT-001</Material>
+      <ReceivedQty>5</ReceivedQty>
+      <UoM>EA</UoM>
+    </Item>
+    <Item>
+      <LineNo>2</LineNo>
+      <PurchaseOrder>4500099001</PurchaseOrder>
+      <POLine>20</POLine>
+      <Material>MAT-002</Material>
+      <ReceivedQty>2</ReceivedQty>
+      <UoM>EA</UoM>
+    </Item>
+  </Items>
+</GoodsReceipt>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Add XML Wrapper / Envelope.
+
+    Wraps the incoming payload under a new root element that
+    carries interface metadata: sender, receiver, message ID,
+    timestamp, and a payload type discriminator.
+
+    Common scenarios in CPI:
+      - Adding a canonical message envelope before PI/PO handoff
+      - Wrapping payloads for async queuing (SQS, ServiceBus)
+      - Adding traceability headers before archiving
+      - Constructing XI 3.0 / AS2 interchange wrappers
+
+    generate-id() produces a stable document-unique string
+    suitable as a message correlation ID when no external ID
+    is available in the payload.
+  -->
+
+  <xsl:param name="senderId"   select="'CPI-PROD'"/>
+  <xsl:param name="receiverId" select="'WM-SYSTEM'"/>
+
+  <xsl:template match="/">
+    <InterfaceMessage
+      version="1.0"
+      messageId="{generate-id()}"
+      sender="{$senderId}"
+      receiver="{$receiverId}"
+      payloadType="{local-name(/*)}"
+      createdAt="{current-dateTime()}">
+      <Payload>
+        <xsl:copy-of select="*"/>
+      </Payload>
+    </InterfaceMessage>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  idocInvoic01: {
+    label: 'IDoc INVOIC01 \u2192 XML',
+    icon:  '🧾',
+    desc:  'Parse SAP invoice IDoc (INVOIC01) into a structured XML \u2014 maps control record, tax, payment terms and line items',
+    cat:   'cpi',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<INVOIC01>
+  <IDOC BEGIN="1">
+    <EDI_DC40 SEGMENT="1">
+      <TABNAM>EDI_DC40</TABNAM>
+      <MANDT>100</MANDT>
+      <DOCNUM>0000000000054321</DOCNUM>
+      <IDOCTYP>INVOIC01</IDOCTYP>
+      <MESTYP>INVOIC</MESTYP>
+      <SNDPOR>VENDOR_EDI</SNDPOR>
+      <RCVPOR>SAP_ERP</RCVPOR>
+      <CREDAT>20241120</CREDAT>
+      <CRETIM>141500</CRETIM>
+    </EDI_DC40>
+    <E1EDK01 SEGMENT="1">
+      <ACTION>009</ACTION>
+      <CURCY>EUR</CURCY>
+      <HWAER>EUR</HWAER>
+      <WKURS>1.00000</WKURS>
+      <ZTERM>NET30</ZTERM>
+      <BELNR>INV-2024-88410</BELNR>
+      <NTGEW>18.500</NTGEW>
+    </E1EDK01>
+    <E1EDK02 SEGMENT="1">
+      <QUALF>001</QUALF>
+      <BELNR>4500099001</BELNR>
+    </E1EDK02>
+    <E1EDKA1 SEGMENT="1">
+      <PARVW>LF</PARVW>
+      <PARTN>V-200099</PARTN>
+      <NAME1>Global Supplies AG</NAME1>
+      <STRAS>Hauptstrasse 100</STRAS>
+      <ORT01>Berlin</ORT01>
+      <PSTLZ>10115</PSTLZ>
+      <LAND1>DE</LAND1>
+    </E1EDKA1>
+    <E1EDP01 SEGMENT="1">
+      <POSEX>000010</POSEX>
+      <MATNR>000000000000012345</MATNR>
+      <MAKTX>Control Valve DN50</MAKTX>
+      <MENGE>10.000</MENGE>
+      <MENEE>EA</MENEE>
+      <VPREI>320.00</VPREI>
+      <NETWR>3200.00</NETWR>
+      <MWSBT>608.00</MWSBT>
+      <MWSKZ>A0</MWSKZ>
+    </E1EDP01>
+    <E1EDP01 SEGMENT="1">
+      <POSEX>000020</POSEX>
+      <MATNR>000000000000067890</MATNR>
+      <MAKTX>Pressure Sensor 4-20mA</MAKTX>
+      <MENGE>5.000</MENGE>
+      <MENEE>EA</MENEE>
+      <VPREI>185.00</VPREI>
+      <NETWR>925.00</NETWR>
+      <MWSBT>175.75</MWSBT>
+      <MWSKZ>A0</MWSKZ>
+    </E1EDP01>
+    <E1EDKT1 SEGMENT="1">
+      <TSSPRAS>E</TSSPRAS>
+      <TDID>Z001</TDID>
+    </E1EDKT1>
+    <E1EDKT2 SEGMENT="1">
+      <TDLINE>Payment due 30 days net. Bank: IBAN DE89370400440532013000</TDLINE>
+    </E1EDKT2>
+  </IDOC>
+</INVOIC01>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    SAP IDoc INVOIC01 \u2192 Canonical Invoice XML.
+
+    Segment mapping:
+      EDI_DC40  \u2014 control record (IDoc meta, dates)
+      E1EDK01   \u2014 invoice header (currency, payment terms, doc number)
+      E1EDK02   \u2014 reference documents (QUALF=001 \u2192 PO reference)
+      E1EDKA1   \u2014 partner addresses (PARVW=LF \u2192 vendor/supplier)
+      E1EDP01   \u2014 line items (material, qty, unit price, tax)
+      E1EDKT2   \u2014 text lines (payment notes, bank details)
+
+    VPREI = unit price, NETWR = line net value, MWSBT = tax amount.
+  -->
+
+  <xsl:template match="INVOIC01">
+    <xsl:apply-templates select="IDOC"/>
+  </xsl:template>
+
+  <xsl:template match="IDOC">
+    <xsl:variable name="dc"     select="EDI_DC40"/>
+    <xsl:variable name="hdr"    select="E1EDK01"/>
+    <xsl:variable name="vendor" select="E1EDKA1[PARVW='LF']"/>
+    <xsl:variable name="poRef"  select="E1EDK02[QUALF='001']/BELNR"/>
+
+    <Invoice>
+      <IDocNumber><xsl:value-of select="normalize-space($dc/DOCNUM)"/></IDocNumber>
+      <InvoiceNumber><xsl:value-of select="$hdr/BELNR"/></InvoiceNumber>
+      <PurchaseOrderRef><xsl:value-of select="$poRef"/></PurchaseOrderRef>
+      <InvoiceDate>
+        <xsl:value-of select="concat(
+          substring($dc/CREDAT,1,4),'-',
+          substring($dc/CREDAT,5,2),'-',
+          substring($dc/CREDAT,7,2))"/>
+      </InvoiceDate>
+      <Currency><xsl:value-of select="$hdr/CURCY"/></Currency>
+      <PaymentTerms><xsl:value-of select="$hdr/ZTERM"/></PaymentTerms>
+
+      <Vendor id="{$vendor/PARTN}">
+        <Name><xsl:value-of select="$vendor/NAME1"/></Name>
+        <Address>
+          <Street><xsl:value-of select="$vendor/STRAS"/></Street>
+          <City><xsl:value-of select="$vendor/ORT01"/></City>
+          <PostalCode><xsl:value-of select="$vendor/PSTLZ"/></PostalCode>
+          <Country><xsl:value-of select="$vendor/LAND1"/></Country>
+        </Address>
+      </Vendor>
+
+      <LineItems count="{count(E1EDP01)}">
+        <xsl:apply-templates select="E1EDP01"/>
+      </LineItems>
+
+      <Totals currency="{$hdr/CURCY}">
+        <NetTotal>
+          <xsl:value-of select="format-number(sum(E1EDP01/xs:decimal(NETWR)),'#,##0.00')"/>
+        </NetTotal>
+        <TaxTotal>
+          <xsl:value-of select="format-number(sum(E1EDP01/xs:decimal(MWSBT)),'#,##0.00')"/>
+        </TaxTotal>
+        <GrossTotal>
+          <xsl:value-of select="format-number(
+            sum(E1EDP01/xs:decimal(NETWR)) + sum(E1EDP01/xs:decimal(MWSBT)),
+            '#,##0.00')"/>
+        </GrossTotal>
+      </Totals>
+
+      <xsl:if test="E1EDKT2">
+        <PaymentNote>
+          <xsl:value-of select="normalize-space(E1EDKT2/TDLINE)"/>
+        </PaymentNote>
+      </xsl:if>
+    </Invoice>
+  </xsl:template>
+
+  <xsl:template match="E1EDP01">
+    <Item line="{normalize-space(POSEX)}">
+      <MaterialNumber><xsl:value-of select="normalize-space(MATNR)"/></MaterialNumber>
+      <Description><xsl:value-of select="MAKTX"/></Description>
+      <Quantity unit="{MENEE}">
+        <xsl:value-of select="format-number(xs:decimal(MENGE),'#,##0.###')"/>
+      </Quantity>
+      <UnitPrice><xsl:value-of select="format-number(xs:decimal(VPREI),'#,##0.00')"/></UnitPrice>
+      <NetValue><xsl:value-of select="format-number(xs:decimal(NETWR),'#,##0.00')"/></NetValue>
+      <TaxAmount taxCode="{MWSKZ}">
+        <xsl:value-of select="format-number(xs:decimal(MWSBT),'#,##0.00')"/>
+      </TaxAmount>
+    </Item>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  // ── XPATH EXPLORER (continued) ───────────────────────────────────
+
+  xpathDistinctValues: {
+    label: 'distinct-values()',
+    icon:  '🎯',
+    desc:  'Get unique codes from repeated elements \u2014 deduplicate currency, status or category lists in CPI payloads',
+    cat:   'xpath',
+    xslt:  '',
+    xpathExpr: "distinct-values(//Item/Currency)",
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<PurchaseOrders>
+  <PO id="PO-001">
+    <Vendor>V-100</Vendor>
+    <Item><LineNo>10</LineNo><Material>MAT-A</Material><Qty>5</Qty><UnitPrice>100.00</UnitPrice><Currency>EUR</Currency><Status>CONFIRMED</Status><Category>Pumps</Category></Item>
+    <Item><LineNo>20</LineNo><Material>MAT-B</Material><Qty>2</Qty><UnitPrice>450.00</UnitPrice><Currency>USD</Currency><Status>PENDING</Status><Category>Valves</Category></Item>
+    <Item><LineNo>30</LineNo><Material>MAT-C</Material><Qty>8</Qty><UnitPrice>75.00</UnitPrice><Currency>EUR</Currency><Status>CONFIRMED</Status><Category>Pumps</Category></Item>
+  </PO>
+  <PO id="PO-002">
+    <Vendor>V-200</Vendor>
+    <Item><LineNo>10</LineNo><Material>MAT-D</Material><Qty>3</Qty><UnitPrice>220.00</UnitPrice><Currency>GBP</Currency><Status>CONFIRMED</Status><Category>Sensors</Category></Item>
+    <Item><LineNo>20</LineNo><Material>MAT-E</Material><Qty>12</Qty><UnitPrice>38.50</UnitPrice><Currency>EUR</Currency><Status>PENDING</Status><Category>Sensors</Category></Item>
+    <Item><LineNo>30</LineNo><Material>MAT-F</Material><Qty>1</Qty><UnitPrice>1850.00</UnitPrice><Currency>USD</Currency><Status>CANCELLED</Status><Category>Valves</Category></Item>
+  </PO>
+</PurchaseOrders>`,
+    xpathHints: [
+      "distinct-values(//Item/Currency)                          \u2014 unique currencies",
+      "distinct-values(//Item/Status)                            \u2014 unique statuses",
+      "distinct-values(//Item/Category)                          \u2014 unique categories",
+      "count(distinct-values(//Item/Currency))                   \u2014 how many currencies",
+      "distinct-values(//PO/@id)                                 \u2014 unique PO IDs",
+      "distinct-values(//Item[Status='CONFIRMED']/Currency)      \u2014 currencies of confirmed lines",
+      "//Item[Currency = distinct-values(//Item/Currency)[1]]    \u2014 items in first currency",
+      "for $c in distinct-values(//Item/Currency) return concat($c,': ',count(//Item[Currency=$c])) \u2014 count per currency",
+      "distinct-values(//Item[Status='CANCELLED']/Category)    \u2014 categories with cancellations",
+      "count(distinct-values(//Item/Status))                    \u2014 number of distinct statuses",
+      "//PO[count(distinct-values(Item/Currency)) > 1]          \u2014 POs with mixed currencies",
+    ]
+  },
+
+  xpathSiblingAxes: {
+    label: 'Sibling Axes',
+    icon:  '🔀',
+    desc:  'following-sibling and preceding-sibling \u2014 navigate between peer elements, essential for IDoc segment traversal',
+    cat:   'xpath',
+    xslt:  '',
+    xpathExpr: "//E1EDP01[1]/following-sibling::E1EDP01",
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<IDOC BEGIN="1">
+  <EDI_DC40 SEGMENT="1">
+    <DOCNUM>0000000000099001</DOCNUM>
+    <MESTYP>ORDERS</MESTYP>
+    <CREDAT>20241120</CREDAT>
+  </EDI_DC40>
+  <E1EDK01 SEGMENT="1">
+    <BELNR>4500099001</BELNR>
+    <CURCY>EUR</CURCY>
+    <ZTERM>NET30</ZTERM>
+  </E1EDK01>
+  <E1EDP01 SEGMENT="1">
+    <POSEX>000010</POSEX>
+    <MATNR>MAT-001</MATNR>
+    <MAKTX>Hydraulic Pump</MAKTX>
+    <MENGE>5</MENGE>
+    <NETWR>2500.00</NETWR>
+  </E1EDP01>
+  <E1EDP01 SEGMENT="1">
+    <POSEX>000020</POSEX>
+    <MATNR>MAT-002</MATNR>
+    <MAKTX>Control Valve</MAKTX>
+    <MENGE>10</MENGE>
+    <NETWR>1200.00</NETWR>
+  </E1EDP01>
+  <E1EDP01 SEGMENT="1">
+    <POSEX>000030</POSEX>
+    <MATNR>MAT-003</MATNR>
+    <MAKTX>Pressure Gauge</MAKTX>
+    <MENGE>3</MENGE>
+    <NETWR>450.00</NETWR>
+  </E1EDP01>
+  <E1EDKT1 SEGMENT="1">
+    <TDID>Z001</TDID>
+  </E1EDKT1>
+  <E1EDKT2 SEGMENT="1">
+    <TDLINE>Delivery expected within 14 days</TDLINE>
+  </E1EDKT2>
+</IDOC>`,
+    xpathHints: [
+      "//E1EDP01[1]/following-sibling::E1EDP01             \u2014 all line segments after first",
+      "//E1EDP01[last()]/preceding-sibling::E1EDP01        \u2014 all line segments before last",
+      "//E1EDKT1/following-sibling::E1EDKT2                \u2014 text lines after header text",
+      "//E1EDK01/following-sibling::*[1]                   \u2014 segment immediately after header",
+      "//E1EDP01[POSEX='000020']/preceding-sibling::E1EDP01 \u2014 lines before position 20",
+      "count(//E1EDP01[1]/following-sibling::E1EDP01)      \u2014 count of lines after first",
+      "//EDI_DC40/following-sibling::*[local-name() != 'E1EDP01'][1] \u2014 first non-item segment",
+      "//E1EDP01[MENGE > 5]/following-sibling::E1EDP01          \u2014 items after a high-qty line",
+      "//E1EDP01[last()]/preceding-sibling::*[1]                \u2014 segment just before last item",
+      "//E1EDKT2/preceding-sibling::E1EDK01                     \u2014 header before text segment",
+      "count(//E1EDK01/following-sibling::*)                     \u2014 segments after header",
+      "string-join(//E1EDP01/MATNR, ', ')                       \u2014 all material numbers joined",
+      "distinct-values(for $s in //IDOC/* return local-name($s)) \u2014 unique segment type names",
+      "//E1EDP01[xs:decimal(NETWR) = max(//E1EDP01/xs:decimal(NETWR))] \u2014 highest value line",
+    ]
+  },
+
+  xpathSequenceOps: {
+    label: 'index-of() & subsequence()',
+    icon:  '🔢',
+    desc:  'Positional operations on sequences \u2014 find item positions and slice ranges in batch and multi-record payloads',
+    cat:   'xpath',
+    xslt:  '',
+    xpathExpr: "subsequence(//Item, 2, 3)",
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<BatchPayload>
+  <BatchId>BATCH-2024-1120</BatchId>
+  <Items>
+    <Item seq="1"><Id>ITM-001</Id><Status>SUCCESS</Status><Amount>1200.00</Amount></Item>
+    <Item seq="2"><Id>ITM-002</Id><Status>FAILED</Status><Amount>340.00</Amount></Item>
+    <Item seq="3"><Id>ITM-003</Id><Status>SUCCESS</Status><Amount>875.00</Amount></Item>
+    <Item seq="4"><Id>ITM-004</Id><Status>SUCCESS</Status><Amount>2100.00</Amount></Item>
+    <Item seq="5"><Id>ITM-005</Id><Status>FAILED</Status><Amount>90.00</Amount></Item>
+    <Item seq="6"><Id>ITM-006</Id><Status>SUCCESS</Status><Amount>455.00</Amount></Item>
+  </Items>
+</BatchPayload>`,
+    xpathHints: [
+      "subsequence(//Item, 2, 3)                              \u2014 items 2,3,4 (start=2, length=3)",
+      "subsequence(//Item, 4)                                 \u2014 items from position 4 onwards",
+      "index-of(//Item/Status, 'FAILED')                      \u2014 positions of FAILED items",
+      "index-of(//Item/Id, 'ITM-003')                         \u2014 position of specific item",
+      "//Item[index-of(//Item/Status,'FAILED') = position()]  \u2014 FAILED items by position",
+      "subsequence(//Item[Status='SUCCESS'], 1, 2)            \u2014 first 2 successful items",
+      "count(//Item) - count(//Item[Status='SUCCESS'])        \u2014 failure count",
+      "//Item[@seq = string(index-of(//Item/Status,'FAILED')[1])] \u2014 first failed item by position",
+      "subsequence(//Item[Status='FAILED'], 1, 1)               \u2014 first failed item",
+      "for $i in index-of(//Item/Status,'FAILED') return //Item[$i]/Id \u2014 IDs of failed items",
+      "string-join(for $i in index-of(//Item/Status,'FAILED') return string($i), ',') \u2014 failure positions",
+    ]
+  },
+
+  xpathDeepEqual: {
+    label: 'deep-equal()',
+    icon:  '🔍',
+    desc:  'Compare two XML subtrees for structural equality \u2014 reconciliation, duplicate detection and change detection in CPI flows',
+    cat:   'xpath',
+    xslt:  '',
+    xpathExpr: "deep-equal(//SourceOrder/LineItems, //TargetOrder/LineItems)",
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Reconciliation>
+  <SourceOrder id="PO-9001">
+    <Vendor>V-100042</Vendor>
+    <Currency>EUR</Currency>
+    <LineItems>
+      <Item><LineNo>10</LineNo><Material>MAT-001</Material><Qty>5</Qty><Price>120.00</Price></Item>
+      <Item><LineNo>20</LineNo><Material>MAT-002</Material><Qty>3</Qty><Price>85.50</Price></Item>
+    </LineItems>
+  </SourceOrder>
+  <TargetOrder id="PO-9001">
+    <Vendor>V-100042</Vendor>
+    <Currency>EUR</Currency>
+    <LineItems>
+      <Item><LineNo>10</LineNo><Material>MAT-001</Material><Qty>5</Qty><Price>120.00</Price></Item>
+      <Item><LineNo>20</LineNo><Material>MAT-002</Material><Qty>3</Qty><Price>85.50</Price></Item>
+    </LineItems>
+  </TargetOrder>
+</Reconciliation>`,
+    xpathHints: [
+      "deep-equal(//SourceOrder/LineItems, //TargetOrder/LineItems)   \u2014 are line items identical?",
+      "deep-equal(//SourceOrder/Vendor, //TargetOrder/Vendor)         \u2014 same vendor?",
+      "not(deep-equal(//SourceOrder, //TargetOrder))                  \u2014 any difference?",
+      "deep-equal(//SourceOrder/@id, //TargetOrder/@id)               \u2014 same order ID?",
+      "if (deep-equal(//SourceOrder/LineItems, //TargetOrder/LineItems)) then 'MATCH' else 'MISMATCH'  \u2014 result string",
+      "deep-equal(//SourceOrder/Currency, //TargetOrder/Currency)     \u2014 same currency?",
+      "deep-equal(//SourceOrder/LineItems/Item[1], //TargetOrder/LineItems/Item[1]) \u2014 first line matches?",
+      "count(//SourceOrder/LineItems/Item) = count(//TargetOrder/LineItems/Item)  \u2014 same line count?",
+      "//SourceOrder/LineItems/Item/Material[not(. = //TargetOrder/LineItems/Item/Material)] \u2014 materials only in source",
+      "if (deep-equal(//SourceOrder, //TargetOrder)) then 'IN SYNC' else concat('DIFF: ',count(//SourceOrder/LineItems/Item),' vs ',count(//TargetOrder/LineItems/Item),' lines') \u2014 sync status",
+    ]
+  },
+
+  xpathTypeCasting: {
+    label: 'xs: Type Casting',
+    icon:  '🔄',
+    desc:  'xs:integer, xs:decimal, xs:boolean, xs:date \u2014 type coercion patterns that trip up CPI developers',
+    cat:   'xpath',
+    xslt:  '',
+    xpathExpr: "xs:decimal(//Item[1]/UnitPrice) * xs:integer(//Item[1]/Qty)",
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<OrderLines xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Item>
+    <LineNo>10</LineNo>
+    <Material>MAT-001</Material>
+    <Qty>5</Qty>
+    <UnitPrice>1250.50</UnitPrice>
+    <Confirmed>true</Confirmed>
+    <DeliveryDate>2024-12-01</DeliveryDate>
+    <DiscountPct>10</DiscountPct>
+  </Item>
+  <Item>
+    <LineNo>20</LineNo>
+    <Material>MAT-002</Material>
+    <Qty>12</Qty>
+    <UnitPrice>38.75</UnitPrice>
+    <Confirmed>false</Confirmed>
+    <DeliveryDate>2024-12-15</DeliveryDate>
+    <DiscountPct>0</DiscountPct>
+  </Item>
+  <Item>
+    <LineNo>30</LineNo>
+    <Material>MAT-003</Material>
+    <Qty>3</Qty>
+    <UnitPrice>875.00</UnitPrice>
+    <Confirmed>true</Confirmed>
+    <DeliveryDate>2024-11-28</DeliveryDate>
+    <DiscountPct>5</DiscountPct>
+  </Item>
+</OrderLines>`,
+    xpathHints: [
+      "xs:decimal(//Item[1]/UnitPrice) * xs:integer(//Item[1]/Qty)          \u2014 numeric multiply",
+      "sum(//Item/(xs:decimal(UnitPrice) * xs:integer(Qty)))                 \u2014 total order value",
+      "//Item[xs:integer(Qty) gt 5]                                          \u2014 qty filter (numeric)",
+      "xs:boolean(//Item[1]/Confirmed)                                       \u2014 string to boolean",
+      "//Item[xs:boolean(Confirmed) = true()]                                \u2014 confirmed items",
+      "xs:date(//Item[1]/DeliveryDate) lt xs:date('2024-12-10')              \u2014 date comparison",
+      "//Item[xs:date(DeliveryDate) lt xs:date('2024-12-10')]                \u2014 items due before Dec 10",
+      "xs:decimal(//Item[1]/UnitPrice) * (1 - xs:decimal(//Item[1]/DiscountPct) div 100) \u2014 discounted price",
+      "sum(//Item[xs:boolean(Confirmed)]/(xs:decimal(UnitPrice)*xs:integer(Qty)))  \u2014 confirmed order value",
+      "max(for $i in //Item return xs:decimal($i/UnitPrice))                       \u2014 highest unit price",
+      "//Item[xs:date(DeliveryDate) = min(for $i in //Item return xs:date($i/DeliveryDate))] \u2014 earliest delivery",
+      "format-number(avg(//Item/xs:decimal(UnitPrice)),'#,##0.00')                 \u2014 formatted average",
+    ]
+  },
+
+  // ── FORMAT CONVERSION — OUTPUT EXAMPLES ──────────────────────────
+
+  xmlToJson: {
+    label: 'XML \u2192 JSON Output',
+    icon:  '🔄',
+    desc:  'Convert SAP sales order XML to JSON using XSLT 3.0 maps and arrays \u2014 method="json"',
+    cat:   'format',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<SalesOrders>
+  <Order id="SO-4001">
+    <Customer>
+      <Id>C-10042</Id>
+      <Name>Acme Corp</Name>
+      <Country>US</Country>
+    </Customer>
+    <Currency>USD</Currency>
+    <Status>CONFIRMED</Status>
+    <Items>
+      <Item>
+        <LineNo>10</LineNo>
+        <Material>MAT-001</Material>
+        <Qty>5</Qty>
+        <UnitPrice>120.00</UnitPrice>
+      </Item>
+      <Item>
+        <LineNo>20</LineNo>
+        <Material>MAT-002</Material>
+        <Qty>3</Qty>
+        <UnitPrice>85.50</UnitPrice>
+      </Item>
+    </Items>
+  </Order>
+  <Order id="SO-4002">
+    <Customer>
+      <Id>C-20017</Id>
+      <Name>GlobalTech GmbH</Name>
+      <Country>DE</Country>
+    </Customer>
+    <Currency>EUR</Currency>
+    <Status>PENDING</Status>
+    <Items>
+      <Item>
+        <LineNo>10</LineNo>
+        <Material>MAT-005</Material>
+        <Qty>12</Qty>
+        <UnitPrice>43.00</UnitPrice>
+      </Item>
+    </Items>
+  </Order>
+</SalesOrders>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+  <xsl:output method="json" indent="yes"/>
+
+  <!--
+    XML to JSON using XSLT 3.0 maps and arrays.
+
+    Key XSLT 3.0 constructs used:
+      map{ }         \u2014 creates a JSON object
+      array{ }       \u2014 creates a JSON array
+      for ... return \u2014 iterates nodes into array entries
+      number()       \u2014 ensures numeric fields are not quoted in JSON
+
+    In SAP CPI this pattern is used when the target system
+    expects a REST/JSON payload but the source is an IDoc or
+    SOAP/XML message.
+  -->
+
+  <xsl:template match="/">
+    <xsl:sequence select="map{
+      'orders': array{
+        for $o in /SalesOrders/Order return map{
+          'id'      : string($o/@id),
+          'customer': map{
+            'id'     : string($o/Customer/Id),
+            'name'   : string($o/Customer/Name),
+            'country': string($o/Customer/Country)
+          },
+          'currency': string($o/Currency),
+          'status'  : string($o/Status),
+          'items'   : array{
+            for $i in $o/Items/Item return map{
+              'lineNo'   : number($i/LineNo),
+              'material' : string($i/Material),
+              'qty'      : number($i/Qty),
+              'unitPrice': number($i/UnitPrice)
+            }
+          }
+        }
+      }
+    }"/>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  xmlToCsv: {
+    label: 'XML \u2192 CSV Output',
+    icon:  '📊',
+    desc:  'Export purchase order lines to RFC\u00a04180-compliant CSV \u2014 handles commas and quotes in field data',
+    cat:   'format',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<PurchaseOrders>
+  <PO number="PO-9001" vendor="V-100">
+    <VendorName>Acme Supplies, Inc.</VendorName>
+    <OrderDate>2024-03-15</OrderDate>
+    <Items>
+      <Item>
+        <LineNo>1</LineNo>
+        <Description>Hydraulic Pump 50bar</Description>
+        <Qty>10</Qty>
+        <UnitPrice>450.00</UnitPrice>
+        <Currency>USD</Currency>
+      </Item>
+      <Item>
+        <LineNo>2</LineNo>
+        <Description>Seal Kit "Premium", 50bar</Description>
+        <Qty>50</Qty>
+        <UnitPrice>12.50</UnitPrice>
+        <Currency>USD</Currency>
+      </Item>
+      <Item>
+        <LineNo>3</LineNo>
+        <Description>Pressure Gauge</Description>
+        <Qty>5</Qty>
+        <UnitPrice>88.00</UnitPrice>
+        <Currency>USD</Currency>
+      </Item>
+    </Items>
+  </PO>
+</PurchaseOrders>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:f="urn:xsltdebugx:fn"
+  exclude-result-prefixes="xs f">
+
+  <xsl:output method="text" encoding="UTF-8"/>
+
+  <!--
+    XML to RFC 4180-compliant CSV.
+
+    RFC 4180 quoting rules applied via the csv-field function:
+      \u2022 Fields containing commas, double-quotes, or newlines are wrapped in "..."
+      \u2022 Any " inside a field is escaped as ""
+
+    This is safer than a plain string-join() which breaks whenever
+    vendor names or item descriptions from SAP master data contain
+    the delimiter character.
+  -->
+
+  <xsl:variable name="nl" select="'&#10;'"/>
+  <xsl:variable name="q"  select="'&quot;'"/>
+
+  <xsl:function name="f:csv-field" as="xs:string">
+    <xsl:param name="val" as="xs:string"/>
+    <xsl:variable name="escaped" select="replace($val, $q, concat($q,$q))"/>
+    <xsl:sequence select="
+      if (contains($val, ',') or contains($val, $q) or contains($val, '&#10;'))
+      then concat($q, $escaped, $q)
+      else $val
+    "/>
+  </xsl:function>
+
+  <xsl:template match="/">
+    <xsl:value-of select="'PONumber,Vendor,VendorName,OrderDate,LineNo,Description,Qty,UnitPrice,Currency'"/>
+    <xsl:value-of select="$nl"/>
+    <xsl:for-each select="/PurchaseOrders/PO/Items/Item">
+      <xsl:variable name="po" select="parent::Items/parent::PO"/>
+      <xsl:value-of select="string-join((
+        f:csv-field(string($po/@number)),
+        f:csv-field(string($po/@vendor)),
+        f:csv-field(string($po/VendorName)),
+        f:csv-field(string($po/OrderDate)),
+        f:csv-field(string(LineNo)),
+        f:csv-field(string(Description)),
+        f:csv-field(string(Qty)),
+        f:csv-field(string(UnitPrice)),
+        f:csv-field(string(Currency))
+      ), ',')"/>
+      <xsl:value-of select="$nl"/>
+    </xsl:for-each>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  xmlToFixedLength: {
+    label: 'XML \u2192 Fixed-Length Output',
+    icon:  '📐',
+    desc:  'Produce fixed-width flat file for legacy mainframe/EDI systems \u2014 padded and truncated fields at exact column positions',
+    cat:   'format',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Employees>
+  <Employee>
+    <EmpId>E00123</EmpId>
+    <LastName>Muller</LastName>
+    <FirstName>Hans</FirstName>
+    <CostCenter>CC-4100</CostCenter>
+    <Salary>92500</Salary>
+    <StartDate>2019-03-01</StartDate>
+  </Employee>
+  <Employee>
+    <EmpId>E00456</EmpId>
+    <LastName>Krishnamurthy</LastName>
+    <FirstName>Priya</FirstName>
+    <CostCenter>CC-2200</CostCenter>
+    <Salary>105000</Salary>
+    <StartDate>2021-11-15</StartDate>
+  </Employee>
+  <Employee>
+    <EmpId>E00789</EmpId>
+    <LastName>Smith</LastName>
+    <FirstName>Jo</FirstName>
+    <CostCenter>CC-3300</CostCenter>
+    <Salary>78000</Salary>
+    <StartDate>2023-06-01</StartDate>
+  </Employee>
+</Employees>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:f="urn:xsltdebugx:fn"
+  exclude-result-prefixes="xs f">
+
+  <xsl:output method="text" encoding="UTF-8"/>
+
+  <!--
+    XML to Fixed-Length Flat File.
+
+    Required by legacy mainframe systems, AS2 EDI partners, and
+    some SAP payroll integrations where each field must occupy
+    an exact column position regardless of actual data length.
+
+    Layout (67 chars per record):
+      Col  1\u2013 6  EmpId       (6  chars, left-aligned, space-padded)
+      Col  7\u201326  LastName    (20 chars, left-aligned, space-padded, truncated)
+      Col 27\u201341  FirstName   (15 chars, left-aligned, space-padded, truncated)
+      Col 42\u201349  CostCenter  (8  chars, left-aligned, space-padded)
+      Col 50\u201357  Salary      (8  chars, right-aligned, zero-padded)
+      Col 58\u201367  StartDate   (10 chars, YYYY-MM-DD as-is)
+
+    pad-right \u2014 left-aligns text, pads or truncates to exact width
+    pad-left  \u2014 right-aligns numbers with leading zeros
+  -->
+
+  <xsl:variable name="nl"     select="'&#10;'"/>
+  <xsl:variable name="spaces" select="'                              '"/>
+  <xsl:variable name="zeros"  select="'00000000'"/>
+
+  <xsl:function name="f:pad-right" as="xs:string">
+    <xsl:param name="val"   as="xs:string"/>
+    <xsl:param name="width" as="xs:integer"/>
+    <xsl:sequence select="substring(concat($val, $spaces), 1, $width)"/>
+  </xsl:function>
+
+  <xsl:function name="f:pad-left" as="xs:string">
+    <xsl:param name="val"   as="xs:string"/>
+    <xsl:param name="width" as="xs:integer"/>
+    <xsl:variable name="padded" select="concat($zeros, $val)"/>
+    <xsl:sequence select="substring($padded, string-length($padded) - $width + 1, $width)"/>
+  </xsl:function>
+
+  <xsl:template match="/">
+    <xsl:for-each select="/Employees/Employee">
+      <xsl:value-of select="concat(
+        f:pad-right(string(EmpId),      6),
+        f:pad-right(string(LastName),  20),
+        f:pad-right(string(FirstName), 15),
+        f:pad-right(string(CostCenter), 8),
+        f:pad-left(string(Salary),      8),
+        string(StartDate),
+        $nl
+      )"/>
+    </xsl:for-each>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
 
 };
