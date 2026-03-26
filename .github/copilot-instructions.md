@@ -168,35 +168,25 @@ Push to GitHub → auto-deploys to Cloudflare Pages via `wrangler.jsonc`.
 
 ## Common Patterns
 
-### Adding a Console Message
+See [features.instructions.md](instructions/features.instructions.md) for the full API reference. Key callouts:
 
-```javascript
-clog('Transform completed', 'success');  // green checkmark
-clog('Validation failed', 'error');      // red X
-clog('Header set: MyHeader', 'warn');    // amber info
-```
+- **Console**: `clog(msg, 'success'|'error'|'warn')` — maps to green/red/amber log lines
+- **Headers/Properties**: `kvData.headers.push({name, value})` → `syncHeadersPropsTable()` → `persistSession()`
+- **Format editors**: `fmtEditor('xml'|'xslt'|'out')` — via panes.js
+- **Load example**: `loadExample('example-key')` — auto-switches to correct mode
 
-### Adding a New Header/Property
+## Agent Customizations
 
-```javascript
-kvData.headers.push({ name: 'ContentType', value: 'application/xml' });
-syncHeadersPropsTable();
-persistSession();  // 800ms debounced save
-```
+This workspace ships ready-made customizations. Load the relevant one before starting:
 
-### Formatting XML/XSLT
+| Type | Name | Trigger |
+|------|------|---------|
+| **Skill** | `xslt-example` | Adding a new example to the library |
+| **Skill** | `example-validator` | Auditing all XSLT/XPath examples for metadata, structure, and correctness |
+| **Prompt** | `add-xslt-example` | Interactive prompt to generate a complete example entry |
+| **Prompt** | `validate-examples` | Full audit of examples-data.js with error/warning report and optional auto-fix |
 
-```javascript
-formatXML('xml');   // pretty-print XML editor
-formatXML('xslt');  // pretty-print XSLT editor
-formatXML('out');   // pretty-print Output editor
-```
-
-### Loading an Example
-
-```javascript
-loadExample('identity-transform');  // auto-switches to correct mode
-```
+The `.github/agents/` folder is available for future custom agent modes.
 
 ## References
 

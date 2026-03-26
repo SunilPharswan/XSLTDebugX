@@ -545,7 +545,7 @@ require(['vs/editor/editor.main'], () => {
     if (src.includes('xmlns:cpi=')) return; // already declared
 
     // Inject xmlns:cpi onto xsl:stylesheet or xsl:transform opening tag
-    const CPI_NS = ' xmlns:cpi="http://sap.com/it/cpi/scripting"';
+    const CPI_NS = ' xmlns:cpi="http://sap.com/it/"';
     let updated = src.replace(
       /(<xsl:(?:stylesheet|transform)\b)/,
       `$1${CPI_NS}`
@@ -574,7 +574,7 @@ require(['vs/editor/editor.main'], () => {
       text: updated
     }]);
     ed.pushUndoStop();
-    clog('xmlns:cpi="http://sap.com/it/cpi/scripting" added to xsl:stylesheet ✓', 'success');
+    clog('xmlns:cpi="http://sap.com/it/" added to xsl:stylesheet ✓', 'success');
   }
 
 
@@ -726,7 +726,7 @@ require(['vs/editor/editor.main'], () => {
 `<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="3.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:cpi="http://sap.com/it/cpi/scripting"
+  xmlns:cpi="http://sap.com/it/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   exclude-result-prefixes="cpi xs">
   <xsl:output method="xml" indent="yes"/>

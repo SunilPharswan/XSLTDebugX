@@ -21,7 +21,7 @@ Examples live in [js/examples-data.js](../../js/examples-data.js). Structure:
 const EXAMPLES = {
   exampleKey: {
     label: 'Display Name',
-    icon: '🔄',                    // Single emoji
+    icon: '🔄',                    // Single emoji (or 'ƒx' for XPath examples)
     desc: 'One-line description',  // Max 60 chars
     cat:  'categoryKey',           // Must exist in CATEGORIES
     xml: `<?xml version="1.0" encoding="UTF-8"?>
@@ -31,7 +31,9 @@ const EXAMPLES = {
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   ...
 </xsl:stylesheet>`,
-    xpathExprs: ['//Root/Item', 'count(//Item)']  // Optional: XPath mode only
+    // XPath examples only:
+    xpathExpr: '//Root/Item',           // Default expression pre-loaded in XPath bar
+    xpathHints: ['//Root/Item', 'count(//Item)']  // Clickable hint chips (3–15 entries)
   }
 }
 ```
@@ -94,7 +96,7 @@ Match task to category above. If none fit, propose new category.
 - Use `exclude-result-prefixes` to prevent namespace leakage
 - Add explaining comments (3-5 lines) at the top
 - Show idiomatic XSLT 3.0 (avoid XSLT 1.0 workarounds)
-- For CPI: include `xmlns:cpi="http://sap.com/it/cpi/scripting"` if using headers/properties
+- For CPI: include `xmlns:cpi="http://sap.com/it/"` if using headers/properties
 
 **CPI simulation:**
 ```xml
@@ -102,6 +104,8 @@ Match task to category above. If none fit, propose new category.
 <xsl:value-of select="cpi:setHeader($exchange, 'ContentType', 'application/json')"/>
 <xsl:variable name="client" select="cpi:getHeader($exchange, 'SAPClient')"/>
 ```
+
+**CPI namespace:** Always use `xmlns:cpi="http://sap.com/it/"` (the correct SAP CPI namespace URI).
 
 ### 5. Choose Icon
 
@@ -126,7 +130,7 @@ Select an emoji that visually represents the example:
 - 🗺️ Mapping, lookup
 - ⚠️ Error, fault
 - 📡 SOAP, web service
-- ƒ𝑥 XPath (use `ƒx` in icon field)
+- `ƒx` XPath (use `'ƒx'` in icon field — preferred for all xpath category examples)
 
 ### 6. Write Description
 
@@ -141,19 +145,21 @@ One line, max 60 chars. Focus on the **what** and **why**:
 - "Example for orders" (too vague)
 - "This example demonstrates how to transform IDoc ORDERS05 format messages received from SAP ECC system into a REST API compatible JSON structure" (too long)
 
-### 7. Add XPath Expressions (XPath examples only)
+### 7. Add XPath Hints (XPath examples only)
 
-For `cat: 'xpath'` examples, add clickable expression hints:
+For `cat: 'xpath'` examples, set two fields:
 
 ```javascript
-xpathExprs: [
+xpathExpr: '//Order/Item[Qty > 10]',   // Single string — pre-loaded in XPath bar on load
+xpathHints: [                           // Array — rendered as clickable chips (3–15 entries)
   '//Order/Item[Qty > 10]',
   'sum(//Item/Total)',
-  'distinct-values(//Customer)'
+  'distinct-values(//Customer)',
+  // ... 10–14 entries is the established library norm
 ]
 ```
 
-These appear as clickable chips below the XPath input bar.
+**Note:** The field names are `xpathExpr` (singular string) and `xpathHints` (array). The old name `xpathExprs` is no longer used.
 
 ### 8. Insert Example
 
@@ -200,9 +206,8 @@ cpiSimulation: {
   xslt: `<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="3.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:cpi="http://sap.com/it/cpi/scripting"
+  xmlns:cpi="http://sap.com/it/"
   exclude-result-prefixes="cpi">
-  <xsl:param name="exchange"/>
   
   <xsl:template match="Order">
     <xsl:value-of select="cpi:setHeader($exchange, 'OrderId', Id)"/>
@@ -227,7 +232,8 @@ xpathNavigation: {
   <Order><Id>2</Id><Status>Closed</Status></Order>
 </Orders>`,
   xslt: '',  // Leave empty for XPath mode
-  xpathExprs: [
+  xpathExpr: '//Order[1]',          // Pre-loaded default expression
+  xpathHints: [                      // Clickable chips — aim for 10–14
     '//Order[1]',
     '//Order[Status="Open"]',
     '//Order[last()]/Id'
@@ -271,13 +277,14 @@ xmlToJson: {
 - Add `<xsl:message>` debug statements
 
 **CPI functions not working:**
-- Ensure `xmlns:cpi="http://sap.com/it/cpi/scripting"` is declared
+- Ensure `xmlns:cpi="http://sap.com/it/"` is declared
 - Add `exclude-result-prefixes="cpi"` to prevent namespace in output
 - Use `$exchange` param: `<xsl:param name="exchange"/>`
 
 **XPath expressions not highlighted:**
 - Verify `cat: 'xpath'`
-- Check `xpathExprs` array syntax (must be array of strings)
+- Check `xpathHints` array syntax (must be array of strings)
+- Check `xpathExpr` is a non-empty string
 - Ensure expressions are valid XPath 3.1
 
 ## References
