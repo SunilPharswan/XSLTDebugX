@@ -1,6 +1,6 @@
 ---
 name: cpi-debugging
-description: 'Debug SAP CPI simulation issues in XSLTForge. Use when CPI headers/properties missing, cpi:setHeader not working, cpi:getHeader returning empty, namespace errors, XSLT line number mismatch, CPI extension call failures.'
+description: 'Debug SAP CPI simulation issues in XSLTDebugX. Use when CPI headers/properties missing, cpi:setHeader not working, cpi:getHeader returning empty, namespace errors, XSLT line number mismatch, CPI extension call failures.'
 argument-hint: 'Issue description (e.g., "cpi:setHeader not capturing values")'
 ---
 
@@ -13,11 +13,11 @@ argument-hint: 'Issue description (e.g., "cpi:setHeader not capturing values")'
 - `cpi:getHeader` / `cpi:getProperty` returning empty strings
 - Namespace errors related to `cpi:` or `js:` prefixes
 - XSLT error line numbers don't match source
-- Transform runs in real CPI but not in XSLTForge
+- Transform runs in real CPI but not in XSLTDebugX
 
 ## How CPI Simulation Works
 
-XSLTForge rewrites XSLT before running it through Saxon-JS to simulate SAP CPI runtime behavior.
+XSLTDebugX rewrites XSLT before running it through Saxon-JS to simulate SAP CPI runtime behavior.
 
 ### Rewriting Process
 
@@ -175,7 +175,7 @@ window.cpiGetHeader = ($exchange, name) => {
 ```
 
 **Auto-fixes:**
-- XSLTForge automatically adds `exclude-result-prefixes="js"` during rewriting
+- XSLTDebugX automatically adds `exclude-result-prefixes="js"` during rewriting
 - Never manually declare `xmlns:js` in XSLT
 
 ### 4. Dynamic Expressions Not Evaluating

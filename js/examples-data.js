@@ -1016,7 +1016,7 @@ const EXAMPLES = {
 
 
     <!-- ─── STEP 6: SET PROPERTIES for CPI-internal tracking (audit, logging, flow control) ─── -->
-    <xsl:value-of select="cpi:setProperty($exchange, 'processedBy',   'XSLTForge-Demo')"/>
+    <xsl:value-of select="cpi:setProperty($exchange, 'processedBy',   'XSLTDebugX-Demo')"/>
     <xsl:value-of select="cpi:setProperty($exchange, 'tier',          $tier)"/>
     <xsl:value-of select="cpi:setProperty($exchange, 'orderAmount',   string($amount))"/>
     <xsl:value-of select="cpi:setProperty($exchange, 'routeDecision', $route)"/>
@@ -1024,7 +1024,7 @@ const EXAMPLES = {
     <!-- ─── Console Debug: Confirm properties set ─── -->
     <xsl:message>
       <xsl:text>✅ [DEBUG] Properties SET: </xsl:text>
-      <xsl:text>processedBy=XSLTForge-Demo, tier=</xsl:text><xsl:value-of select="$tier"/>
+      <xsl:text>processedBy=XSLTDebugX-Demo, tier=</xsl:text><xsl:value-of select="$tier"/>
       <xsl:text>, orderAmount=</xsl:text><xsl:value-of select="$amount"/>
     </xsl:message>
 

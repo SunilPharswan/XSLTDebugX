@@ -1,4 +1,4 @@
-# XSLTForge — Workspace Guidelines
+# XSLTDebugX — Workspace Guidelines
 
 > Browser-based XSLT 3.0 IDE for SAP Cloud Integration developers. See [README.md](../README.md) for full feature documentation.
 

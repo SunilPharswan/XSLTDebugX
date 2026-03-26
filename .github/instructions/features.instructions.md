@@ -1,11 +1,11 @@
 ---
-description: Complete feature inventory and API reference for XSLTForge. Use when implementing new features, understanding existing functionality, debugging feature interactions, checking if functionality already exists, planning architecture changes, or verifying feature coverage.
+description: Complete feature inventory and API reference for XSLTDebugX. Use when implementing new features, understanding existing functionality, debugging feature interactions, checking if functionality already exists, planning architecture changes, or verifying feature coverage.
 applyTo:
   - "**/*.js"
   - "**/*.md"
 ---
 
-# XSLTForge Feature Inventory & API Reference
+# XSLTDebugX Feature Inventory & API Reference
 
 > Complete catalog of all 200+ features across the codebase
 

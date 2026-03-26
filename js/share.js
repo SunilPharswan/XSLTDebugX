@@ -27,7 +27,11 @@ function encodeShareData(data) {
 }
 
 function generateShareUrl() {
-  return location.href.split('#')[0] + '#share/' + encodeShareData(buildSharePayload());
+  const url = location.href.split('#')[0] + '#share/' + encodeShareData(buildSharePayload());
+  if (url.length > 2000) {
+    clog(`Share URL is ${url.length.toLocaleString()} chars — some browsers cap URLs at ~2,000. Recipients may not be able to open it. Try reducing the XML or XSLT size.`, 'warn');
+  }
+  return url;
 }
 
 // ── Decode (called on page load) ─────────────

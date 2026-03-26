@@ -1,6 +1,6 @@
 ---
 name: xslt-example
-description: 'Create new XSLT or XPath examples for XSLTForge library. Use when adding examples, creating transformations, building example catalog, demonstrating XSLT patterns, XPath expressions, CPI simulation scenarios.'
+description: 'Create new XSLT or XPath examples for XSLTDebugX library. Use when adding examples, creating transformations, building example catalog, demonstrating XSLT patterns, XPath expressions, CPI simulation scenarios.'
 argument-hint: 'Example description (e.g., "Date formatting with timezone conversion")'
 ---
 
@@ -8,7 +8,7 @@ argument-hint: 'Example description (e.g., "Date formatting with timezone conver
 
 ## When to Use
 
-- Adding new examples to the XSLTForge/XSLTDebugX library
+- Adding new examples to the XSLTDebugX library
 - Creating XSLT transformation demonstrations
 - Building XPath expression showcases
 - Documenting SAP CPI patterns

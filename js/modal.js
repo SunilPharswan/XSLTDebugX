@@ -230,7 +230,8 @@ function loadExample(key) {
     }
     // Hide hints strip for XSLT examples
     if (typeof renderXPathHints === 'function') renderXPathHints(null);
-    clog(`Example loaded: "${ex.label}" — press Run Transform to execute`, 'success');
+    clog(`Example loaded: "${ex.label}" ✓`, 'success');
+    setTimeout(() => { if (typeof runTransform === 'function') runTransform(); }, 350);
   }
 
   scheduleSave();

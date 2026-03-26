@@ -9,9 +9,9 @@ let xmlDecorations  = null;
 // Clear all markers and decorations from both editors
 function clearAllMarkers() {
   // Clear markers on both XML models — prevents stale markers on inactive model
-  if (xmlModelXslt)  monaco.editor.setModelMarkers(xmlModelXslt,  'xsltforge', []);
-  if (xmlModelXpath) monaco.editor.setModelMarkers(xmlModelXpath, 'xsltforge', []);
-  if (eds.xslt)      monaco.editor.setModelMarkers(eds.xslt.getModel(), 'xsltforge', []);
+  if (xmlModelXslt)  monaco.editor.setModelMarkers(xmlModelXslt,  'xsltdebugx', []);
+  if (xmlModelXpath) monaco.editor.setModelMarkers(xmlModelXpath, 'xsltdebugx', []);
+  if (eds.xslt)      monaco.editor.setModelMarkers(eds.xslt.getModel(), 'xsltdebugx', []);
   if (xsltDecorations) { xsltDecorations.clear(); xsltDecorations = null; }
   if (xmlDecorations)  { xmlDecorations.clear();  xmlDecorations  = null; }
 }
@@ -26,7 +26,7 @@ function markErrorLine(editor, lineNumber, message, oldDecor) {
   const lineLen = model.getLineLength(line);
 
   // Monaco marker (squiggle underline)
-  monaco.editor.setModelMarkers(model, 'xsltforge', [{
+  monaco.editor.setModelMarkers(model, 'xsltdebugx', [{
     startLineNumber: line, startColumn: 1,
     endLineNumber:   line, endColumn: lineLen + 1,
     message,

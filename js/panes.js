@@ -21,8 +21,8 @@ function clearPane(which) {
     if (xmlModelXslt) xmlModelXslt.setValue('');
     if (xmlModelXpath) xmlModelXpath.setValue('');
     // Clear markers on both models
-    if (xmlModelXslt)  monaco.editor.setModelMarkers(xmlModelXslt,  'xsltforge', []);
-    if (xmlModelXpath) monaco.editor.setModelMarkers(xmlModelXpath, 'xsltforge', []);
+    if (xmlModelXslt)  monaco.editor.setModelMarkers(xmlModelXslt,  'xsltdebugx', []);
+    if (xmlModelXpath) monaco.editor.setModelMarkers(xmlModelXpath, 'xsltdebugx', []);
     if (xmlDecorations)  { xmlDecorations.clear();  xmlDecorations  = null; }
     setStatus('Ready', 'ok');
     scheduleSave();
@@ -37,7 +37,7 @@ function clearPane(which) {
   if (wasReadOnly) ed.updateOptions({ readOnly: true });
   // Clear error markers from this pane
   if (which === 'xslt' && eds.xslt) {
-    monaco.editor.setModelMarkers(eds.xslt.getModel(), 'xsltforge', []);
+    monaco.editor.setModelMarkers(eds.xslt.getModel(), 'xsltdebugx', []);
     if (xsltDecorations) { xsltDecorations.clear(); xsltDecorations = null; }
     setStatus('Ready', 'ok');
   }

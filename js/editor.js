@@ -87,14 +87,21 @@ require(['vs/editor/editor.main'], () => {
     base: 'vs',
     inherit: true,
     rules: [
-      { token: 'tag',             foreground: '0550ae' },
-      { token: 'attribute.name',  foreground: '116329' },
-      { token: 'attribute.value', foreground: '0a3069' },
-      { token: 'string',          foreground: '0a3069' },
-      { token: 'delimiter.xml',   foreground: '8090a0' },
-      { token: 'metatag.xml',     foreground: 'a626a4' },
-      { token: 'comment',         foreground: '6a737d', fontStyle: 'italic' },
-      { token: 'number',          foreground: 'b5521a' },
+      { token: 'tag',                   foreground: '0550ae', fontStyle: 'bold' },
+      { token: 'tag.id.pug',            foreground: '0550ae' },
+      { token: 'attribute.name',        foreground: '116329' },
+      { token: 'attribute.name.html',   foreground: '116329' },
+      { token: 'attribute.value',       foreground: '0a3069' },
+      { token: 'attribute.value.html',  foreground: '0a3069' },
+      { token: 'attribute.value.xpath', foreground: 'b45309' },  // XPath expressions — amber (dark)
+      { token: 'string',                foreground: '0a3069' },
+      { token: 'string.xml',            foreground: '0a3069' },
+      { token: 'delimiter.xml',         foreground: '8090a0' },
+      { token: 'metatag.xml',           foreground: 'a626a4' },
+      { token: 'comment',               foreground: '6a737d', fontStyle: 'italic' },
+      { token: 'comment.xml',           foreground: '6a737d', fontStyle: 'italic' },
+      { token: 'number',                foreground: 'b5521a' },
+      { token: 'entity.xml',            foreground: '6f42c1' },  // purple
     ],
     colors: {
       'editor.background':                  '#ffffff',
@@ -732,6 +739,47 @@ require(['vs/editor/editor.main'], () => {
 
 </xsl:stylesheet>`
     },
+    {
+      id: 'snip-sort', order: 19,
+      label: 'Snippet → xsl:sort',
+      snippet:
+`<xsl:sort select="(: sort key e.g. Price :)" order="(: ascending or descending :)" data-type="(: text or number :)"/>`
+    },
+    {
+      id: 'snip-function', order: 20,
+      label: 'Snippet → xsl:function',
+      snippet:
+`<xsl:function name="(: prefix:functionName e.g. fn:formatAmount :)" as="(: return type e.g. xs:string :)">
+  <xsl:param name="(: param name e.g. amount :)" as="(: type e.g. xs:decimal :)"/>
+  <xsl:sequence select="(: return expression :)"/>
+</xsl:function>`
+    },
+    {
+      id: 'snip-key', order: 21,
+      label: 'Snippet → xsl:key + key() lookup',
+      snippet:
+`<!-- Declare at top level of stylesheet -->
+<xsl:key name="(: key name e.g. orderById :)" match="(: element e.g. Order :)" use="(: key field e.g. @id :)"/>
+<!-- Use key() to look up nodes -->
+<xsl:copy-of select="key('(: key name :)', (: lookup value e.g. ./OrderRef :))"/>`
+    },
+    {
+      id: 'snip-element-attribute', order: 22,
+      label: 'Snippet → xsl:element + xsl:attribute',
+      snippet:
+`<xsl:element name="{(: dynamic name e.g. concat('Item_', position()) :)}">
+  <xsl:attribute name="(: attribute name e.g. id :)" select="(: XPath e.g. @id :)"/>
+  <xsl:value-of select="(: content :)"/>
+</xsl:element>`
+    },
+    {
+      id: 'snip-result-document', order: 23,
+      label: 'Snippet → xsl:result-document',
+      snippet:
+`<xsl:result-document href="(: output URI e.g. 'output.xml' :)" method="xml" indent="yes">
+  <!-- content for secondary output document -->
+</xsl:result-document>`
+    },
   ];
 
   _xsltSnippets.forEach(({ id, label, order, snippet }) => {
@@ -768,7 +816,7 @@ require(['vs/editor/editor.main'], () => {
   function runXmlValidation() {
     const src = eds.xml.getValue().trim();
     if (!src) {
-      monaco.editor.setModelMarkers(eds.xml.getModel(), 'xsltforge', []);
+      monaco.editor.setModelMarkers(eds.xml.getModel(), 'xsltdebugx', []);
       if (xmlDecorations) { xmlDecorations.clear(); xmlDecorations = null; }
       const current = document.getElementById('statTxt').textContent;
       if (current.startsWith('XML error')) setStatus('Ready', 'ok');
@@ -788,7 +836,7 @@ require(['vs/editor/editor.main'], () => {
     scheduleSave();
     if (_suppressNextValidation) { _suppressNextValidation = false; return; }
     // Clear immediately so stale markers don't linger while user types
-    monaco.editor.setModelMarkers(eds.xslt.getModel(), 'xsltforge', []);
+    monaco.editor.setModelMarkers(eds.xslt.getModel(), 'xsltdebugx', []);
     if (xsltDecorations) { xsltDecorations.clear(); xsltDecorations = null; }
     clearTimeout(xsltDebounce);
     xsltDebounce = setTimeout(runXsltValidation, 800);
@@ -799,7 +847,7 @@ require(['vs/editor/editor.main'], () => {
     if (_suppressNextXmlChange) { _suppressNextXmlChange = false; return; }
     scheduleSave();
     if (_suppressNextValidation) { _suppressNextValidation = false; return; }
-    monaco.editor.setModelMarkers(eds.xml.getModel(), 'xsltforge', []);
+    monaco.editor.setModelMarkers(eds.xml.getModel(), 'xsltdebugx', []);
     if (xmlDecorations) { xmlDecorations.clear(); xmlDecorations = null; }
     // Clear stale XPath highlights and hide results panel whenever source XML is edited
     if (typeof clearXPathHighlights === 'function') clearXPathHighlights();
@@ -856,6 +904,8 @@ require(['vs/editor/editor.main'], () => {
       // ── Share link takes priority over saved session ──
       if (window._pendingShareData) {
         applyShareData(window._pendingShareData);
+        // Auto-run transform so the recipient immediately sees output
+        setTimeout(() => { if (typeof runTransform === 'function') runTransform(); }, 500);
       } else if (_savedSession) {
         // Restore KV rows
         if (Array.isArray(_savedSession.headers)) {

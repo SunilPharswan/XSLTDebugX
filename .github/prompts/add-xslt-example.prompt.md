@@ -1,5 +1,5 @@
 ---
-description: "Add a new XSLT or XPath example to the XSLTForge library with XML input, transformation, and metadata"
+description: "Add a new XSLT or XPath example to the XSLTDebugX library with XML input, transformation, and metadata"
 argument-hint: "Example description (e.g., 'Date formatting with timezone conversion')"
 ---
 
