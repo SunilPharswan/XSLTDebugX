@@ -90,7 +90,7 @@ const EXAMPLES = {
 
 **CPI examples:**
 ```xml
-xmlns:cpi="http://sap.com/it/cpi/scripting"
+xmlns:cpi="http://sap.com/it/"
 exclude-result-prefixes="cpi xs"
 <xsl:param name="exchange"/>
 ```

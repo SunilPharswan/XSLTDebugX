@@ -972,6 +972,9 @@
     body.light #xpathBar .xpath-input-row { background: var(--bg-editor); }
     body.light .xpath-results-body { background: var(--bg-editor); }
     body.light .xpath-result-item:hover { background: rgba(0,0,0,0.02); }
+    body.light .xpath-result-type.node   { color: #0550ae; background: rgba(5,80,174,0.08);  border-color: rgba(5,80,174,0.2);  }
+    body.light .xpath-result-type.text   { background: rgba(26,127,55,0.08);  border-color: rgba(26,127,55,0.2);  }
+    body.light .xpath-result-type.atomic { background: rgba(200,120,0,0.08);  border-color: rgba(200,120,0,0.2);  }
     body.light .xpath-results-bar { background: var(--bg-panel); }
 
     /* ── THEME TOGGLE ── */

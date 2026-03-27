@@ -69,9 +69,12 @@ function isValidNCName(name) {
 function buildParamsXPath() {
   const entries = [];
   const skipped = [];
+  const dupes   = [];
   // Inject a dummy $exchange so stylesheets that declare it don't get an error
   entries.push(`QName('','exchange'): 'exchange'`);
-  // Pass all named input headers and properties
+  // Merge headers then properties; properties win on name collision (last-write-wins).
+  // Saxon map literals require unique keys — duplicates cause a runtime error.
+  const seen = new Map(); // name → index in entries[]
   [...kvData.headers, ...kvData.properties].forEach(row => {
     const k = row.name.trim();
     const v = row.value.trim().replace(/'/g, "''");
@@ -80,12 +83,23 @@ function buildParamsXPath() {
       skipped.push(k);
       return; // skip invalid names silently here, warn after
     }
-    entries.push(`QName('','${k}'): '${v}'`);
+    const entry = `QName('','${k}'): '${v}'`;
+    if (seen.has(k)) {
+      dupes.push(k);
+      entries[seen.get(k)] = entry; // overwrite previous entry
+    } else {
+      seen.set(k, entries.length);
+      entries.push(entry);
+    }
   });
   if (skipped.length) {
-    // Warn — but don't block the transform
     skipped.forEach(n =>
       clog(`Warning: header/property "${n}" skipped — not a valid xsl:param name (must start with a letter or underscore)`, 'warn')
+    );
+  }
+  if (dupes.length) {
+    dupes.forEach(n =>
+      clog(`Warning: "${n}" exists in both Headers and Properties — property value used for $${n} param (cpi:getHeader/getProperty still work independently)`, 'warn')
     );
   }
   return `, 'stylesheet-params': map { ${entries.join(', ')} }`;

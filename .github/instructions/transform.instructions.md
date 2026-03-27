@@ -250,4 +250,3 @@ if (hasCPI) {
 - [Saxon-JS JavaScript extension functions](https://www.saxonica.com/saxon-js/documentation/#!extensibility/js-calls)
 - [SAP CPI scripting API](https://help.sap.com/docs/cloud-integration/)
 - [XPath 3.1 specification](https://www.w3.org/TR/xpath-31/)
-- [cpi-debugging skill](../../.github/skills/cpi-debugging/SKILL.md)

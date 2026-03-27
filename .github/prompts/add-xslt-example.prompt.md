@@ -75,7 +75,7 @@ exampleKey: {
 - Show idiomatic XSLT 3.0 (avoid 1.0 workarounds)
 
 **CPI Examples:**
-- Include `xmlns:cpi="http://sap.com/it/cpi/scripting"`
+- Include `xmlns:cpi="http://sap.com/it/"`
 - Add `exclude-result-prefixes="cpi"`
 - Use `<xsl:param name="exchange"/>` for CPI context
 - Example: `cpi:setHeader($exchange, 'HeaderName', 'value')`

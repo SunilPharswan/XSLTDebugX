@@ -39,7 +39,7 @@ function generateShareUrl() {
 function loadFromShareHash() {
   if (!location.hash.startsWith('#share/')) return false;
   try {
-    const raw    = location.hash.slice(7).replace(/-/g, '+').replace(/_/g, '/');
+    const raw    = decodeURIComponent(location.hash.slice(7)).replace(/-/g, '+').replace(/_/g, '/');
     const b64    = raw.padEnd(Math.ceil(raw.length / 4) * 4, '=');
     const binary = atob(b64);
     const bytes  = new Uint8Array(binary.length);
@@ -99,6 +99,7 @@ function applyShareData(data) {
   if (_shdr)  _parts.push(`${_shdr} header${_shdr  > 1 ? 's' : ''}`);
   if (_sprop) _parts.push(`${_sprop} propert${_sprop > 1 ? 'ies' : 'y'}`);
   clog(`Shared session loaded — ${_parts.join(' · ')} ✓`, 'success');
+  scheduleSave();
 }
 
 // ── Modal ────────────────────────────────────

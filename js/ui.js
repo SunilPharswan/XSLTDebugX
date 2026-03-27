@@ -129,6 +129,10 @@ function toggleTheme() {
   const monacoTheme = isLight ? 'xdebugx-light' : 'xdebugx';
   if (typeof monaco !== 'undefined') {
     monaco.editor.setTheme(monacoTheme);
+    // Re-colorize any visible XPath results — monaco.editor.colorize() bakes
+    // palette indices that remap when the theme changes, causing wrong colours.
+    // Delay 50ms to let Monaco finish updating the mtk* CSS before re-rendering.
+    setTimeout(() => { if (typeof refreshXPathColors === 'function') refreshXPathColors(); }, 50);
   }
 }
 

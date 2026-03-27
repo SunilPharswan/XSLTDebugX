@@ -724,8 +724,10 @@ function _findNodeRangeByTag(xmlSrc, tag, occurrenceIndex) {
 // Async because monaco.editor.colorize() returns a Promise.
 // Generation counter prevents a slow first run overwriting a faster second run.
 let _showXPathGen = 0;
+let _lastXPathRenderArgs = null; // saved for re-colorize on theme switch
 async function _showXPathResults(items, errorMsg, isError) {
   const gen = ++_showXPathGen; // capture generation for this call
+  _lastXPathRenderArgs = { items, errorMsg, isError }; // save for refreshXPathColors()
   const panel   = document.getElementById('xpathResultsPanel');
   const body    = document.getElementById('xpathResultsBody');
   const countEl = document.getElementById('xpathMatchCount');
@@ -797,11 +799,23 @@ async function _showXPathResults(items, errorMsg, isError) {
 // ── Clear results, highlights, and restore output section ─────────────────────
 function clearXPathResults() {
   clearXPathHighlights();
+  _lastXPathRenderArgs = null;
   document.getElementById('xpathResultsPanel')?.classList.remove('visible');
   document.getElementById('outputSection')?.classList.remove('xpath-minimized');
   const headerCount = document.getElementById('xpathHeaderCount');
   if (headerCount) { headerCount.style.display = 'none'; headerCount.textContent = ''; }
   setTimeout(() => { eds.out?.layout(); }, 250);
+}
+
+// ── Re-colorize visible results after a theme switch ─────────────────────────
+// monaco.editor.colorize() bakes theme-specific mtk* palette indices into HTML.
+// When the theme changes those palette entries remap, so stale HTML shows wrong
+// colours. Calling this re-runs _showXPathResults with the last known args.
+function refreshXPathColors() {
+  const panel = document.getElementById('xpathResultsPanel');
+  if (!panel?.classList.contains('visible') || !_lastXPathRenderArgs) return;
+  const { items, errorMsg, isError } = _lastXPathRenderArgs;
+  _showXPathResults(items, errorMsg, isError);
 }
 
 // ── Restore output section when a transform runs ──────────────────────────────

@@ -2124,7 +2124,7 @@ const EXAMPLES = {
     xslt: `<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="3.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:cpi="http://sap.com/it/cpi/scripting"
+  xmlns:cpi="http://sap.com/it/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   exclude-result-prefixes="cpi xs">
   <xsl:output method="xml" indent="yes"/>
@@ -2133,7 +2133,7 @@ const EXAMPLES = {
 
   <!--
     Conditional Routing Header Setting.
-
+    
     A common CPI pattern: inspect the payload and set message headers
     that downstream Router steps use to decide which branch to take.
 
