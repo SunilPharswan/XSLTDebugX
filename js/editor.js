@@ -904,8 +904,6 @@ require(['vs/editor/editor.main'], () => {
       // ── Share link takes priority over saved session ──
       if (window._pendingShareData) {
         applyShareData(window._pendingShareData);
-        // Auto-run transform so the recipient immediately sees output
-        setTimeout(() => { if (typeof runTransform === 'function') runTransform(); }, 500);
       } else if (_savedSession) {
         // Restore KV rows
         if (Array.isArray(_savedSession.headers)) {

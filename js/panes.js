@@ -26,6 +26,7 @@ function clearPane(which) {
     if (xmlDecorations)  { xmlDecorations.clear();  xmlDecorations  = null; }
     setStatus('Ready', 'ok');
     scheduleSave();
+    clog('XML cleared', 'info');
     return;
   }
   
@@ -44,6 +45,7 @@ function clearPane(which) {
   // Clear output KV panels when output is cleared
   if (which === 'out') renderOutputKV({}, {});
   scheduleSave();
+  clog(`${which.toUpperCase()} cleared`, 'info');
 }
 
 function copyPane(which) {

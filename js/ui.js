@@ -124,6 +124,7 @@ function toggleTheme() {
   const isLight = document.body.classList.toggle('light');
   document.getElementById('themeToggle').textContent = isLight ? '☀️' : '🌙';
   localStorage.setItem('xdebugx-theme', isLight ? 'light' : 'dark');
+  clog(`Theme: ${isLight ? 'light' : 'dark'} mode`, 'info');
 
   // Switch Monaco editor themes
   const monacoTheme = isLight ? 'xdebugx-light' : 'xdebugx';
