@@ -17,6 +17,7 @@
 - [Common Workflows](#common-workflows)
 - [Architecture Overview](#architecture-overview)
 - [Deployment](#deployment)
+- [Testing](#testing)
 - [Development Guide](#development-guide)
 - [Contributing](#contributing)
 - [FAQ](#faq)
@@ -405,6 +406,33 @@ Before pushing to `main`:
 - **Share URL length**: ~1,500–2,000 chars (browser limit ~8,000 chars; safe margin)
 
 Analytics via [GoatCounter](https://www.goatcounter.com) (privacy-friendly, no cookies, blocked by ad blockers). Not loaded on `localhost` or `file://`.
+
+---
+
+## Testing
+
+XSLTDebugX comes with a comprehensive Playwright E2E test suite (61 tests across 7 files).
+
+**For writing and running tests:**
+- **[tests/README.md](tests/README.md)** — Quick reference guide: EditorPage API cheatsheet, timing constants, test patterns, common workflows, new test checklist
+- **[.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md)** — Complete technical guide: architecture, POM design, fixture structure, timing strategy, feature-specific setups, debugging tips
+
+**Running tests:**
+```bash
+# All tests
+npm test
+
+# Specific file
+npx playwright test tests/e2e/smoke.spec.js
+
+# With UI mode (step through)
+npx playwright test --ui
+
+# Single test by name
+npx playwright test -g "should perform basic"
+```
+
+**Coverage:** Smoke tests, XSLT transforms, XPath evaluation, CPI simulation (headers/properties), mode switching, session persistence, examples library, share URLs.
 
 ---
 

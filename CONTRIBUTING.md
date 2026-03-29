@@ -207,7 +207,11 @@ The example library is in [js/examples-data.js](js/examples-data.js) with 52+ ex
 
 ### Automated E2E Testing with Playwright
 
-XSLTDebugX uses **Playwright** for automated end-to-end testing. Tests validate critical workflows without manual browser testing. See [.github/docs/TESTING.md](.github/docs/TESTING.md) for the complete testing guide.
+XSLTDebugX uses **Playwright** for automated end-to-end testing. Tests validate critical workflows without manual browser testing.
+
+**Testing documentation:**
+- **[tests/README.md](tests/README.md)** — Quick reference: EditorPage API, timing constants, test patterns, checklist
+- **[.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md)** — Complete guide: architecture, POM design, fixture structure, timing strategy, feature-specific setups, debugging, known issues
 
 #### Running Tests Locally
 
