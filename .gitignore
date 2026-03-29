@@ -4,3 +4,15 @@
 !.dev.vars.example
 .env*
 !.env.example
+
+# Testing
+test-results/
+playwright-report/
+.test-cache/
+
+# Node.js
+node_modules/
+npm-debug.log
+
+# Claude Code
+.claude/

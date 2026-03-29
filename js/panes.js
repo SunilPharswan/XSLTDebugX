@@ -54,7 +54,11 @@ function copyPane(which) {
   const label = which.toUpperCase();
   if (!v.trim()) return clog(`${label} pane is empty — nothing to copy`, 'warn');
 
-  const onSuccess = () => clog(`${label} copied to clipboard ✓`, 'success');
+  const sizeKB = (v.length / 1024).toFixed(1);
+  const onSuccess = () => {
+    clog(`${label} copied to clipboard ✓`, 'success');
+    showCopyToast(`✓ Copied ${label} (${sizeKB}KB)`);
+  };
   const onFail    = () => {
     const ta = document.createElement('textarea');
     ta.value = v;

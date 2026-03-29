@@ -1,4 +1,23 @@
 // ════════════════════════════════════════════
+//  TOAST NOTIFICATIONS
+// ════════════════════════════════════════════
+function showCopyToast(message, duration = 1500) {
+  const toast = document.createElement('div');
+  toast.className = 'copy-toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  // Trigger animation
+  setTimeout(() => toast.classList.add('visible'), 10);
+
+  // Remove after duration
+  setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => toast.remove(), 300);  // Wait for fade-out
+  }, duration);
+}
+
+// ════════════════════════════════════════════
 //  SIDE COLUMN COLLAPSE
 // ════════════════════════════════════════════
 function toggleSideCol(side) {
@@ -64,7 +83,10 @@ function copyConsole() {
     }).join('\n');
   if (!text.trim()) return clog('Console is empty — nothing to copy', 'warn');
 
-  const onSuccess = () => clog('Console copied to clipboard ✓', 'success');
+  const onSuccess = () => {
+    clog('Console copied to clipboard ✓', 'success');
+    showCopyToast('✓ Copied console output');
+  };
   const onFail    = () => {
     // execCommand fallback for file:// or non-HTTPS contexts
     const ta = document.createElement('textarea');

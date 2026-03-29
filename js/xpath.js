@@ -8,8 +8,6 @@
 
 // Decoration collection for XPath highlights in the XML editor
 let xpathDecorations = null;
-let xpathEnabled = false; // off by default — user must explicitly enable
-let _xpathPreColCenterCollapsed = false; // colCenter state before XPath was enabled
 
 // ── XPath syntax highlight overlay ───────────────────────────────────────────
 // Tokenizes the expression and injects colored <span>s into the overlay div.
@@ -157,141 +155,10 @@ function _xpathHistoryNavigate(direction, input) {
   scheduleSave();
 }
 
-// ── Apply XPath enabled/disabled state to DOM (no logging, no side effects) ──
-function _applyXPathToggleState() {
-  const btnXslt    = document.getElementById('modeBtnXslt');
-  const btnXpath   = document.getElementById('modeBtnXpath');
-  const bar        = document.getElementById('xpathBar');
-  const colCenter  = document.getElementById('colCenter');
-  const hdrPanel   = document.getElementById('hdrPanel');
-  const propPanel  = document.getElementById('propPanel');
-  const outSection = document.getElementById('outputSection');
-  const console_   = document.getElementById('consolePanel');
-  const workspace  = document.querySelector('.workspace');
-  const shareBtn   = document.getElementById('shareBtn');
-  const runBtn     = document.getElementById('runBtn');
-  const consoleTtl = document.querySelector('.console-title');
-
-  if (btnXslt)  btnXslt.classList.toggle('active', !xpathEnabled);
-  if (btnXpath) btnXpath.classList.toggle('active',  xpathEnabled);
-  if (bar) bar.style.display = xpathEnabled ? '' : 'none';
-
-  // Update XML pane title and collapsed tab label to reflect current mode
-  const xmlPaneTitle  = document.getElementById('xmlPaneTitle');
-  const xmlColTabLabel = document.getElementById('xmlColTabLabel');
-  const _xmlTitle = xpathEnabled ? 'XML Source' : 'Input';
-  if (xmlPaneTitle)   xmlPaneTitle.textContent  = _xmlTitle;
-  if (xmlColTabLabel) xmlColTabLabel.textContent = _xmlTitle;
-
-  // When enabling: always collapse colCenter. When disabling: restore to pre-xpath state.
-  if (colCenter) {
-    if (xpathEnabled) {
-      colCenter.classList.add('collapsed');
-    } else {
-      colCenter.classList.toggle('collapsed', _xpathPreColCenterCollapsed);
-    }
-  }
-
-  // XPath mode: hide input KV panels and output section — XML + results only
-  const kvDisplay = xpathEnabled ? 'none' : '';
-  if (hdrPanel)   hdrPanel.style.display   = kvDisplay;
-  if (propPanel)  propPanel.style.display  = kvDisplay;
-  if (outSection) outSection.style.display = kvDisplay;
-
-  // #3 Share hidden in XPath mode
-  if (shareBtn) {
-    shareBtn.classList.toggle('hidden', xpathEnabled);
-  }
-
-  // #4 Run button — rename and rewire by mode (never hidden)
-  if (runBtn) {
-    if (xpathEnabled) {
-      runBtn.onclick = runXPath;
-      runBtn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M3 1.5l11 6.5-11 6.5V1.5z"/></svg> Run XPath <span class="kbd">⌘↵</span>`;
-    } else {
-      runBtn.onclick = runTransform;
-      runBtn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M3 1.5l11 6.5-11 6.5V1.5z"/></svg> Run XSLT <span class="kbd">⌘↵</span>`;
-    }
-  }
-
-  // Mode pill in status bar + console label
-  const modePill = document.getElementById('modePill');
-  if (modePill) {
-    modePill.textContent = xpathEnabled ? 'XPath' : 'XSLT';
-    modePill.className = xpathEnabled ? 'mode-pill mode-xpath' : 'mode-pill mode-xslt';
-  }
-  if (consoleTtl) consoleTtl.textContent = xpathEnabled ? 'Console · XPath' : 'Console · XSLT';
-
-  // Move console: XPath mode → below workspace; XSLT mode → inside colCenter (below XSLT editor)
-  if (console_ && colCenter && workspace) {
-    if (xpathEnabled) {
-      workspace.insertAdjacentElement('afterend', console_);
-    } else {
-      colCenter.appendChild(console_);
-    }
-  }
-}
-
 // ── Toggle XPath evaluator on/off ─────────────────────────────────────────────
 function toggleXPath() {
-  // Clear XPath decorations before disabling — prevents stale highlights
-  if (xpathEnabled && xmlDecorations) {
-    try { xmlDecorations.clear(); } catch(e) {}
-    xmlDecorations = null;
-  }
-
-  // Set suppression flag before toggling to prevent synthetic content-change on setModel()
-  _suppressNextXmlChange = true;
-
-  xpathEnabled = !xpathEnabled;
-
-  if (xpathEnabled) {
-    // Save colCenter collapsed state before we hide it
-    const colCenter = document.getElementById('colCenter');
-    _xpathPreColCenterCollapsed = colCenter?.classList.contains('collapsed') ?? false;
-  }
-
-  // ── SWAP XML MODEL ── 
-  // Switch the editor's active model between XSLT and XPath modes
-  if (eds.xml && xmlModelXpath && xmlModelXslt) {
-    eds.xml.setModel(xpathEnabled ? xmlModelXpath : xmlModelXslt);
-    eds.xml.layout();
-  } else {
-    // If editor not ready, clear suppression flag to prevent orphaning
-    _suppressNextXmlChange = false;
-  }
-
-  _applyXPathToggleState();
-
-  // Update cursor stat immediately after mode switch
-  if (eds.xml && typeof _updateCursorStat === 'function') {
-    const label = xpathEnabled ? 'XML Source' : 'XML Input';
-    _updateCursorStat(eds.xml, label);
-  }
-
-  // When enabling: bar is now visible — recalculate textarea height
-  // (may have been set while hidden, giving 0px)
-  if (xpathEnabled) {
-    const _ta = document.getElementById('xpathInput');
-    if (_ta) { _ta.style.height = 'auto'; _ta.style.height = _ta.scrollHeight + 'px'; }
-  }
-
-  // Open right column when enabling — XPath results need to be visible
-  if (xpathEnabled) {
-    const colRight = document.getElementById('colRight');
-    if (colRight?.classList.contains('collapsed')) colRight.classList.remove('collapsed');
-  }
-
-  if (!xpathEnabled) {
-    clearXPathResults();
-    clog('Switched to XSLT mode', 'info');
-    window.goatcounter?.count({ path: 'mode-xslt', title: 'Switch to XSLT Mode' });
-  } else {
-    clog('Switched to XPath mode', 'info');
-    window.goatcounter?.count({ path: 'mode-xpath', title: 'Switch to XPath Mode' });
-  }
-  scheduleSave();
-  setTimeout(() => { eds.xml?.layout(); eds.xslt?.layout(); eds.out?.layout(); }, 50);
+  const nextMode = modeManager.isXpath ? 'XSLT' : 'XPATH';
+  modeManager.setMode(nextMode);
 }
 
 // ── Clear all XPath highlights from the XML editor ───────────────────────────
@@ -500,7 +367,7 @@ function _xpathNormalise(result) {
 // ── Main entry point ──────────────────────────────────────────────────────────
 function runXPath() {
   if (!saxonReady) { clog('Saxon-JS not ready yet', 'error'); return; }
-  if (!xpathEnabled) return;
+  if (!modeManager.isXpath) return;
 
   // Reset error badge for fresh run
   consoleErrCount = 0;
@@ -894,7 +761,10 @@ function renderXPathHints(hints) {
 function copyXPathInput() {
   const expr = document.getElementById('xpathInput')?.value?.trim();
   if (!expr) return clog('XPath bar is empty — nothing to copy', 'warn');
-  const onSuccess = () => clog(`ƒx  Expression copied to clipboard ✓`, 'success');
+  const onSuccess = () => {
+    clog(`ƒx  Expression copied to clipboard ✓`, 'success');
+    showCopyToast('✓ Copied XPath expression');
+  };
   const onFail    = () => {
     const ta = document.createElement('textarea');
     ta.value = expr;
@@ -919,7 +789,11 @@ function copyXPathResults() {
     .join('\n' + '─'.repeat(40) + '\n');
   if (!text.trim()) return clog('XPath results are empty — nothing to copy', 'warn');
 
-  const onSuccess = () => clog('XPath results copied to clipboard ✓', 'success');
+  const count = [...body.querySelectorAll('.xpath-result-content')].length;
+  const onSuccess = () => {
+    clog('XPath results copied to clipboard ✓', 'success');
+    showCopyToast(`✓ Copied ${count} result${count !== 1 ? 's' : ''}`);
+  };
   const onFail    = () => {
     const ta = document.createElement('textarea');
     ta.value = text;

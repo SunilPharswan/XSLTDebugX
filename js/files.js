@@ -16,7 +16,7 @@ function handleUpload(event, pane) {
     const text = e.target.result;
     if (pane === 'xml') {
       // Route to the currently active XML model based on mode
-      const targetModel = xpathEnabled ? xmlModelXpath : xmlModelXslt;
+      const targetModel = modeManager.currentModel;
       if (targetModel) {
         targetModel.setValue(text);
         scheduleSave();
@@ -70,7 +70,7 @@ function setupDragDrop(editorWrapId, pane) {
     reader.onload = ev => {
       if (pane === 'xml') {
         // Route to the currently active XML model based on mode
-        const targetModel = xpathEnabled ? xmlModelXpath : xmlModelXslt;
+        const targetModel = modeManager.currentModel;
         if (targetModel) {
           targetModel.setValue(ev.target.result);
           scheduleSave();

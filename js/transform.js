@@ -66,6 +66,48 @@ function isValidNCName(name) {
   return /^[A-Za-z_][\w.\-]*$/.test(name);
 }
 
+// ── XML Validation Badge ──
+function updateXMLValidationBadge() {
+  const badge = document.getElementById('xmlValidationBadge');
+  if (!badge) return;
+
+  const xmlSrc = eds.xml?.getValue?.()?.trim();
+  if (!xmlSrc) {
+    // Empty XML — hide badge
+    badge.style.display = 'none';
+    return;
+  }
+
+  // Try to parse XML
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlSrc, 'text/xml');
+    const hasError = doc.getElementsByTagName('parsererror').length > 0;
+
+    if (hasError) {
+      // Parse error — show red badge
+      const errorEl = doc.getElementsByTagName('parsererror')[0];
+      const errorMsg = errorEl?.textContent || 'XML parse error';
+      badge.className = 'xml-validation-badge error';
+      badge.innerHTML = '<span class="badge-icon">✗</span><span class="badge-text">Error</span>';
+      badge.title = errorMsg;
+      badge.style.display = 'inline-flex';
+    } else {
+      // Valid XML — show green badge
+      badge.className = 'xml-validation-badge valid';
+      badge.innerHTML = '<span class="badge-icon">✓</span><span class="badge-text">Valid</span>';
+      badge.title = 'XML is valid';
+      badge.style.display = 'inline-flex';
+    }
+  } catch (e) {
+    // Catch any parsing exceptions
+    badge.className = 'xml-validation-badge error';
+    badge.innerHTML = '<span class="badge-icon">✗</span><span class="badge-text">Error</span>';
+    badge.title = e.message || 'XML parse error';
+    badge.style.display = 'inline-flex';
+  }
+}
+
 function buildParamsXPath() {
   const entries = [];
   const skipped = [];
@@ -148,7 +190,52 @@ function updateKV(type, id, field, val) {
   const countId = type === 'headers' ? 'hdrCount' : 'propCount';
   document.getElementById(countId).textContent =
     kvData[type].filter(r => r.name.trim()).length;
+  // Validate the name field if it was changed
+  if (field === 'name') {
+    _validateKVField(type, id);
+  }
   scheduleSave();
+}
+
+// Validate and style a KV field (add/remove red highlight + error message for invalid NCName)
+function _validateKVField(type, id) {
+  const isHdr = type === 'headers';
+  const rowsEl = document.getElementById(isHdr ? 'hdrRows' : 'propRows');
+  const wrappers = rowsEl?.querySelectorAll('.kv-row-wrapper') || [];
+  let wrapperIndex = 0;
+  let found = false;
+
+  kvData[type].forEach((row, idx) => {
+    if (row.id === id) {
+      found = true;
+      wrapperIndex = idx;
+    }
+  });
+
+  if (!found || wrapperIndex >= wrappers.length) return;
+
+  const wrapperEl = wrappers[wrapperIndex];
+  const rowEl = wrapperEl?.querySelector('.kv-row');
+  const nameInput = rowEl?.querySelector('input:first-of-type');
+  const errorEl = wrapperEl?.querySelector('.kv-error-msg');
+
+  if (!nameInput) return;
+
+  const name = nameInput.value.trim();
+  const isValid = !name || isValidNCName(name);  // Empty is OK (not yet filled)
+
+  if (isValid) {
+    rowEl.classList.remove('kv-invalid');
+    nameInput.title = '';  // Remove tooltip
+    if (errorEl) errorEl.style.display = 'none';
+  } else {
+    rowEl.classList.add('kv-invalid');
+    nameInput.title = 'Must start with letter or underscore, then use letters, digits, hyphen, dot, or underscore';
+    if (errorEl) {
+      errorEl.style.display = '';  // Show error message
+      errorEl.innerHTML = '⚠️ Invalid NCName — must start with letter or underscore';
+    }
+  }
 }
 
 function renderKV(type) {
@@ -160,13 +247,21 @@ function renderKV(type) {
   rowsEl.innerHTML = rows.length === 0
     ? '<div class="kv-empty">Click + to add</div>'
     : rows.map(r => `
-        <div class="kv-row">
-          <input value="${escHtml(r.name)}" placeholder="name"
-            oninput="updateKV('${type}',${r.id},'name',this.value)"/>
-          <input value="${escHtml(r.value)}" placeholder="value"
-            oninput="updateKV('${type}',${r.id},'value',this.value)"/>
-          <button class="kv-del-btn" onclick="deleteKVRow('${type}',${r.id})">×</button>
+        <div class="kv-row-wrapper">
+          <div class="kv-row">
+            <input value="${escHtml(r.name)}" placeholder="name"
+              oninput="updateKV('${type}',${r.id},'name',this.value)"/>
+            <input value="${escHtml(r.value)}" placeholder="value"
+              oninput="updateKV('${type}',${r.id},'value',this.value)"/>
+            <button class="kv-del-btn" onclick="deleteKVRow('${type}',${r.id})">×</button>
+          </div>
+          <div class="kv-error-msg" style="display: none;"></div>
         </div>`).join('');
+
+  // Validate all fields after rendering
+  rows.forEach(row => {
+    _validateKVField(type, row.id);
+  });
 }
 
 // ════════════════════════════════════════════
@@ -188,7 +283,7 @@ function runTransform() {
     const elapsed = performance.now() - _runStart;
     const restore = () => {
       btn.disabled = false;
-      if (typeof xpathEnabled !== 'undefined' && xpathEnabled) {
+      if (modeManager.isXpath) {
         btn.onclick = runXPath;
         btn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M3 1.5l11 6.5-11 6.5V1.5z"/></svg> Run XPath <span class="kbd">⌘↵</span>`;
       } else {

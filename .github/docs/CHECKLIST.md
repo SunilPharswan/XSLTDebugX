@@ -1,4 +1,4 @@
-# XSLTForge UX Improvements — Quick Reference Checklist
+# XSLTDebugX UX Improvements — Quick Reference Checklist
 
 > Fast-track UX improvements organized by phase and effort. Use this to track implementation.
 
@@ -249,14 +249,14 @@ After each phase, verify:
 - `js/xpath.js` — Mode switching, XPath state
 - `js/panes.js` — Pane toolbars, clear/copy/format
 - `css/style.css` — Theming, layout, responsive
-- `.github/instructions/features.instructions.md` — API reference
+- `../instructions/features.instructions.md` — API reference
 
 ---
 
 ## 📞 Questions During Implementation?
 
 Refer to:
-1. **How does X work?** → [features.instructions.md](.github/instructions/features.instructions.md)
-2. **What's the module structure?** → [ARCHITECTURE.md](ARCHITECTURE.md)
-3. **Code style guide?** → [CONTRIBUTING.md](CONTRIBUTING.md)
-4. **Existing patterns?** → Search `grep_search` for similar code in codebase
+1. **How does X work?** → [../instructions/features.instructions.md](../instructions/features.instructions.md)
+2. **What's the module structure?** → [../../ARCHITECTURE.md](../../ARCHITECTURE.md)
+3. **Code style guide?** → [../../CONTRIBUTING.md](../../CONTRIBUTING.md)
+4. **Existing patterns?** → Search codebase for similar code

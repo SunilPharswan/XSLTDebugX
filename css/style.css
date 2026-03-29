@@ -75,6 +75,30 @@
       font-size: 11px; color: var(--text-dim); letter-spacing: 0.5px;
     }
 
+    /* ── TOAST NOTIFICATIONS ── */
+    .copy-toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--success);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 10000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .copy-toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     /* ── HEADER ── */
     .header {
       background: var(--bg-header);
@@ -239,6 +263,49 @@
       color: #60a0f8; letter-spacing: 0.5px;
     }
     .pane-actions { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+
+    /* ── XML Validation Badge ── */
+    .xml-validation-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .xml-validation-badge.valid {
+      background: rgba(63, 185, 80, 0.15);
+      border: 1px solid rgba(63, 185, 80, 0.3);
+      color: #5fd07a;
+    }
+    .xml-validation-badge.valid:hover {
+      background: rgba(63, 185, 80, 0.25);
+      border-color: rgba(63, 185, 80, 0.5);
+    }
+    .xml-validation-badge.error {
+      background: rgba(248, 81, 73, 0.15);
+      border: 1px solid rgba(248, 81, 73, 0.3);
+      color: #ff7070;
+    }
+    .xml-validation-badge.error:hover {
+      background: rgba(248, 81, 73, 0.25);
+      border-color: rgba(248, 81, 73, 0.5);
+    }
+    .xml-validation-badge .badge-icon {
+      font-weight: 700;
+      font-size: 9px;
+    }
+    .xml-validation-badge .badge-text {
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
     .pane-act-btn {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px; color: var(--text-dim);
@@ -366,6 +433,13 @@
       align-items: center;
     }
     .kv-row:last-child { border-bottom: none; }
+
+    /* Wrapper for row + error message */
+    .kv-row-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
     .kv-row input {
       background: transparent;
       border: none; outline: none;
@@ -385,6 +459,30 @@
       transition: color 0.15s;
     }
     .kv-del-btn:hover { color: var(--error); }
+
+    /* Invalid KV row (invalid NCName) */
+    .kv-row.kv-invalid input:first-child {
+      border-right-color: var(--error);
+      background: rgba(211, 47, 47, 0.06);
+      color: var(--error);
+    }
+    .kv-row.kv-invalid input:first-child:focus {
+      background: rgba(211, 47, 47, 0.12);
+    }
+
+    /* Error message below invalid row */
+    .kv-error-msg {
+      font-size: 11px;
+      color: var(--error);
+      background: rgba(211, 47, 47, 0.08);
+      padding: 4px 10px;
+      border-bottom: 1px solid var(--border);
+      display: none;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .kv-row-wrapper:last-child .kv-error-msg {
+      border-bottom: none;
+    }
 
     /* Output KV rows (read-only) */
     .kv-row-out {
@@ -1106,6 +1204,21 @@
       flex-shrink: 0;
     }
     .ex-modal-close:hover { color: var(--text-primary); border-color: var(--border); background: rgba(128,128,128,0.1); }
+
+    /* Auto-run checkbox */
+    .ex-auto-run-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-primary);
+      cursor: pointer; flex-shrink: 0;
+      padding: 4px 8px; border-radius: 6px;
+      transition: background 0.15s;
+      user-select: none;
+    }
+    .ex-auto-run-label:hover { background: rgba(128,128,128,0.08); }
+    .ex-auto-run-label input[type="checkbox"] {
+      cursor: pointer; width: 14px; height: 14px;
+      accent-color: var(--sap-blue);
+    }
 
     /* Modal body: sidebar + grid */
     .ex-modal-body {

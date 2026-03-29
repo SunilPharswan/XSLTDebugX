@@ -410,33 +410,9 @@ Analytics via [GoatCounter](https://www.goatcounter.com) (privacy-friendly, no c
 
 ## Development Guide
 
+For detailed local development setup, debugging, testing, and troubleshooting, see [.github/docs/DEVELOPMENT.md](.github/docs/DEVELOPMENT.md).
+
 XSLTDebugX is **zero-build** — no npm scripts, no bundler, no build step. Edit files → refresh browser → see changes.
-
-### Local Development Setup
-
-1. **Clone repository**
-   ```bash
-   git clone https://github.com/yourusername/xsltdebugx.git
-   cd xsltdebugx
-   ```
-
-2. **Start local HTTP server** (choose one):
-   - **`python -m http.server 8000`** (built-in)
-   - **`npm install -g serve && serve .`** (recommended)
-   - **`php -S localhost:8000`** (if PHP installed)
-   - **VS Code Live Server** extension (right-click `index.html`)
-
-3. **Open in browser** and verify:
-   - No console errors (DevTools → Console)
-   - Examples load and run correctly
-   - Can toggle XSLT ↔ XPath modes
-
-### Development Workflow
-
-- **Edit any `.js`, `.css`, or `.html` file**
-- **Refresh browser** (`Ctrl+R`)
-- **See changes immediately** (no build step!)
-- **Check DevTools Console** for errors
 
 ### Testing Checklist
 
@@ -498,7 +474,7 @@ XSLTDebugX/
 
 ## Architecture Overview
 
-XSLTDebugX uses a **zero-build vanilla JavaScript architecture** with 11 modules (~7,261 lines of code) and no external dependencies.
+XSLTDebugX uses a **zero-build vanilla JavaScript architecture** with 12 modules (~7,643 lines of code) and no external dependencies.
 
 ### Key Design Principles
 

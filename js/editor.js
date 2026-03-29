@@ -211,11 +211,14 @@ require(['vs/editor/editor.main'], () => {
     { ...shared, language: 'xml', value: '', readOnly: true, renderValidationDecorations: 'off' }
   );
 
+  // ── Initialize Mode Manager with model references ──
+  modeManager.initializeModels(xmlModelXslt, xmlModelXpath);
+
   // Ctrl/Cmd+Enter → run XPath in XPath mode, run transform in XSLT mode
   [eds.xml, eds.xslt].forEach(ed => {
     ed.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-      () => { if (xpathEnabled) runXPath(); else runTransform(); }
+      () => {  if (modeManager.isXpath) runXPath(); else runTransform(); }
     );
   });
 
@@ -444,7 +447,10 @@ require(['vs/editor/editor.main'], () => {
 
   // ── Shared clipboard helper for XPath copy actions ──
   function _copyXPathToClipboard(xpath, label) {
-    const onSuccess = () => clog(`ƒx  ${label}: ${xpath}`, 'success');
+    const onSuccess = () => {
+      clog(`ƒx  ${label}: ${xpath}`, 'success');
+      showCopyToast(`✓ ${label}`);
+    };
     const onFail = () => {
       const ta = document.createElement('textarea');
       ta.value = xpath; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
@@ -459,7 +465,7 @@ require(['vs/editor/editor.main'], () => {
 
   // ── Mode-aware handler: XSLT mode → log + copy only; XPath mode → set bar + run ──
   function _handleCopyXPath(xpath, label) {
-    if (!xpathEnabled) {
+    if (!modeManager.isXpath) {
       // XSLT mode — just log and copy, don't switch mode or run
       clog(`ƒx  ${label}: ${xpath}`, 'info');
       _copyXPathToClipboard(xpath, label);
@@ -852,6 +858,8 @@ require(['vs/editor/editor.main'], () => {
     // Clear stale XPath highlights and hide results panel whenever source XML is edited
     if (typeof clearXPathHighlights === 'function') clearXPathHighlights();
     document.getElementById('xpathResultsPanel')?.classList.remove('visible');
+    // Update XML validation badge in real-time
+    if (typeof updateXMLValidationBadge === 'function') updateXMLValidationBadge();
     clearTimeout(xmlDebounce);
     xmlDebounce = setTimeout(runXmlValidation, 800);
   });
@@ -859,7 +867,7 @@ require(['vs/editor/editor.main'], () => {
   // ── Cursor position + character count in status bar ──────────────────────────
   // XML label changes dynamically based on mode: 'XML Input' (XSLT) vs 'XML Source' (XPath)
   function _getXmlLabel() {
-    return (typeof xpathEnabled !== 'undefined' && xpathEnabled) ? 'XML Source' : 'XML Input';
+    return modeManager.isXpath ? 'XML Source' : 'XML Input';
   }
 
   function _updateCursorStat(ed, label) {
@@ -921,38 +929,28 @@ require(['vs/editor/editor.main'], () => {
         // Restore column collapse states
         if (_savedSession.leftCollapsed)  document.getElementById('colLeft')?.classList.add('collapsed');
         if (!_savedSession.rightCollapsed) document.getElementById('colRight')?.classList.remove('collapsed');
-        // Restore XPath expression — always call _syncXPathInput to init overlay + height
+
+        // Restore XPath expression
         {
           const _expr = _savedSession.xpathExpr || (EXAMPLES.xpathNavigation?.xpathExpr ?? '');
           if (typeof _syncXPathInput === 'function') _syncXPathInput(_expr);
           else { const xi = document.getElementById('xpathInput'); if (xi) xi.value = _expr; }
         }
-        // Restore XPath toggle state (default off if not in session)
-        xpathEnabled = _savedSession.xpathEnabled === true;
-        // Swap editor model to match restored mode
-        if (xpathEnabled && xmlModelXpath) {
-          eds.xml.setModel(xmlModelXpath);
-        } else if (!xpathEnabled && xmlModelXslt) {
-          eds.xml.setModel(xmlModelXslt);
-        }
-        // Restore pre-xpath colCenter state so toggling back to XSLT restores it correctly
-        if (typeof _xpathPreColCenterCollapsed !== 'undefined') {
-          _xpathPreColCenterCollapsed = _savedSession.centerCollapsed ?? false;
-        }
-        // In XSLT mode, restore manually-collapsed colCenter if saved
-        if (!xpathEnabled && _savedSession.centerCollapsed) {
-          document.getElementById('colCenter')?.classList.add('collapsed');
-        }
-        if (typeof _applyXPathToggleState === 'function') _applyXPathToggleState();
+
+        // Restore mode using ModeManager
+        modeManager.restoreFromSession(_savedSession);
+
         // Update cursor stat label to match restored mode
         if (eds.xml && typeof _updateCursorStat === 'function') {
-          _updateCursorStat(eds.xml, xpathEnabled ? 'XML Source' : 'XML Input');
+          _updateCursorStat(eds.xml, modeManager.isXpath ? 'XML Source' : 'XML Input');
         }
-        // After bar is shown, recalculate textarea height — scrollHeight is 0 while hidden
-        if (xpathEnabled) {
+
+        // Recalculate textarea height for XPath bar
+        if (modeManager.isXpath) {
           const _ta = document.getElementById('xpathInput');
           if (_ta) { _ta.style.height = 'auto'; _ta.style.height = _ta.scrollHeight + 'px'; }
         }
+
         // Relay Monaco after potential column changes
         setTimeout(() => { eds.xml?.layout(); eds.xslt?.layout(); eds.out?.layout(); }, 260);
 
@@ -964,9 +962,10 @@ require(['vs/editor/editor.main'], () => {
               return `${Math.round(diff/3600)}h ago`;
             })()
           : '';
-        clog(`Session restored${ago ? ' · saved ' + ago : ''} · ${xpathEnabled ? 'XPath' : 'XSLT'} mode ✓`, 'success');
+        clog(`Session restored${ago ? ' · saved ' + ago : ''} · ${modeManager.isXpath ? 'XPath' : 'XSLT'} mode ✓`, 'success');
+
         // Restore hints strip if session was on an XPath example
-        if (xpathEnabled && _savedSession.lastExampleKey) {
+        if (modeManager.isXpath && _savedSession.lastExampleKey) {
           window._lastExampleKey = _savedSession.lastExampleKey;
           const _ex = EXAMPLES[_savedSession.lastExampleKey];
           if (_ex?.xpathHints && typeof renderXPathHints === 'function') {
@@ -974,7 +973,7 @@ require(['vs/editor/editor.main'], () => {
           }
         }
         // Auto-run XPath on restore — expression already in bar, lightweight to re-evaluate
-        if (xpathEnabled) {
+        if (modeManager.isXpath) {
           setTimeout(() => { if (typeof runXPath === 'function') runXPath(); }, 400);
         }
       } else {
@@ -990,6 +989,8 @@ require(['vs/editor/editor.main'], () => {
       renderKV('headers');
       renderKV('properties');
       renderOutputKV({}, {});
+      // Initialize XML validation badge on load
+      if (typeof updateXMLValidationBadge === 'function') updateXMLValidationBadge();
       setStatus('Ready', 'ok');
     }
   }, 200);

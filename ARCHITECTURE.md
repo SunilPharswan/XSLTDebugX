@@ -23,12 +23,12 @@ XSLTDebugX is a **zero-build vanilla JavaScript application** deployed as a stat
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                        index.html                             │
-│  (loads CSS + 11 JS modules + Monaco Editor + Saxon-JS)      │
+│  (loads CSS + 12 JS modules + Monaco Editor + Saxon-JS)      │
 └──────────────────────────────────────────────────────────────┘
                               ↓
               ┌─────────────────────────────────┐
               │   Vanilla ES6+ JavaScript       │
-              │   (7,261 lines across 11 modules)
+              │   (7,643 lines across 12 modules)
               └─────────────────────────────────┘
                               ↓
         ┌─────────────────────────────────────────────┐
@@ -54,6 +54,7 @@ XSLTDebugX is a **zero-build vanilla JavaScript application** deployed as a stat
 | **transform.js** | XSLT execution, CPI simulation, output rendering | 423 | `runTransform()`, `rewriteCPICalls()`, `buildParamsXPath()`, `renderOutputKV()` |
 | **validate.js** | XML/XSLT validation, Monaco error markers, Saxon error parsing | 170 | `validateXML()`, `markErrorLine()`, `preflight()`, `parseSaxonErrorLine()` |
 | **xpath.js** | XPath mode UI, expression evaluation, node highlighting, syntax coloring | 936 | `runXPath()`, `toggleXPath()`, `_highlightXPath()`, `_highlightMatchedNodes()` |
+| **mode-manager.js** | Centralized mode management (XSLT vs XPath) | 382 | `setMode()`, `isXpath`, `isXslt`, `getMode()` |
 | **panes.js** | Word wrap, copy/clear/format, context menu debouncing | 199 | `toggleWordWrap()`, `copyPane()`, `fmtEditor()`, `prettyXML()` |
 | **files.js** | File upload/download, drag-and-drop | 93 | `triggerUpload()`, `handleUpload()`, `downloadPane()`, `setupDragDrop()` |
 | **share.js** | URL encoding/decoding of session state | 153 | `buildSharePayload()`, `generateShareUrl()`, `loadFromShareHash()` |
@@ -61,7 +62,7 @@ XSLTDebugX is a **zero-build vanilla JavaScript application** deployed as a stat
 | **ui.js** | Console state, theme toggle, help modal, column collapse | 169 | `setConsoleState()`, `toggleTheme()`, `applyConsoleSearch()`, `setConsoleFilter()` |
 | **examples-data.js** | 52 built-in XSLT/XPath examples across 5 categories | 3,675 | `CATEGORIES`, `EXAMPLES` (data objects) |
 
-**Total: 7,261 lines of code**
+**Total: 7,643 lines of code**
 
 ---
 
@@ -80,7 +81,9 @@ transform.js (uses state, editor)                               │
     ↓ (provides runTransform, CPI functions)                    │
 validate.js (uses state, editor)                                │
     ↓ (provides validateXML, markErrorLine, preflight)          │
-xpath.js (uses state, editor, validate)                         │
+mode-manager.js (uses state) ←───────────────────┐              │
+    ↓ (provides setMode, isXpath, isXslt)        │              │
+xpath.js (uses state, editor, validate) ←────────┤──────────────┤
     ↓ (provides runXPath, toggleXPath, node highlighting)       │
 panes.js (uses state, editor) ←──────────────────┐              │
     ↓ (provides toggleWordWrap, copyPane)        │              │
@@ -489,6 +492,7 @@ The order in [index.html](index.html) is **critical**:
 <script src="js/editor.js"></script>     <!-- Monaco setup, uses state -->
 <script src="js/transform.js"></script>  <!-- Transform logic, uses state, editor -->
 <script src="js/validate.js"></script>   <!-- Validation, uses state, editor -->
+<script src="js/mode-manager.js"></script>  <!-- Mode management (XSLT vs XPath) -->
 <script src="js/xpath.js"></script>      <!-- XPath mode, uses all above -->
 <script src="js/panes.js"></script>      <!-- UI helpers, uses state, editor -->
 <script src="js/files.js"></script>      <!-- File I/O, uses state, editor -->

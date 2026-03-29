@@ -1,4 +1,4 @@
-# XSLTForge UX Improvement Analysis — Summary
+# XSLTDebugX UX Improvement Analysis — Summary
 
 **Completed:** March 29, 2026  
 **Analysis Depth:** All 11 JS modules, HTML structure, CSS patterns, localStorage persistence  
@@ -31,7 +31,7 @@ Expert workflow speed:      baseline → +25% faster
 
 ## 📦 Three Deliverables Created
 
-### 1. **UX_IMPROVEMENT_PLAN.md** ← Start here
+### 1. **[UX_ROADMAP.md](../docs/UX_ROADMAP.md)** ← Start here
 **Comprehensive strategic analysis**
 - 4 critical blockers with root causes
 - 18+ medium issues with impacts
@@ -42,7 +42,7 @@ Expert workflow speed:      baseline → +25% faster
 
 **→ Use this to understand WHAT needs fixing and WHY**
 
-### 2. **UX_QUICK_REFERENCE.md** ← Start implementing here
+### 2. **[CHECKLIST.md](../docs/CHECKLIST.md)** ← Start implementing here
 **Tactical implementation guide**
 - 20 numbered improvements with file locations
 - Phase 1: 20 min (5 critical fixes)
@@ -54,21 +54,22 @@ Expert workflow speed:      baseline → +25% faster
 
 **→ Use this to know EXACTLY what to code and WHERE**
 
-### 3. **/memories/session/UX_IMPROVEMENTS_PLAN.md**
-**Structured summary for reference**
-- Tier-by-tier breakdown (CRITICAL → MEDIUM → QUICK WINS → POLISH)
-- Root cause analysis per category
-- Implementation priority matrix
-- Workflow impact table
+### 3. **[UX_ANALYSIS.md](UX_ANALYSIS.md)** (this folder)
+**Detailed analysis reference**
+- 52 issues across 10 categories
+- Root cause analysis per issue
+- Workflow impact assessment
+- Severity ratings and improvement directions
+- ~2,500 lines of detailed research
 
-**→ Use this for quick reference during implementation**
+**→ Use this for deep-dive research and justification**
 
 ---
 
 ## 🚀 Quick Start Path
 
 ### If you have 20 minutes right now:
-→ Do **Phase 1** from UX_QUICK_REFERENCE.md
+→ Do **Phase 1** from [CHECKLIST.md](../docs/CHECKLIST.md)
 - Auto-run toggle on examples
 - Mode indicator badge
 - Right-click tooltip
@@ -98,7 +99,6 @@ Expert workflow speed:      baseline → +25% faster
   - Mode layout persistence
   - Auto-growing KV table
   - Duplicate key detection
-  - JSON state export
 
 **Result:** 60%+ total UX improvement, full feature discoverability
 
@@ -111,7 +111,7 @@ Many errors are filtered/hidden with no user feedback:
 - Invalid parameter names → silently skipped
 - Duplicate KV keys → last one wins, no warning
 - Share URL too long → broken link, no indication
-- XML parse failures → no early warning
+- XML parse failures → no early warning before transform
 
 **→ Surface all validation failures in UI**
 
@@ -181,9 +181,9 @@ CPI header/property system works well but:
 ## 🎓 Learning & Knowledge Transfer
 
 All analysis documented in:
-- **Features reference:** `.github/instructions/features.instructions.md` (200+ feature catalog)
-- **Architecture guide:** `ARCHITECTURE.md` (module structure, design patterns)
-- **Contributing guide:** `CONTRIBUTING.md` (code style, dev setup)
+- **Features reference:** [../../instructions/features.instructions.md](../../instructions/features.instructions.md) (200+ feature catalog)
+- **Architecture guide:** [../../ARCHITECTURE.md](../../ARCHITECTURE.md) (module structure, design patterns)
+- **Contributing guide:** [../../CONTRIBUTING.md](../../CONTRIBUTING.md) (code style, dev setup)
 
 Code patterns to follow (already established):
 - Prefix module-private functions with `_`
@@ -218,11 +218,11 @@ Use these to guide implementation decisions:
 
 | Document | Purpose | When to Use |
 |----------|---------|-----------|
-| [UX_IMPROVEMENT_PLAN.md](UX_IMPROVEMENT_PLAN.md) | Strategic analysis | Understanding WHAT and WHY |
-| [UX_QUICK_REFERENCE.md](UX_QUICK_REFERENCE.md) | Tactical checklist | Implementing WHAT and WHERE |
-| [.github/instructions/features.instructions.md](.github/instructions/features.instructions.md) | API reference | How existing features work |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Code structure | Module relationships, data flow |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Code style | Naming conventions, patterns |
+| [UX_ROADMAP.md](../docs/UX_ROADMAP.md) | Strategic analysis | Understanding WHAT and WHY |
+| [CHECKLIST.md](../docs/CHECKLIST.md) | Tactical checklist | Implementing WHAT and WHERE |
+| [../../instructions/features.instructions.md](../../instructions/features.instructions.md) | API reference | How existing features work |
+| [../../ARCHITECTURE.md](../../ARCHITECTURE.md) | Code structure | Module relationships, data flow |
+| [../../CONTRIBUTING.md](../../CONTRIBUTING.md) | Code style | Naming conventions, patterns |
 
 ---
 
@@ -245,8 +245,8 @@ After implementing all three phases, verify:
 ## 🚀 Next Steps
 
 ### Immediate (Today)
-1. ✅ Read [UX_IMPROVEMENT_PLAN.md](UX_IMPROVEMENT_PLAN.md) for full context
-2. ✅ Review [UX_QUICK_REFERENCE.md](UX_QUICK_REFERENCE.md) for Phase 1 items
+1. ✅ Read [UX_ROADMAP.md](../docs/UX_ROADMAP.md) for full context
+2. ✅ Review [CHECKLIST.md](../docs/CHECKLIST.md) for Phase 1 items
 3. ✅ Decide: Implement Phase 1 now or gather stakeholder feedback first?
 
 ### Short-term (This Week)
@@ -271,4 +271,4 @@ After implementing all three phases, verify:
 **Deliverables:** 3 comprehensive documents + this summary  
 **Ready to implement:** YES ✅
 
-**Go to [UX_QUICK_REFERENCE.md](UX_QUICK_REFERENCE.md) to start Phase 1!**
+**Go to [CHECKLIST.md](../docs/CHECKLIST.md) to start Phase 1!**

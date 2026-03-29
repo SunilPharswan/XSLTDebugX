@@ -3,6 +3,7 @@
 // ════════════════════════════════════════════
 
 let exActiveCat = 'all';
+let exAutoRunChecked = false;  // Auto-run toggle state
 
 // ── Render sidebar category buttons from CATEGORIES object ───────────────────
 function renderExSidebar() {
@@ -31,8 +32,13 @@ function renderExSidebar() {
 function openExModal() {
   document.getElementById('exModalBackdrop').classList.add('open');
   document.getElementById('exModalSearch').value = '';
+  // Restore auto-run preference from localStorage
+  const savedAutoRun = localStorage.getItem('xdebugx-auto-run-examples') === 'true';
+  exAutoRunChecked = savedAutoRun;
+  const checkbox = document.getElementById('exAutoRunCheckbox');
+  if (checkbox) checkbox.checked = savedAutoRun;
   // Pre-select category based on current mode
-  exActiveCat = xpathEnabled ? 'xpath' : 'all';
+  exActiveCat = modeManager.isXpath ? 'xpath' : 'all';
   renderExSidebar();
   renderExGrid();
   setTimeout(() => document.getElementById('exModalSearch').focus(), 60);
@@ -57,7 +63,7 @@ document.addEventListener('keydown', e => {
   // Ctrl+Enter / Cmd+Enter → mode-aware run (works even when KV inputs have focus)
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
     e.preventDefault();
-    if (typeof xpathEnabled !== 'undefined' && xpathEnabled) runXPath();
+    if (modeManager.isXpath) runXPath();
     else runTransform();
   }
 });
@@ -134,33 +140,14 @@ function loadExample(key) {
   if (!ex) return;
 
   // ── Step 1: Switch mode based on example type BEFORE loading content ──
-  if (ex.xpathExpr && !xpathEnabled) {
+  if (ex.xpathExpr && !modeManager.isXpath) {
     // XPath example — switch to XPath mode
     const colCenter = document.getElementById('colCenter');
-    _xpathPreColCenterCollapsed = colCenter?.classList.contains('collapsed') ?? false;
-    xpathEnabled = true;
-    if (typeof _applyXPathToggleState === 'function') _applyXPathToggleState();
-    // Swap the editor model to match the new mode
-    if (eds.xml && xmlModelXpath) {
-      _suppressNextXmlChange = true;  // Prevent synthetic content-change on setModel()
-      eds.xml.setModel(xmlModelXpath);
-      eds.xml.layout();
-    }
-    // Update cursor stat label
-    if (eds.xml && typeof _updateCursorStat === 'function') _updateCursorStat(eds.xml, 'XML Source');
+    modeManager.setMode('XPATH');
     clog('Switched to XPath mode', 'info');
-  } else if (!ex.xpathExpr && xpathEnabled) {
+  } else if (!ex.xpathExpr && modeManager.isXpath) {
     // XSLT example — switch to XSLT mode
-    xpathEnabled = false;
-    if (typeof _applyXPathToggleState === 'function') _applyXPathToggleState();
-    // Swap the editor model to match the new mode
-    if (eds.xml && xmlModelXslt) {
-      _suppressNextXmlChange = true;  // Prevent synthetic content-change on setModel()
-      eds.xml.setModel(xmlModelXslt);
-      eds.xml.layout();
-    }
-    // Update cursor stat label
-    if (eds.xml && typeof _updateCursorStat === 'function') _updateCursorStat(eds.xml, 'XML Input');
+    modeManager.setMode('XSLT');
     if (typeof clearXPathResults === 'function') clearXPathResults();
     clog('Switched to XSLT mode', 'info');
   }
@@ -172,13 +159,13 @@ function loadExample(key) {
 
   try {
     // Route XML content to the correct model based on current mode
-    const targetXmlModel = xpathEnabled ? xmlModelXpath : xmlModelXslt;
+    const targetXmlModel = modeManager.isXpath ? xmlModelXpath : xmlModelXslt;
     if (targetXmlModel) {
       targetXmlModel.setValue(ex.xml);
     }
-    
+
     // Only set XSLT if in XSLT mode (and example has XSLT content)
-    if (!xpathEnabled && ex.xslt && eds.xslt) {
+    if (!modeManager.isXpath && ex.xslt && eds.xslt) {
       _suppressNextValidation = true;
       eds.xslt.setValue(ex.xslt);
     }
@@ -191,7 +178,7 @@ function loadExample(key) {
   renderOutputKV({}, {});
 
   // Only set KV panels in XSLT mode — they're hidden in XPath mode
-  if (!xpathEnabled) {
+  if (!modeManager.isXpath) {
     kvData = { headers: [], properties: [] };
     kvIdSeq = 0;
     if (ex.headers) {
@@ -213,12 +200,17 @@ function loadExample(key) {
     const colRight = document.getElementById('colRight');
     if (colRight.classList.contains('collapsed')) colRight.classList.remove('collapsed');
     setTimeout(() => { eds.xml?.layout(); eds.xslt?.layout(); eds.out?.layout(); }, 250);
-    clog(`Example loaded: "${ex.label}" — XPath pre-filled, running…`, 'success');
     const xpathInput = document.getElementById('xpathInput');
     if (xpathInput) {
       if (typeof _syncXPathInput === 'function') _syncXPathInput(ex.xpathExpr);
       else xpathInput.value = ex.xpathExpr;
-      setTimeout(() => { if (typeof runXPath === 'function') runXPath(); }, 350);
+      // Only auto-run if checkbox is checked
+      if (exAutoRunChecked) {
+        clog(`Example loaded: "${ex.label}" — XPath pre-filled, running…`, 'success');
+        setTimeout(() => { if (typeof runXPath === 'function') runXPath(); }, 350);
+      } else {
+        clog(`Example loaded: "${ex.label}" — XPath pre-filled, ready to run`, 'success');
+      }
     }
     // Render hints strip if example has hints
     if (typeof renderXPathHints === 'function') renderXPathHints(ex.xpathHints ?? null);
@@ -230,9 +222,16 @@ function loadExample(key) {
     }
     // Hide hints strip for XSLT examples
     if (typeof renderXPathHints === 'function') renderXPathHints(null);
-    clog(`Example loaded: "${ex.label}" ✓`, 'success');
-    setTimeout(() => { if (typeof runTransform === 'function') runTransform(); }, 350);
+    // Only auto-run if checkbox is checked
+    if (exAutoRunChecked) {
+      clog(`Example loaded: "${ex.label}" ✓ Running…`, 'success');
+      setTimeout(() => { if (typeof runTransform === 'function') runTransform(); }, 350);
+    } else {
+      clog(`Example loaded: "${ex.label}" ✓ Ready to run`, 'success');
+    }
   }
 
+  // Update XML validation badge after loading example
+  if (typeof updateXMLValidationBadge === 'function') updateXMLValidationBadge();
   scheduleSave();
 }

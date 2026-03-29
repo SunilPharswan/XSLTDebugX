@@ -43,11 +43,11 @@
   </button>
 
   <div class="mode-switcher">
-    <button class="mode-btn mode-btn-xslt active" id="modeBtnXslt" onclick="if(xpathEnabled)toggleXPath()" title="XSLT Transform mode">
+    <button class="mode-btn mode-btn-xslt active" id="modeBtnXslt" onclick="if(modeManager.isXpath)toggleXPath()" title="XSLT Transform mode">
       <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M2 3h12v1.5H2V3zm2 3.5h8V8H4V6.5zm2 3.5h4v1.5H6V10z"/></svg>
       XSLT
     </button>
-    <button class="mode-btn mode-btn-xpath" id="modeBtnXpath" onclick="if(!xpathEnabled)toggleXPath()" title="XPath evaluator mode">
+    <button class="mode-btn mode-btn-xpath" id="modeBtnXpath" onclick="if(!modeManager.isXpath)toggleXPath()" title="XPath evaluator mode">
       ƒx XPath
     </button>
   </div>
@@ -115,6 +115,11 @@
       <div class="pane-bar" id="xmlPaneBar">
         <div class="pane-indicator ind-xml"></div>
         <span class="pane-title" id="xmlPaneTitle">Input</span>
+        <!-- XML Validation Badge -->
+        <span class="xml-validation-badge" id="xmlValidationBadge" title="XML parsing status" style="display: none;">
+          <span class="badge-icon">✓</span>
+          <span class="badge-text">Valid</span>
+        </span>
         <div class="pane-actions">
           <span class="lang-badge">XML</span>
           <button class="pane-act-btn" onclick="fmtEditor('xml')">Format</button>
@@ -319,6 +324,10 @@
         <svg class="ex-search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6.5" cy="6.5" r="4"/><path d="M11 11l3 3"/></svg>
         <input class="ex-modal-search" id="exModalSearch" placeholder="Search examples…" oninput="filterExamples()" autocomplete="off">
       </div>
+      <label class="ex-auto-run-label" title="Automatically run examples after loading them">
+        <input type="checkbox" id="exAutoRunCheckbox" onchange="exAutoRunChecked = this.checked; localStorage.setItem('xdebugx-auto-run-examples', this.checked)">
+        Auto-run
+      </label>
       <button class="ex-modal-close" onclick="closeExModal()" title="Close">✕</button>
     </div>
     <div class="ex-modal-body">
@@ -389,22 +398,45 @@
         <div class="help-row"><span class="help-badge mode-xslt-badge">XSLT</span><span>Transform XML with a full XSLT 3.0 stylesheet — edit XML + XSLT side by side, run, inspect output</span></div>
         <div class="help-row"><span class="help-badge mode-xpath-badge">XPath</span><span>Evaluate XPath 3.0 expressions against your XML — results highlighted in the editor with match count</span></div>
       </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Interface Controls</div>
+        <div class="help-row"><span class="help-key">Mode Toggle</span><span>Switch between XSLT Transform mode and XPath Evaluator mode — buttons in the top toolbar</span></div>
+        <div class="help-row"><span class="help-key">Theme Toggle</span><span>Switch between light and dark themes — toggles colors for better visibility in different lighting conditions</span></div>
+        <div class="help-row"><span class="help-key">Upload Files</span><span>Load XML or XSLT from your computer — click the upload icon in the pane toolbar or drag & drop directly onto a pane</span></div>
+        <div class="help-row"><span class="help-key">Download Panes</span><span>Export XML, XSLT, or Output to a file — click the download icon in each pane toolbar (auto-detects output type: XML/JSON/TXT)</span></div>
+        <div class="help-row"><span class="help-key">Collapse Panels</span><span>Hide side panels to focus on one editor — click the collapse icon (◀/▶) on the left/right column dividers</span></div>
+      </div>
+
       <div class="help-section">
         <div class="help-section-title">Editor</div>
         <div class="help-row"><span class="help-key">↵ wrap</span><span>Word wrap toggle per pane — click the wrap icon in any pane bar</span></div>
-        <div class="help-row"><span class="help-key">Format</span><span>Pretty-print XML / XSLT — toolbar button or right-click menu</span></div>
-        <div class="help-row"><span class="help-key">Minify</span><span>Collapse to single line — right-click menu on XML or XSLT pane</span></div>
-        <div class="help-row"><span class="help-key">Snippets</span><span>18 XSLT snippets via right-click on XSLT pane — xsl:for-each, xsl:choose, xsl:if, xsl:variable, xsl:template, xsl:try/catch, all cpi: calls, CPI skeleton and more</span></div>
-        <div class="help-row"><span class="help-key">Right-click</span><span>Format, Minify, Comment/Uncomment, Copy XPath — Exact or General, Snippets (XSLT pane only)</span></div>
+
+        <!-- Right-click is now prominently featured -->
+        <div class="help-row" style="background: rgba(34, 139, 230, 0.1); padding: 8px 12px; border-radius: 4px; margin: 8px 0; border-left: 3px solid #228be6;">
+          <span class="help-key" style="color: #228be6;">🖱️ Right-click Menu</span>
+          <span><strong>Power feature — right-click in any editor pane for:</strong>
+            <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 0.95em;">
+              <li><strong>Format</strong> — Pretty-print XML / XSLT (also toolbar button)</li>
+              <li><strong>Minify</strong> — Collapse to single line</li>
+              <li><strong>Comment / Uncomment</strong> — Toggle line comments</li>
+              <li><strong>Copy XPath</strong> — Generate exact or general XPath (learn XPath!)</li>
+              <li><strong>Snippets</strong> — Insert 18 XSLT templates (XSLT pane only) — xsl:for-each, xsl:choose, xsl:if, xsl:variable, xsl:template, xsl:try/catch, all cpi: calls, CPI skeleton and more</li>
+            </ul>
+          </span>
+        </div>
+
         <div class="help-row"><span class="help-key">Drag & drop</span><span>Drop any .xml or .xslt file directly onto the XML or XSLT pane</span></div>
       </div>
+
       <div class="help-section">
         <div class="help-section-title">Examples Library</div>
-        <div class="help-row"><span class="help-key">47 examples</span><span>Built-in examples across 5 categories — Data Transformation, Aggregation, Format Conversion, SAP CPI Patterns, XPath Explorer</span></div>
+        <div class="help-row"><span class="help-key">48 examples</span><span>Built-in examples across 5 categories — Data Transformation, Aggregation, Format Conversion, SAP CPI Patterns, XPath Explorer</span></div>
         <div class="help-row"><span class="help-key">Search</span><span>Filter examples by name or description — type in the search box inside the modal</span></div>
-        <div class="help-row"><span class="help-key">Auto-run</span><span>XPath examples pre-fill the expression bar and run immediately on load</span></div>
+        <div class="help-row"><span class="help-key">Auto-run</span><span>Optional toggle in the Examples modal — check to automatically run examples after loading, uncheck to review code first</span></div>
         <div class="help-row"><span class="help-key">Hints strip</span><span>Clickable XPath chips appear below the expression bar when an XPath example is loaded — click any chip to run it</span></div>
       </div>
+
       <div class="help-section">
         <div class="help-section-title">XPath Expression Bar</div>
         <div class="help-row"><span class="help-key">Colorized</span><span>Live syntax coloring — functions <span style="color:var(--xpt-fn)">amber</span>, attributes <span style="color:var(--xpt-attr)">lavender</span>, strings <span style="color:var(--xpt-str)">green</span>, operators <span style="color:var(--xpt-op)">pink</span>, variables <span style="color:var(--xpt-attr)">$var</span></span></div>
@@ -412,19 +444,23 @@
         <div class="help-row"><span class="help-key">History</span><span>Last 20 expressions saved — browse with ▲ ▼ buttons or ↑ ↓ keys</span></div>
         <div class="help-row"><span class="help-key">Results</span><span>Copy or Clear buttons on the results panel — copy all matches as plain text</span></div>
       </div>
+
       <div class="help-section">
         <div class="help-section-title">Console</div>
         <div class="help-row"><span class="help-key">Filter dots</span><span>Four colored dots — neutral (ALL), blue (INFO), amber (WARN), red (ERROR) — click to filter by type</span></div>
         <div class="help-row"><span class="help-key">Search</span><span>Live text filter across all visible log entries</span></div>
         <div class="help-row"><span class="help-key">Copy / Clear</span><span>Copy all visible entries as plain text · Clear resets log, filter, and search</span></div>
       </div>
+
       <div class="help-section">
         <div class="help-section-title">SAP CPI Simulation</div>
         <div class="help-row"><span class="help-key">Headers</span><span>Add CPI headers in the left panel — injected as <code>xsl:param</code> values</span></div>
         <div class="help-row"><span class="help-key">Properties</span><span>Add CPI properties — same injection mechanism as headers</span></div>
+        <div class="help-row"><span class="help-key">Field Validation</span><span>Header and Property names turn red if invalid — name must start with a letter or underscore, then use letters, digits, hyphens, dots, or underscores. Hover over the red field for details. Invalid names are skipped during transform.</span></div>
         <div class="help-row"><span class="help-key">cpi:set/get</span><span>setHeader, setProperty, getHeader, getProperty all fully simulated with dynamic values</span></div>
         <div class="help-row"><span class="help-key">xsl:message</span><span>Logged to console in amber · <code>terminate="yes"</code> shown as warning not error</span></div>
       </div>
+
       <div class="help-section">
         <div class="help-section-title">Session & Share</div>
         <div class="help-row"><span class="help-key">Auto-save</span><span>Everything saved to browser storage 800ms after you stop typing</span></div>
@@ -464,6 +500,7 @@
 
 <!-- JS modules — load order matters: state → domain logic → UI → editor init -->
 <script src="js/state.js"></script>
+<script src="js/mode-manager.js"></script>
 <script src="js/validate.js"></script>
 <script src="js/panes.js"></script>
 <script src="js/transform.js"></script>

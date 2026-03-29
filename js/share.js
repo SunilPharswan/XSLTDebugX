@@ -60,16 +60,8 @@ function applyShareData(data) {
   if (!data) return;
 
   // Share is XSLT-only — always switch to XSLT mode on the receiver side
-  if (typeof xpathEnabled !== 'undefined' && xpathEnabled) {
-    xpathEnabled = false;
-    if (typeof _applyXPathToggleState === 'function') _applyXPathToggleState();
-    // Swap editor model to XSLT model
-    if (eds.xml && xmlModelXslt) {
-      _suppressNextXmlChange = true;
-      eds.xml.setModel(xmlModelXslt);
-      eds.xml.layout();
-    }
-    if (eds.xml && typeof _updateCursorStat === 'function') _updateCursorStat(eds.xml, 'XML Input');
+  if (modeManager.isXpath) {
+    modeManager.setMode('XSLT');
     clog('Switched to XSLT mode — share link loaded', 'info');
   }
 
@@ -133,6 +125,7 @@ function _copyShareUrl(url, silent) {
       const orig = btn.textContent;
       btn.textContent = 'Copied!';
       setTimeout(() => { btn.textContent = orig; }, 1400);
+      showCopyToast('✓ Copied share link');
     }
     clog('Share URL copied to clipboard', 'success');
   };

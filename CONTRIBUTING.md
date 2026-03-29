@@ -41,9 +41,11 @@ XSLTDebugX requires **no build step**. It's a zero-build static site with vanill
 - **A modern browser** — Chrome, Firefox, Safari, or Edge for testing
 - **A text editor** — VS Code (with Copilot instructions included) is recommended
 
-### Local Serving
+### Local Development Setup
 
-XSLTDebugX can be served by any static HTTP server. Choose one:
+For comprehensive setup instructions including local serving, debugging, testing, and troubleshooting, see [.github/docs/DEVELOPMENT.md](.github/docs/DEVELOPMENT.md).
+
+**Quick start:** XSLTDebugX can be served by any static HTTP server. Choose one:
 
 **Option 1: Using Node.js (if installed)**
 
@@ -203,9 +205,140 @@ The example library is in [js/examples-data.js](js/examples-data.js) with 52+ ex
 
 ## Testing Your Changes
 
+### Automated E2E Testing with Playwright
+
+XSLTDebugX uses **Playwright** for automated end-to-end testing. Tests validate critical workflows without manual browser testing. See [.github/docs/TESTING.md](.github/docs/TESTING.md) for the complete testing guide.
+
+#### Running Tests Locally
+
+**Setup (required once)**
+```bash
+npm install
+```
+
+**Run all tests**
+```bash
+npm run test:e2e
+```
+
+**Run tests in interactive UI mode** (best for development)
+```bash
+npm run test:e2e:ui
+```
+
+**Debug a specific test**
+```bash
+npm run test:e2e:debug
+# Then use Playwright Inspector to step through execution
+```
+
+**Run a single test file**
+```bash
+npx playwright test tests/e2e/workflows/xslt-transform.spec.js
+```
+
+**Run tests in headed mode** (watch the browser)
+```bash
+npm run test:e2e:headed
+```
+
+#### Test Structure
+
+Tests are organized by workflow in `tests/e2e/workflows/`:
+- `xslt-transform.spec.js` — Core XSLT transform workflow
+- `xpath-evaluation.spec.js` — XPath evaluation and expressions
+- `mode-switching.spec.js` — Mode toggle and state preservation
+- `session-management.spec.js` — Auto-save, persistence, sharing
+
+Additional test categories (for future):
+- `tests/e2e/features/` — Feature-specific tests (examples, file ops, UI)
+
+#### How to Write Tests
+
+Tests use a **Page Object Model (POM)** for clean, readable test code:
+
+```javascript
+import { test, expect } from '@playwright/test';
+import { EditorPage } from '../../utils/test-helpers.js';
+import { sampleData } from '../../fixtures/sample-data.js';
+
+test.describe('My Feature', () => {
+  let page;
+
+  test.beforeEach(async ({ page: testPage }) => {
+    page = new EditorPage(testPage);
+    await page.navigate();
+  });
+
+  test('should do something', async () => {
+    // Use EditorPage helper methods
+    await page.fillXml(sampleData.simpleXml);
+    await page.fillXslt(sampleData.simpleXslt);
+    await page.clickRun();
+
+    const output = await page.getOutput();
+    expect(output).toContain('expected');
+  });
+});
+```
+
+**EditorPage helper methods** (from `tests/utils/test-helpers.js`):
+- `navigate()` — Load the app
+- `fillXml(xml)`, `getXmlContent()` — XML editor access
+- `fillXslt(xslt)`, `getXsltContent()` — XSLT editor access
+- `getOutput()` — Get transformed output
+- `clickRun()`, `runViaKeyboard()` — Run transform
+- `switchToXpath()`, `switchToXslt()` — Mode switching
+- `getConsoleMessages()`, `getConsoleErrors()` — Console access
+- `addHeader(name, value)`, `addProperty(name, value)` — CPI params
+- `clearSession()`, `getStoredSession()` — Session management
+- `toggleTheme()`, `getTheme()` — Theme control
+
+**Sample test data** (from `tests/fixtures/sample-data.js`):
+- `sampleData.simpleXml`, `sampleData.simpleXslt` — Basic transform
+- `sampleData.xmlForXpath`, `sampleData.xpathExpressions` — XPath tests
+- `sampleData.cpiXslt` — CPI simulation tests
+- `sampleData.generateLargeXml(count)` — Stress testing
+
+#### CI/CD Integration
+
+Tests run automatically on:
+- **Every push** to `dev` or `main` branch
+- **Every pull request** in GitHub
+
+Tests are configured in `.github/workflows/e2e-tests.yml`. They must pass before deployment to production.
+
+**To see test results in CI:**
+1. Push to a branch or open a PR
+2. GitHub Actions tab shows **E2E Tests** workflow
+3. Click **E2E Tests (Playwright)** job to view logs
+4. Failed tests show in job summary
+5. Download **playwright-report** artifact for detailed failure analysis
+
+#### Troubleshooting Tests
+
+**Tests timeout or hang**
+- Ensure http-server is running locally: `npm run serve`
+- Check that localhost:8000 is accessible
+- Increase timeout in `playwright.config.js` if needed
+
+**Selectors not found**
+- App may not have loaded fully — use `waitForSelector()` before interacting
+- Monaco Editor has complex DOM — use EditorPage helpers instead of direct selectors
+
+**State not persisting**
+- localStorage may be cleared between tests — use `beforeEach` to setup
+- Session auto-save has debounce (800ms) — add `waitForTimeout()` after edits
+
+**Screenshots/videos on failure**
+- Click **playwright-report** artifact to view visual debugg info
+- Videos show exactly where test failed
+
+---
+
 ### Browser Testing Checklist
 
-**Before submitting a PR, verify:**
+**Before submitting a PR, verify (manual testing):**
 
 - [ ] **XSLT Mode** — Transform runs, output appears, no console errors
 - [ ] **XPath Mode** — Toggle to XPath, expressions evaluate, nodes highlight in amber

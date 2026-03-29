@@ -1,0 +1,18 @@
+{
+  "name": "xsltdebugx",
+  "version": "1.0.0",
+  "description": "Browser-based XSLT/XPath IDE with CPI simulation",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "http-server -p 8000 -c-1",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:headed": "playwright test --headed --project=chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.2",
+    "http-server": "^14.1.1"
+  }
+}

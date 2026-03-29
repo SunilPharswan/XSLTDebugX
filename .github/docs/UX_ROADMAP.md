@@ -1,4 +1,4 @@
-# XSLTForge UX Improvement Plan
+# XSLTDebugX UX Improvement Plan
 
 > Based on comprehensive analysis of all 11 JS modules, user workflows, and feature interactions.
 > **Last Updated:** March 2026
@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-XSLTForge has **200+ features** but significant UX friction prevents users from discovering and efficiently using them. Analysis identified:
+XSLTDebugX has **200+ features** but significant UX friction prevents users from discovering and efficiently using them. Analysis identified:
 
 - **4 Critical Blockers** preventing first-run success
 - **18+ Medium Issues** degrading experienced workflows  
@@ -274,7 +274,7 @@ These are high-visibility, low-effort improvements that immediately reduce frict
 **What:** Welcome overlay that appears once per browser (localStorage-tracked)
 
 **Scope:**
-- Slide 1: What is XSLTForge? (XSLT 3.0 IDE, CPI simulation, no build)
+- Slide 1: What is XSLTDebugX? (XSLT 3.0 IDE, CPI simulation, no build)
 - Slide 2: Three ways to get started (Examples, Paste your XSLT, Paste your XML)
 - Slide 3: Quick shortcuts (Ctrl+Enter = Run, Ctrl+K = Keyboard help, etc.)
 - Slide 4: "Next steps" links (Examples, Help modal, README)
@@ -374,9 +374,9 @@ After implementing improvements, measure:
 ## 📚 Supporting Documentation
 
 Reference these files for implementation details:
-- [features.instructions.md](.github/instructions/features.instructions.md) — 200+ feature catalog
-- [ARCHITECTURE.md](ARCHITECTURE.md) — Module structure, data flow
-- [CONTRIBUTING.md](CONTRIBUTING.md) — Code style, development workflow
+- [../../instructions/features.instructions.md](../../instructions/features.instructions.md) — 200+ feature catalog
+- [../../ARCHITECTURE.md](../../ARCHITECTURE.md) — Module structure, data flow
+- [../../CONTRIBUTING.md](../../CONTRIBUTING.md) — Code style, development workflow
 
 ---
 

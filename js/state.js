@@ -100,9 +100,9 @@ function saveState() {
       properties: kvData.properties.map(r => ({ name: r.name, value: r.value })),
       leftCollapsed:  document.getElementById('colLeft')?.classList.contains('collapsed')  ?? false,
       rightCollapsed: document.getElementById('colRight')?.classList.contains('collapsed') ?? true,
-      centerCollapsed: !xpathEnabled && (document.getElementById('colCenter')?.classList.contains('collapsed') ?? false),
+      centerCollapsed: !modeManager.isXpath && (document.getElementById('colCenter')?.classList.contains('collapsed') ?? false),
       xpathExpr:    document.getElementById('xpathInput')?.value ?? '',
-      xpathEnabled: xpathEnabled,
+      xpathEnabled: modeManager.isXpath,
       lastExampleKey: window._lastExampleKey ?? null,
       savedAt: Date.now(),
     };
@@ -131,7 +131,7 @@ function clearSavedState() {
   if (typeof _xpathHistory !== 'undefined') _xpathHistory.length = 0;
   _xpathHistoryCursor = -1;
 
-  const _isXPath = typeof xpathEnabled !== 'undefined' && xpathEnabled;
+  const _isXPath = modeManager.isXpath;
 
   if (_isXPath) {
     // ── XPath mode reset — stay in XPath, reset XML + expression only ──
