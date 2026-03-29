@@ -2,7 +2,7 @@
 
 > Browser-based XSLT 3.0 IDE for SAP Cloud Integration developers. See [README.md](../README.md) for full feature documentation.
 
-**🔍 Looking for a specific feature or function?** See [features.instructions.md](instructions/features.instructions.md) for the complete API reference with all 200+ features, function locations, and implementation patterns.
+**🔍 Looking for a specific feature or function?** See [features.instructions.md](./instructions/features.instructions.md) for the complete API reference with all 200+ features, function locations, and implementation patterns.
 
 ## Project Type
 
@@ -168,7 +168,7 @@ Push to GitHub → auto-deploys to Cloudflare Pages via `wrangler.jsonc`.
 
 ## Common Patterns
 
-See [features.instructions.md](instructions/features.instructions.md) for the full API reference. Key callouts:
+See [features.instructions.md](./instructions/features.instructions.md) for the full API reference. Key callouts:
 
 - **Console**: `clog(msg, 'success'|'error'|'warn')` — maps to green/red/amber log lines
 - **Headers/Properties**: `kvData.headers.push({name, value})` → `syncHeadersPropsTable()` → `persistSession()`
@@ -191,24 +191,24 @@ The `.github/agents/` folder is available for future custom agent modes.
 ## References
 
 ### Master Documentation Index
-- **[.github/docs/README.md](docs/README.md)** — Master documentation map and navigation hub, organized by category and role
+- **[.github/docs/README.md](./docs/README.md)** — Master documentation map and navigation hub, organized by category and role
 
 ### User & Developer Documentation
 - **[README.md](../README.md)** — Full feature overview, getting started, keyboard shortcuts, common workflows
 - **[CONTRIBUTING.md](../CONTRIBUTING.md)** — PR process, code style guide, testing checklist, setup for local development
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Module structure, data flow, design patterns, namespace guidelines
-- **[.github/docs/DEVELOPMENT.md](.github/docs/DEVELOPMENT.md)** — Local dev workflow, debugging in browser, troubleshooting
-- **[.github/docs/TESTING.md](.github/docs/TESTING.md)** — E2E testing setup, Playwright patterns, fixture structures, timing strategies
+- **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** — Module structure, data flow, design patterns, namespace guidelines
+- **[.github/docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md)** — Local dev workflow, debugging in browser, troubleshooting
+- **[.github/docs/TESTING.md](./docs/TESTING.md)** — E2E testing setup, Playwright patterns, fixture structures, timing strategies
 
 ### Developer API Reference
-- **[.github/instructions/features.instructions.md](instructions/features.instructions.md)** — 200+ feature catalog, function locations, API patterns
-- **[.github/instructions/examples-data.instructions.md](instructions/examples-data.instructions.md)** — Example library structure, format validation rules
-- **[.github/instructions/transform.instructions.md](instructions/transform.instructions.md)** — CPI simulation deep dive, error line mapping
+- **[.github/instructions/features.instructions.md](./instructions/features.instructions.md)** — 200+ feature catalog, function locations, API patterns
+- **[.github/instructions/examples-data.instructions.md](./instructions/examples-data.instructions.md)** — Example library structure, format validation rules
+- **[.github/instructions/transform.instructions.md](./instructions/transform.instructions.md)** — CPI simulation deep dive, error line mapping
 
 ### Specialized Tools
-- **[.github/skills/example-validator/](skills/example-validator/)** — Audit all 46 examples for correctness
-- **[.github/skills/xslt-example/](skills/xslt-example/)** — Create new XSLT/XPath examples
-- **[.github/prompts/](prompts/)** — Interactive prompts for adding/validating examples
+- **[.github/skills/example-validator/](./skills/example-validator/)** — Audit all 46 examples for correctness
+- **[.github/skills/xslt-example/](./skills/xslt-example/)** — Create new XSLT/XPath examples
+- **[.github/prompts/](./prompts/)** — Interactive prompts for adding/validating examples
 
 ### Project Configuration
 - **[wrangler.jsonc](../wrangler.jsonc)** — Cloudflare Workers deployment config

@@ -1,5 +1,5 @@
 ---
-title: XSLTDebugX Test Suite Architecture & Reference
+name: XSLTDebugX Test Suite Architecture & Reference
 description: Complete guide to the XSLTDebugX E2E test suite. Covers architecture, Page Object Model patterns, fixture structure, timing strategy, async patterns, feature-specific setups, known issues, and debugging techniques.
 applyTo: tests/**/*.spec.js, tests/utils/test-helpers.js, tests/fixtures/sample-data.js
 ---
@@ -731,7 +731,7 @@ async waitForDebounce() {
 ```
 
 **Why 1s?**
-- App uses 800ms debounce for state persistence (see [copilot-instructions.md](../../.github/copilot-instructions.md))
+- App uses 800ms debounce for state persistence (see [copilot-instructions.md](../copilot-instructions.md))
 - localStorage write is synchronous but debounced
 - 200ms buffer for safety: network events, other timers
 - Tests that check localStorage must call `waitForDebounce()` first
