@@ -18,8 +18,8 @@ export default defineConfig({
   /* Retry failed tests twice in CI, once locally */
   retries: process.env.CI ? 2 : 1,
 
-  /* Opt out of parallel tests on CI for better stability */
-  workers: process.env.CI ? 1 : 4,
+  /* Run tests in parallel on CI and locally */
+  workers: process.env.CI ? 4 : 4,
 
   /* Reporter to use */
   reporter: [
