@@ -11,7 +11,7 @@ Skills are specialized tools for specific workflows. Each skill contains detaile
 **Purpose**: Audit all XSLT and XPath examples for metadata correctness, structure, and completeness.
 
 **When to Use**:
-- Before releasing a new version (validate all 47 examples)
+- Before releasing a new version (validate all 52 examples)
 - After adding or editing examples in `js/examples-data.js`
 - When a reported example fails to run
 - To maintain library quality

@@ -30,16 +30,16 @@
 
 ## Why This Exists
 
-SAP CPI's built-in mapping editor has no debugger, no live validation, and no way to test an XSLT stylesheet without deploying it to an integration flow and running an actual message through. Every iteration means a deploy cycle.
+SAP CPI's built-in mapping editor lacks live validation, an integrated debugger, and instant feedback on XSLT transformations. Testing iFlow XSLT requires simulating the runtime with correct headers and properties — a manual, error-prone process.
 
-XSLTDebugX runs entirely in the browser. Nothing to install, no build step, no server. Open the page, paste your XML and XSLT, press **Ctrl+Enter**, and see the output — with your headers, properties, and `xsl:message` traces in a live console.
+XSLTDebugX runs entirely in the browser with full CPI runtime simulation. Nothing to install, no build step, no server. Open the page, paste your XML and XSLT, press **Ctrl+Enter**, and see the output — with headers, properties, and `xsl:message` traces in a live console. Instant feedback before deploying to CPI.
 
 ---
 
 ## Recent Updates
 
 - **CPI GET/SET Complete Example** — New comprehensive example showing all 4 CPI functions (`getHeader`, `setHeader`, `getProperty`, `setProperty`) with step-by-step console debugging for newcomers
-- **47 Built-in Examples** — Example library deduplicated and refined across 5 categories (Data Transformation, Aggregation, Format Conversion, SAP CPI Patterns, XPath Explorer)
+- **52 Built-in Examples** — Example library across 5 categories (Data Transformation, Aggregation, Format Conversion, SAP CPI Patterns, XPath Explorer)
 - **Console Enhancements** — Search, type filtering, minimize/restore, auto-expand on errors, error/warning count badges
 - **XPath Mode Improvements** — Clickable hint chips, expression history (last 20), auto-growing input bar, namespace-agnostic examples
 
@@ -124,7 +124,7 @@ Type an XPath 3.0 expression and press **Enter** or **Run XPath**. Matched nodes
 - **Responsive layout** — 3-column flex layout with collapsible sections; works on tablets (iPad Pro tested)
 
 ### Examples Library
-47 built-in examples across 5 categories. All categories are fully dynamic — adding a new category to `CATEGORIES` in `examples-data.js` automatically creates its sidebar button, grid section, and card tags.
+52 built-in examples across 5 categories. All categories are fully dynamic — adding a new category to `CATEGORIES` in `examples-data.js` automatically creates its sidebar button, grid section, and card tags.
 
 **Library Features:**
 - **Search** — live filter by example name or description; highlights matching text
@@ -138,8 +138,8 @@ Type an XPath 3.0 expression and press **Enter** or **Run XPath**. Matched nodes
 | **Data Transformation** | 8 | Identity Transform, Rename Elements, Filter / Conditional Output, Namespace Handling, Unwrap / Rewrap Payload, Sort Records, Deep Copy + Field Injection, Empty Element Cleanup |
 | **Aggregation & Splitting** | 3 | Group-by & Aggregate, Split Message, Merge / Collect Records |
 | **Format Conversion** | 6 | Date Format Conversion, Currency & Amount Formatting, Multi-Currency Consolidation, XML → JSON Output, XML → CSV Output, XML → Fixed-Length Output |
-| **SAP CPI Patterns** | 13 | IDoc ORDERS05, IDoc INVOIC01, Value Mapping / Lookup, CPI Headers & Properties (Complete), Error Handling (xsl:try), Batch Processing, Batch Key Recovery, xsl:message Debugging, SOAP Fault Handling, Conditional Routing Headers, XML to Flat Text/CSV, SuccessFactors Employee Mapping, Strip SOAP Envelope, Add XML Wrapper |
-| **XPath Explorer** | 16 | Navigation & Predicates, Aggregation, String Functions, tokenize/string-join, Regex, Date & Duration, Namespace-Agnostic, Batch Error Detection, Conditional & Boolean, Node Inspection, SOAP Envelope Navigation, distinct-values(), Sibling Axes, index-of() & subsequence(), deep-equal(), xs: Type Casting |
+| **SAP CPI Patterns** | 18 | IDoc ORDERS05, IDoc INVOIC01, Value Mapping / Lookup, CPI Headers & Properties (Complete), Error Handling (xsl:try), Batch Processing, Batch Key Recovery, xsl:message Debugging, SOAP Fault Handling, Conditional Routing Headers, XML to Flat Text/CSV, SuccessFactors Employee Mapping, Strip SOAP Envelope, Add XML Wrapper, + 4 additional patterns |
+| **XPath Explorer** | 17 | Navigation & Predicates, Aggregation, String Functions, tokenize/string-join, Regex, Date & Duration, Namespace-Agnostic, Batch Error Detection, Conditional & Boolean, Node Inspection, SOAP Envelope Navigation, distinct-values(), Sibling Axes, index-of() & subsequence(), deep-equal(), xs: Type Casting, + 1 additional expression |
 
 ### Share
 XML, XSLT, headers, and properties encoded into a single URL. Recipients always land in XSLT mode. Never hits a server. XPath expressions and XPath mode are not shared.
@@ -381,7 +381,7 @@ Before pushing to `main`:
 
 1. **Update version** in `README.md`
 2. **Update CHANGELOG.md** with all changes, version tag, date
-3. **Run example validator** — ensure all 47 examples pass checks
+3. **Run example validator** — ensure all 52 examples pass checks
 4. **Test all features** — click through each category/workflow in the browser
 5. **Clear old sessions** — remove `xdebugx-session-v1*` test data from localStorage
 6. **Check bundle size** — `lib/SaxonJS2.js` should be ~10-12MB (minified)
@@ -470,29 +470,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for complete code style guide.
 
 ---
 
-## Deployment
-
-Hosted on **Cloudflare Pages** at [xsltdebugx.pages.dev](https://xsltdebugx.pages.dev). Every push to `main` auto-deploys.
-
-### Cloudflare Pages setup
-
-1. Connect your GitHub repo to Cloudflare Pages
-2. Framework preset: **None** (static site)
-3. Build command: leave empty
-4. Output directory: `/` (root)
-
-### CDN dependencies
-
-| Resource | URL |
-|---|---|
-| Monaco Editor | `cdn.jsdelivr.net/npm/monaco-editor@0.44.0` |
-| Pako | `cdnjs.cloudflare.com/ajax/libs/pako/2.1.0` |
-| JetBrains Mono | `fonts.googleapis.com` |
-
-Saxon-JS is bundled locally in `lib/SaxonJS2.js` — no CDN dependency.
-
----
-
 ## Project Structure
 
 ```
@@ -506,7 +483,7 @@ XSLTDebugX/
 │   ├── validate.js         # XML validation, Monaco markers
 │   ├── panes.js            # clearPane, copyPane, prettyXML, fmtEditor, toggleWordWrap
 │   ├── transform.js        # CPI simulation, KV panels, runTransform
-│   ├── examples-data.js    # CATEGORIES object + 47 built-in examples
+│   ├── examples-data.js    # CATEGORIES object + 52 built-in examples
 │   ├── modal.js            # Examples library, dynamic sidebar, loadExample
 │   ├── files.js            # Upload, download, drag-and-drop
 │   ├── ui.js               # Column collapse, console, theme toggle, help modal
@@ -521,7 +498,7 @@ XSLTDebugX/
 
 ## Architecture Overview
 
-XSLTDebugX uses a **zero-build vanilla JavaScript architecture** with 11 modules (~4,825 lines of code) and no external dependencies.
+XSLTDebugX uses a **zero-build vanilla JavaScript architecture** with 11 modules (~7,261 lines of code) and no external dependencies.
 
 ### Key Design Principles
 
@@ -556,32 +533,6 @@ All modules must load before first user interaction. See [ARCHITECTURE.md](ARCHI
 9. Auto-save triggers (debounced 800ms)
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for full data flow diagrams, namespace guidelines, and design pattern explanations.
-
----
-
-## Project Structure
-
-```
-XSLTDebugX/
-├── favicon.svg
-├── index.html              # App shell — layout, modals, script tags
-├── css/
-│   └── style.css           # All styles, themes (light/dark), component CSS
-├── js/
-│   ├── state.js            # Global state, console, status bar, localStorage
-│   ├── validate.js         # XML validation, Monaco markers
-│   ├── panes.js            # clearPane, copyPane, prettyXML, fmtEditor, toggleWordWrap
-│   ├── transform.js        # CPI simulation, KV panels, runTransform
-│   ├── examples-data.js    # CATEGORIES object + 47 built-in examples
-│   ├── modal.js            # Examples library, dynamic sidebar, loadExample
-│   ├── files.js            # Upload, download, drag-and-drop
-│   ├── ui.js               # Column collapse, console, theme toggle, help modal
-│   ├── share.js            # Share URL encode/decode
-│   ├── xpath.js            # XPath evaluator, expression colorization, history, highlighting, mode toggle
-│   └── editor.js           # Monaco init, context menu, cursor stat, session restore
-└── lib/
-    └── SaxonJS2.js         # Saxon-JS 2.x (bundled, no CDN)
-```
 
 ---
 

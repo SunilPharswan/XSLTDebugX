@@ -1,3 +1,13 @@
+# XSLTDebugX Feature Verification Checklist
+
+> Comprehensive inventory of all functions and features
+>
+> **Last Updated:** March 26, 2026
+>
+> **Note:** This checklist is maintained manually. For the current API reference with all 200+ features and function locations, see [features.instructions.md](instructions/features.instructions.md).
+
+---
+
 # XSLTDebugX Feature Verification Report
 
 > Comprehensive inventory and verification of all functions and features
@@ -35,7 +45,7 @@ Generated: March 26, 2026
 - [x] **Minify XML (context menu)** — `editor.js:413`
 - [x] **Minify XSLT (context menu)** — `editor.js:498`
 
-### ✅ Word Wrap  
+### ✅ Word Wrap
 - [x] **toggleWordWrap()** — `panes.js:8-16`
 - [x] **_wrapState** — `panes.js:6`, per-editor state
 - [x] **Wrap buttons** — XML, XSLT, Output panes
@@ -269,7 +279,7 @@ Generated: March 26, 2026
 - `xpath` — XPath Explorer (16 examples)
 
 ### ✅ Example Structure
-- [x] **EXAMPLES object** — `examples-data.js:14`, 47 examples
+- [x] **EXAMPLES object** — `examples-data.js:14`, 52 examples
 - [x] **Required fields** — `label`, `icon`, `desc`, `cat`, `xml`, `xslt`
 - [x] **Optional fields** — `headers`, `properties`, `xpathExpr`, `xpathHints`
 - [x] **XPath examples** — Have `xpathExpr` instead of `xslt`
@@ -539,7 +549,7 @@ Generated: March 26, 2026
 
 ### ✅ Module Load Order (Critical)
 ```
-state.js → editor.js → transform.js → validate.js → xpath.js → 
+state.js → editor.js → transform.js → validate.js → xpath.js →
 panes.js → files.js → share.js → modal.js → ui.js → examples-data.js
 ```
 

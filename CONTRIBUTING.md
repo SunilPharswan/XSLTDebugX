@@ -155,7 +155,7 @@ XSLTDebugX uses vanilla ES6+ JavaScript with no framework or build tool. Follow 
 
 ## Working with Examples
 
-The example library is in [js/examples-data.js](js/examples-data.js) with 47+ examples across 5 categories.
+The example library is in [js/examples-data.js](js/examples-data.js) with 52+ examples across 5 categories.
 
 ### Adding a New Example
 
@@ -182,7 +182,7 @@ The example library is in [js/examples-data.js](js/examples-data.js) with 47+ ex
    ```
 
 3. **Validate** — Run the `example-validator` skill:
-   - Checks all 47 examples for metadata correctness, required fields, proper formatting
+   - Checks all 52 examples for metadata correctness, required fields, proper formatting
    - Reports any broken or incomplete examples
 
 4. **Test** — Refresh browser and verify:
@@ -236,7 +236,7 @@ The example library is in [js/examples-data.js](js/examples-data.js) with 47+ ex
 
 ### Testing with Example Payloads
 
-XSLTDebugX includes 47 built-in examples. Test your changes with:
+XSLTDebugX includes 52 built-in examples. Test your changes with:
 1. Simple transform (alphabetic ordering)
 2. Aggregation example (grouping, counting)
 3. Format conversion (XML → JSON)
@@ -349,7 +349,7 @@ Before releasing a new version:
 
 1. **Bump version** in `README.md`
 2. **Update CHANGELOG.md** with all changes
-3. **Run example validator** — ensure all 47 examples pass checks
+3. **Run example validator** — ensure all 52 examples pass checks
 4. **Test all examples** — click through each category, verify no errors
 5. **Create GitHub release** with version tag and changelog entry
 6. **Verify deployment** — Cloudflare Pages auto-deploys on push; check site is live

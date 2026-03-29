@@ -28,7 +28,7 @@ XSLTDebugX is a **zero-build vanilla JavaScript application** deployed as a stat
                               ↓
               ┌─────────────────────────────────┐
               │   Vanilla ES6+ JavaScript       │
-              │   (4,825 lines across 11 modules)
+              │   (7,261 lines across 11 modules)
               └─────────────────────────────────┘
                               ↓
         ┌─────────────────────────────────────────────┐
@@ -49,19 +49,19 @@ XSLTDebugX is a **zero-build vanilla JavaScript application** deployed as a stat
 
 | Module | Responsibility | Lines | Key Functions |
 |--------|-----------------|-------|----------------|
-| **state.js** | Global state, localStorage persistence, console | ~200 | `clog()`, `scheduleSave()`, `loadSavedState()`, `setStatus()` |
-| **editor.js** | Monaco initialization, themes, keyboard shortcuts, context menus | ~1,050 | `hideLoader()`, `setupAutoClose()`, `toggleTheme()`, `_toggleXmlComment()` |
-| **transform.js** | XSLT execution, CPI simulation, output rendering | ~350 | `runTransform()`, `rewriteCPICalls()`, `buildParamsXPath()`, `renderOutputKV()` |
-| **validate.js** | XML/XSLT validation, Monaco error markers, Saxon error parsing | ~150 | `validateXML()`, `markErrorLine()`, `preflight()`, `parseSaxonErrorLine()` |
-| **xpath.js** | XPath mode UI, expression evaluation, node highlighting, syntax coloring | ~950 | `runXPath()`, `toggleXPath()`, `_highlightXPath()`, `_highlightMatchedNodes()` |
-| **panes.js** | Word wrap, copy/clear/format, context menu debouncing | ~200 | `toggleWordWrap()`, `copyPane()`, `fmtEditor()`, `prettyXML()` |
-| **files.js** | File upload/download, drag-and-drop | ~80 | `triggerUpload()`, `handleUpload()`, `downloadPane()`, `setupDragDrop()` |
-| **share.js** | URL encoding/decoding of session state | ~130 | `buildSharePayload()`, `generateShareUrl()`, `loadFromShareHash()` |
-| **modal.js** | Examples library UI, filtering, loading | ~150 | `openExModal()`, `loadExample()`, `renderExGrid()`, `filterExamples()` |
-| **ui.js** | Console state, theme toggle, help modal, column collapse | ~165 | `setConsoleState()`, `toggleTheme()`, `applyConsoleSearch()`, `setConsoleFilter()` |
-| **examples-data.js** | 47 built-in XSLT/XPath examples across 5 categories | ~1,400 | `CATEGORIES`, `EXAMPLES` (data objects) |
+| **state.js** | Global state, localStorage persistence, console | 195 | `clog()`, `scheduleSave()`, `loadSavedState()`, `setStatus()` |
+| **editor.js** | Monaco initialization, themes, keyboard shortcuts, context menus | 1,011 | `hideLoader()`, `setupAutoClose()`, `toggleTheme()`, `_toggleXmlComment()` |
+| **transform.js** | XSLT execution, CPI simulation, output rendering | 423 | `runTransform()`, `rewriteCPICalls()`, `buildParamsXPath()`, `renderOutputKV()` |
+| **validate.js** | XML/XSLT validation, Monaco error markers, Saxon error parsing | 170 | `validateXML()`, `markErrorLine()`, `preflight()`, `parseSaxonErrorLine()` |
+| **xpath.js** | XPath mode UI, expression evaluation, node highlighting, syntax coloring | 936 | `runXPath()`, `toggleXPath()`, `_highlightXPath()`, `_highlightMatchedNodes()` |
+| **panes.js** | Word wrap, copy/clear/format, context menu debouncing | 199 | `toggleWordWrap()`, `copyPane()`, `fmtEditor()`, `prettyXML()` |
+| **files.js** | File upload/download, drag-and-drop | 93 | `triggerUpload()`, `handleUpload()`, `downloadPane()`, `setupDragDrop()` |
+| **share.js** | URL encoding/decoding of session state | 153 | `buildSharePayload()`, `generateShareUrl()`, `loadFromShareHash()` |
+| **modal.js** | Examples library UI, filtering, loading | 237 | `openExModal()`, `loadExample()`, `renderExGrid()`, `filterExamples()` |
+| **ui.js** | Console state, theme toggle, help modal, column collapse | 169 | `setConsoleState()`, `toggleTheme()`, `applyConsoleSearch()`, `setConsoleFilter()` |
+| **examples-data.js** | 52 built-in XSLT/XPath examples across 5 categories | 3,675 | `CATEGORIES`, `EXAMPLES` (data objects) |
 
-**Total: ~4,825 lines of code**
+**Total: 7,261 lines of code**
 
 ---
 

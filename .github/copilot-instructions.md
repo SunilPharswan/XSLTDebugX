@@ -10,7 +10,7 @@
 
 ## Tech Stack
 
-- **Vanilla JavaScript ES6+** — 11 modules (~4,000 lines), global namespace, no framework
+- **Vanilla JavaScript ES6+** — 11 modules (~7,261 lines), global namespace, no framework
 - **Monaco Editor 0.44.0** — CDN-loaded, custom dark/light themes
 - **Saxon-JS 2.7** — bundled XSLT 3.0 + XPath 3.1 processor (`lib/SaxonJS2.js`)
 - **Cloudflare Workers** — deployment via `wrangler.jsonc`, cache rules in `_headers`, SPA routing in `_redirects`
@@ -39,7 +39,7 @@ panes.js → files.js → share.js → modal.js → ui.js → examples-data.js
 | `share.js` | URL encoding/decoding of editor state |
 | `modal.js` | Examples library, category grid, search/filter |
 | `ui.js` | Console state, theme toggle, help modal, column collapse |
-| `examples-data.js` | 47 built-in examples across 5 dynamic categories |
+| `examples-data.js` | 52 built-in examples across 5 dynamic categories |
 
 ### Key Global State
 
