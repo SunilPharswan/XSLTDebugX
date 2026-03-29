@@ -313,7 +313,7 @@ Before committing or submitting a PR, verify:
 
 ### ✅ Examples Library
 
-- [ ] All 47 examples load without errors
+- [ ] All 52 examples load without errors
 - [ ] Example icons, labels, descriptions are correct
 - [ ] Categories filter correctly in modal
 - [ ] XPath hints display when loading XPath examples
