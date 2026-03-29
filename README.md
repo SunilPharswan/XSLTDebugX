@@ -7,25 +7,10 @@
 **[🚀 Try it now: xsltdebugx.pages.dev](https://xsltdebugx.pages.dev)**
 
 ## Table of Contents
-- [Why This Exists](#why-this-exists)
-- [Recent Updates](#recent-updates)
-- [Two Modes](#two-modes)
-- [Features](#features)
-- [CPI Developer Reference](#cpi-developer-reference)
-- [Getting Started](#getting-started)
-- [Quick Start Tutorial](#quick-start-tutorial)
-- [Common Workflows](#common-workflows)
-- [Architecture Overview](#architecture-overview)
-- [Deployment](#deployment)
-- [Testing](#testing)
-- [Development Guide](#development-guide)
-- [Contributing](#contributing)
-- [FAQ](#faq)
-- [Troubleshooting](#troubleshooting)
-- [Advanced Debugging](#advanced-debugging)
-- [Browser Compatibility](#browser-compatibility)
-- [Known Limitations](#known-limitations)
-- [License](#license)
+
+**👤 Users** — [Getting Started](#getting-started) · [Quick Start Tutorial](#quick-start-tutorial) · [Common Workflows](#common-workflows) · [Features](#features) · [CPI Reference](#cpi-developer-reference) · [FAQ](#faq) · [Troubleshooting](#troubleshooting)
+
+**👨‍💻 Developers** — [For Developers Section](#for-developers) (setup, testing, architecture, contributing)
 
 ---
 
@@ -37,10 +22,95 @@ XSLTDebugX runs entirely in the browser with full CPI runtime simulation. Nothin
 
 ---
 
+## Getting Started
+
+### Use online
+
+**[https://xsltdebugx.pages.dev](https://xsltdebugx.pages.dev)** — open in any browser. No account, no install.
+
+### Run locally
+
+```bash
+git clone https://github.com/SunilPharswan/XSLTDebugX.git
+cd XSLTDebugX
+open index.html    # macOS
+```
+
+No build step. No `npm install`. No server required.
+
+### Keyboard shortcuts
+
+| Shortcut | XSLT Mode | XPath Mode |
+|---|---|---|
+| `Ctrl+Enter` / `Cmd+Enter` | Run XSLT | Run XPath |
+| `Enter` (in XQuery bar) | — | Run XPath |
+| `↑` (in XQuery bar) | — | Previous expression from history |
+| `↓` (in XQuery bar) | — | Next expression / back to draft |
+| `Escape` | Close any open modal | Close any open modal |
+
+---
+
+## Quick Start Tutorial
+
+### Testing a CPI XSLT mapping
+
+1. **Load an example** — Click **Examples** button → **SAP CPI Patterns** → **"CPI Headers & Properties (Complete)"**
+2. **Review the setup** — XML input, XSLT stylesheet, and Headers/Properties panels are pre-filled
+3. **Run it** — Press **Run XSLT** or `Ctrl+Enter`
+4. **Check the output** — Output pane shows transformed XML; Output Headers/Properties show values set by `cpi:setHeader/setProperty`
+5. **Watch the console** — Console shows step-by-step debug messages from `xsl:message` with timestamps
+6. **Modify it** — Change a header value (e.g., `channel` from `B2B` to `B2C`), press `Ctrl+Enter` again — routing logic changes instantly
+
+### Evaluating XPath expressions
+
+1. **Switch to XPath mode** — Click **ƒx XPath** button in header
+2. **Load an XPath example** — Click **Examples** → **XPath Explorer** → **"Navigation & Predicates"**
+3. **See the hints** — Clickable expression chips appear below the XPath input bar
+4. **Click a hint** — Instantly runs that expression; matched nodes highlighted in amber in the XML editor
+5. **Try your own** — Type `//Order[Total > 1000]` and press `Enter`
+6. **Browse history** — Use `↑` `↓` keys to navigate through last 20 expressions
+
+---
+
+## Common Workflows
+
+### Testing IDoc transformations
+- Load **IDoc ORDERS05 → Custom XML** or **IDoc INVOIC01** examples
+- Replace the sample IDoc with your actual IDoc payload from CPI message monitoring
+- Run the transform to see the mapped output
+- Use **Copy XPath — General** on any element to build predicates for conditional logic
+
+### Debugging missing header values
+- Add your CPI headers to the **Headers** panel (e.g., `SAPClient`, `ContentType`)
+- Use `cpi:getHeader($exchange, 'SAPClient')` in your XSLT
+- Check the console — warns if header not found
+- Use the **"CPI Headers & Properties (Complete)"** example as a reference
+
+### Validating date/time conversions
+- Load **Date Format Conversion** example
+- Replace sample dates with your actual SAP dates (YYYYMMDD format)
+- See converted ISO 8601, readable, and calculation results instantly
+- Use XPath mode with `xs:date()` and `format-date()` functions to test edge cases
+
+### Building complex XPath predicates
+- Switch to **XPath mode**
+- Load your XML payload into the XML editor
+- Right-click any element → **Copy XPath — General** to get the base path
+- Add predicates: `//Order[Amount > 1000 and Status='OPEN']`
+- See matched nodes highlighted immediately — refine until you get the right subset
+
+### Sharing work with colleagues
+- Click **Share** button → copy URL
+- Recipient gets your exact XML, XSLT, headers, and properties
+- Great for code reviews, asking for help, or documenting bugs
+- Note: XPath expressions are not shared (XSLT mode only)
+
+---
+
 ## Recent Updates
 
 - **CPI GET/SET Complete Example** — New comprehensive example showing all 4 CPI functions (`getHeader`, `setHeader`, `getProperty`, `setProperty`) with step-by-step console debugging for newcomers
-- **52 Built-in Examples** — Example library across 5 categories (Data Transformation, Aggregation, Format Conversion, SAP CPI Patterns, XPath Explorer)
+- **46 Built-in Examples** — Example library across 5 categories (Data Transformation, Aggregation, Format Conversion, SAP CPI Patterns, XPath Explorer)
 - **Console Enhancements** — Search, type filtering, minimize/restore, auto-expand on errors, error/warning count badges
 - **XPath Mode Improvements** — Clickable hint chips, expression history (last 20), auto-growing input bar, namespace-agnostic examples
 
@@ -106,6 +176,7 @@ Type an XPath 3.0 expression and press **Enter** or **Run XPath**. Matched nodes
 - **`xsl:message` in console** — amber entries in correct execution order
 - **`terminate="yes"` as intentional halt** — logged as warning, not error
 - **Comprehensive example** — "CPI Headers & Properties (Complete)" shows all 4 functions (getHeader, setHeader, getProperty, setProperty) with step-by-step console debugging for newcomers
+- **Deep dive** — See [.github/instructions/transform.instructions.md](.github/instructions/transform.instructions.md) for XSLT rewriting, error line mapping, and interceptor patterns
 
 ### Console
 - **Message types** — info (blue), success (green), warn (amber), error (red) with color-coded icons and timestamps
@@ -125,7 +196,7 @@ Type an XPath 3.0 expression and press **Enter** or **Run XPath**. Matched nodes
 - **Responsive layout** — 3-column flex layout with collapsible sections; works on tablets (iPad Pro tested)
 
 ### Examples Library
-52 built-in examples across 5 categories. All categories are fully dynamic — adding a new category to `CATEGORIES` in `examples-data.js` automatically creates its sidebar button, grid section, and card tags.
+46 built-in examples across 5 categories. All categories are fully dynamic — adding a new category to `CATEGORIES` in `examples-data.js` automatically creates its sidebar button, grid section, and card tags.
 
 **Library Features:**
 - **Search** — live filter by example name or description; highlights matching text
@@ -235,89 +306,6 @@ In XPath mode, right-click any element for:
 
 ---
 
-## Getting Started
-
-### Use online
-
-**[https://xsltdebugx.pages.dev](https://xsltdebugx.pages.dev)** — open in any browser. No account, no install.
-
-### Run locally
-
-```bash
-git clone https://github.com/SunilPharswan/XSLTDebugX.git
-cd XSLTDebugX
-open index.html    # macOS
-```
-
-No build step. No `npm install`. No server required.
-
-### Keyboard shortcuts
-
-| Shortcut | XSLT Mode | XPath Mode |
-|---|---|---|
-| `Ctrl+Enter` / `Cmd+Enter` | Run XSLT | Run XPath |
-| `Enter` (in XQuery bar) | — | Run XPath |
-| `↑` (in XQuery bar) | — | Previous expression from history |
-| `↓` (in XQuery bar) | — | Next expression / back to draft |
-| `Escape` | Close any open modal | Close any open modal |
-
----
-
-## Quick Start Tutorial
-
-### Testing a CPI XSLT mapping
-
-1. **Load an example** — Click **Examples** button → **SAP CPI Patterns** → **"CPI Headers & Properties (Complete)"**
-2. **Review the setup** — XML input, XSLT stylesheet, and Headers/Properties panels are pre-filled
-3. **Run it** — Press **Run XSLT** or `Ctrl+Enter`
-4. **Check the output** — Output pane shows transformed XML; Output Headers/Properties show values set by `cpi:setHeader/setProperty`
-5. **Watch the console** — Console shows step-by-step debug messages from `xsl:message` with timestamps
-6. **Modify it** — Change a header value (e.g., `channel` from `B2B` to `B2C`), press `Ctrl+Enter` again — routing logic changes instantly
-
-### Evaluating XPath expressions
-
-1. **Switch to XPath mode** — Click **ƒx XPath** button in header
-2. **Load an XPath example** — Click **Examples** → **XPath Explorer** → **"Navigation & Predicates"**
-3. **See the hints** — Clickable expression chips appear below the XPath input bar
-4. **Click a hint** — Instantly runs that expression; matched nodes highlighted in amber in the XML editor
-5. **Try your own** — Type `//Order[Total > 1000]` and press `Enter`
-6. **Browse history** — Use `↑` `↓` keys to navigate through last 20 expressions
-
----
-
-## Common Workflows
-
-### Testing IDoc transformations
-- Load **IDoc ORDERS05 → Custom XML** or **IDoc INVOIC01** examples
-- Replace the sample IDoc with your actual IDoc payload from CPI message monitoring
-- Run the transform to see the mapped output
-- Use **Copy XPath — General** on any element to build predicates for conditional logic
-
-### Debugging missing header values
-- Add your CPI headers to the **Headers** panel (e.g., `SAPClient`, `ContentType`)
-- Use `cpi:getHeader($exchange, 'SAPClient')` in your XSLT
-- Check the console — warns if header not found
-- Use the **"CPI Headers & Properties (Complete)"** example as a reference
-
-### Validating date/time conversions
-- Load **Date Format Conversion** example
-- Replace sample dates with your actual SAP dates (YYYYMMDD format)
-- See converted ISO 8601, readable, and calculation results instantly
-- Use XPath mode with `xs:date()` and `format-date()` functions to test edge cases
-
-### Building complex XPath predicates
-- Switch to **XPath mode**
-- Load your XML payload into the XML editor
-- Right-click any element → **Copy XPath — General** to get the base path
-- Add predicates: `//Order[Amount > 1000 and Status='OPEN']`
-- See matched nodes highlighted immediately — refine until you get the right subset
-
-### Sharing work with colleagues
-- Click **Share** button → copy URL
-- Recipient gets your exact XML, XSLT, headers, and properties
-- Great for code reviews, asking for help, or documenting bugs
-- Note: XPath expressions are not shared (XSLT mode only)
-
 ---
 
 ## Deployment
@@ -414,7 +402,7 @@ Analytics via [GoatCounter](https://www.goatcounter.com) (privacy-friendly, no c
 XSLTDebugX comes with a comprehensive Playwright E2E test suite (61 tests across 7 files).
 
 **For writing and running tests:**
-- **[tests/README.md](tests/README.md)** — Quick reference guide: EditorPage API cheatsheet, timing constants, test patterns, common workflows, new test checklist
+- **[.github/docs/TESTING.md](.github/docs/TESTING.md)** — E2E testing guide: setup, Playwright patterns, test structure, example workflows
 - **[.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md)** — Complete technical guide: architecture, POM design, fixture structure, timing strategy, feature-specific setups, debugging tips
 
 **Running tests:**
@@ -522,7 +510,7 @@ editor.js (Monaco init) → transform.js → validate.js → xpath.js → panes.
                                                         files.js, share.js, modal.js, ui.js
 ```
 
-All modules must load before first user interaction. See [ARCHITECTURE.md](ARCHITECTURE.md) for complete module reference, data flow diagrams, and design patterns.
+All modules must load before first user interaction. See [ARCHITECTURE.md](./.github/docs/ARCHITECTURE.md) for complete module reference, data flow diagrams, and design patterns.
 
 ### Data Flow Example: Running an XSLT Transform
 
@@ -536,7 +524,7 @@ All modules must load before first user interaction. See [ARCHITECTURE.md](ARCHI
 8. `renderOutputKV()` displays output, headers, properties
 9. Auto-save triggers (debounced 800ms)
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for full data flow diagrams, namespace guidelines, and design pattern explanations.
+See [ARCHITECTURE.md](./.github/docs/ARCHITECTURE.md) for full data flow diagrams, namespace guidelines, and design pattern explanations.
 
 ---
 
@@ -628,6 +616,30 @@ Check `exclude-result-prefixes="cpi xs"` in your stylesheet declaration. Namespa
 | Share is XSLT only | XPath expressions and XPath mode are not included in share URLs | Screenshot XPath results or copy expression manually |
 | Large file performance | XML/XSLT files >500KB may slow Monaco editor | Split large IDocs or use external XML editor for initial cleanup |
 | No XSLT debugger | Cannot step through templates or inspect variables mid-execution | Use `xsl:message` extensively to trace execution flow |
+
+---
+
+## Documentation & Support
+
+### For Contributors
+
+- **Code style & PR process**: [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Architecture & module overview**: [ARCHITECTURE.md](./.github/docs/ARCHITECTURE.md)
+- **Local development setup**: [.github/docs/DEVELOPMENT.md](.github/docs/DEVELOPMENT.md)
+- **Testing guide**: [.github/docs/TESTING.md](.github/docs/TESTING.md)
+- **Complete documentation index**: [.github/docs/README.md](.github/docs/README.md) — All files organized by category and role with navigation
+
+### For Users & Learners
+
+- **Keyboard shortcuts**: See header `?` icon in the app
+- **Built-in examples**: 46 examples across 5 categories — click **Examples** sidebar button
+- **Getting started**: See [Features](#features) section above
+
+### For Issues & Questions
+
+- Check [FAQ](#faq) section above
+- Search [GitHub Issues](https://github.com/SunilPharswan/XSLTDebugX/issues)
+- See [Browser Compatibility](#browser-compatibility) & [Known Limitations](#known-limitations)
 
 ---
 
@@ -827,6 +839,23 @@ console.log('Original XSLT had CPI calls');
 ## Analytics
 
 XSLTDebugX uses [GoatCounter](https://www.goatcounter.com) for anonymous, privacy-friendly analytics — no personal data, no cookies, no cross-site tracking. Blocked by any standard ad blocker. Not loaded on `file://` or `localhost`.
+
+---
+
+## For Developers
+
+**Setting up local development, understanding the codebase, writing tests, contributing code, and managing releases?**
+
+Start with [.github/docs/README.md](.github/docs/README.md) — the master hub for all developer documentation organized by task:
+
+- **[Setting up locally?](docs/DEVELOPMENT.md)** → [.github/docs/DEVELOPMENT.md](.github/docs/DEVELOPMENT.md)
+- **[Writing or running tests?](docs/TESTING.md)** → [.github/docs/TESTING.md](.github/docs/TESTING.md)
+- **[Understanding the architecture?](docs/ARCHITECTURE.md)** → [.github/docs/ARCHITECTURE.md](.github/docs/ARCHITECTURE.md)
+- **[Code style & contributing?](CONTRIBUTING.md)** → [CONTRIBUTING.md](CONTRIBUTING.md)
+- **[Feature API reference?](instructions/)** → [.github/instructions/README.md](.github/instructions/README.md)
+- **[Skills & prompts?](skills/)** → [.github/skills/](../.github/skills/) and [.github/prompts/](../.github/prompts/)
+
+All developer paths flow back to [.github/docs/README.md](.github/docs/README.md) for a single entry point.
 
 ---
 

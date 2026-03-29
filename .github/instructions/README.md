@@ -7,8 +7,7 @@ This folder contains detailed technical documentation for XSLTDebugX developers.
 | File | Purpose | When to Use |
 |------|---------|------------|
 | **[features.instructions.md](features.instructions.md)** | Complete 200+ feature inventory and API reference | Implementing new features, checking if functionality exists, understanding existing code, debugging feature interactions |
-| **[examples-data.instructions.md](examples-data.instructions.md)** | Example library structure, categories, validation rules, example format | Adding new examples, modifying categories, validating example metadata |
-| **[transform.instructions.md](transform.instructions.md)** | CPI simulation, XSLT rewriting, error line mapping, param injection | Modifying transform.js, debugging CPI simulation, fixing namespace issues, updating interceptor functions |
+| **[examples-data.instructions.md](examples-data.instructions.md)** | Example library structure, categories, validation rules, example format | Adding new examples, modifying categories, validating example metadata || **[testing.instructions.md](testing.instructions.md)** | E2E testing architecture, Playwright patterns, timing, fixtures, async patterns | Writing tests, debugging test failures, understanding timing strategies || **[transform.instructions.md](transform.instructions.md)** | CPI simulation, XSLT rewriting, error line mapping, param injection | Modifying transform.js, debugging CPI simulation, fixing namespace issues, updating interceptor functions |
 
 ## How to Use
 
@@ -73,7 +72,7 @@ This folder contains detailed technical documentation for XSLTDebugX developers.
 ## Related Documentation
 
 - **[CONTRIBUTING.md](../../CONTRIBUTING.md)** — Code style, PR guidelines, development setup
-- **[ARCHITECTURE.md](../../ARCHITECTURE.md)** — Module structure, data flow, design patterns
+- **[ARCHITECTURE.md](../docs/ARCHITECTURE.md)** — Module structure, data flow, design patterns
 - **[DEVELOPMENT.md](DEVELOPMENT.md)** — Local dev workflow, debugging, performance tips
 - **[README.md](../../README.md)** — User-facing features, getting started, keyboard shortcuts
 
@@ -107,9 +106,9 @@ If you find outdated or incorrect information in any instruction file:
 
 **If you're new:**
 1. Read [CONTRIBUTING.md](../../CONTRIBUTING.md) for code style
-2. Read [ARCHITECTURE.md](../../ARCHITECTURE.md) for module overview
+2. Read [ARCHITECTURE.md](../docs/ARCHITECTURE.md) for module overview
 3. Glance at `features.instructions.md` for architecture patterns
-4. Check out **[DEVELOPMENT.md](DEVELOPMENT.md)** for local setup
+4. Check out **[DEVELOPMENT.md](../docs/DEVELOPMENT.md)** for local setup
 
 **If you're adding a feature:**
 1. Search `features.instructions.md` for related functions

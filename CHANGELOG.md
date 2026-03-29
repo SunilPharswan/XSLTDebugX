@@ -38,7 +38,7 @@ All notable changes to XSLTDebugX are documented here.
 - **CPI GET/SET Complete Example** — Comprehensive example showing all 4 CPI functions (`getHeader`, `setHeader`, `getProperty`, `setProperty`) with step-by-step console debugging
 - **Console Enhancements** — Search box, message type filtering (All/Info/Warn/Error), minimize/restore, error/warning count badges, auto-expand on errors
 - **XPath Mode Improvements** — Expression history (last 20), clickable hint chips, auto-growing input bar, namespace-agnostic examples
-- **Example Library Deduplication** — Reviewed and refined 47 examples across 5 categories
+- **Example Library Deduplication** — Reviewed and refined 46 examples across 5 categories
 
 ### Fixed
 - XPath highlights now clear when switching to XSLT mode
@@ -109,7 +109,7 @@ Before releasing a new version:
 
 1. Update version in `README.md`
 2. Add entry to `CHANGELOG.md` with date and changes
-3. Run [example-validator](../skills/example-validator/) — ensure all 47 examples pass
+3. Run [example-validator](../skills/example-validator/) — ensure all 46 examples pass
 4. Test all 5 example categories in browser
 5. Verify no console errors or warnings
 6. Create GitHub release with version tag and CHANGELOG excerpt

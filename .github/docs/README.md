@@ -1,6 +1,6 @@
 # Developer Documentation Hub
 
-Central location for all XSLTDebugX developer documentation.
+**Master index and central location for all XSLTDebugX developer documentation.**
 
 ---
 
@@ -9,44 +9,102 @@ Central location for all XSLTDebugX developer documentation.
 **New to XSLTDebugX development?** Start here:
 
 1. **Want to set up local development?** → [DEVELOPMENT.md](DEVELOPMENT.md)
-2. **Want to understand the codebase?** → [../../ARCHITECTURE.md](../../ARCHITECTURE.md)
-3. **Want to contribute code?** → [../../CONTRIBUTING.md](../../CONTRIBUTING.md)
-4. **Want the full API reference?** → [../instructions/features.instructions.md](../instructions/features.instructions.md)
+2. **Want to understand the codebase?** → [ARCHITECTURE.md](ARCHITECTURE.md) and [../../CONTRIBUTING.md](../../CONTRIBUTING.md)
+3. **Want the full API reference?** → [../instructions/](../instructions/) (all feature docs + API)
+4. **Want to contribute?** → [../../CONTRIBUTING.md](../../CONTRIBUTING.md) (code style, PR process, testing checklist)
 
 ---
 
-## 📚 Documentation Structure
+## 📚 Documentation by Category
+
+### Root-Level Documentation (User-Facing & Core)
+
+| File | Purpose | When to Read |
+|------|---------|------------|
+| [README.md](../../README.md) | Features, getting started, modes, examples library, keyboard shortcuts | Everyone — start here |
+| [CONTRIBUTING.md](../../CONTRIBUTING.md) | Code style, PR process, testing checklist, development setup | Before submitting PRs |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Module structure, data flow, design patterns, namespace guidelines | Before coding features |
+| [CHANGELOG.md](../../CHANGELOG.md) | Version history, release notes, feature additions | For version context |
+| [LICENSE](../../LICENSE) | MIT License terms | Legal reference |
+
+### Developer Setup & Workflows
+
+| File | Purpose | When to Read |
+|------|---------|------------|
+| [DEVELOPMENT.md](DEVELOPMENT.md) | Local dev setup, debugging in browser, performance tips, troubleshooting | Setting up dev environment |
+| [TESTING.md](TESTING.md) | E2E test suite, Playwright patterns, fixtures, timing strategies, debugging tests | Writing or debugging tests |
+
+### Feature Reference & Checklists
+
+| File | Purpose | When to Read |
+|------|---------|------------|
+| [CHECKLIST.md](CHECKLIST.md) | Pre-release verification, launch checklist, quality gates | Before releases |
+| [FEATURE_CHECKLIST.md](FEATURE_CHECKLIST.md) | Feature validation, acceptance criteria, completeness checks | Implementing features |
+
+### UX & Roadmap
+
+| File | Purpose | When to Read |
+|------|---------|------------|
+| [UX_ROADMAP.md](UX_ROADMAP.md) | Actionable improvement roadmap, phased enhancement plan | Planning UX improvements |
+
+### Technical Instructions (API Reference & Deep-Dives)
+
+All files in `../instructions/` provide detailed technical documentation:
+
+| File | Purpose | When to Read |
+|------|---------|------------|
+| [../instructions/README.md](../instructions/README.md) | API reference hub, navigation to all instruction files | First time with instructions |
+| [../instructions/features.instructions.md](../instructions/features.instructions.md) | Complete feature catalog (200+ functions), API reference, line numbers | Implementing features |
+| [../instructions/examples-data.instructions.md](../instructions/examples-data.instructions.md) | Example library structure, categories, validation rules (M1–M12) | Creating/modifying examples |
+| [../instructions/testing.instructions.md](../instructions/testing.instructions.md) | E2E testing architecture, POM patterns, fixtures, timing strategies | Advanced testing work |
+| [../instructions/transform.instructions.md](../instructions/transform.instructions.md) | XSLT rewriting, CPI simulation deep dive, error line mapping, param injection | Debugging transforms, fixing CPI |
+
+### Interactive Tools (Skills & Prompts)
+
+| Tool | Purpose | When to Use |
+|------|---------|-----------|
+| [../skills/xslt-example/](../skills/xslt-example/) | Create and format new XSLT/XPath examples | Adding examples to library |
+| [../skills/example-validator/](../skills/example-validator/) | Audit all 46 examples for correctness, apply fixes | Quality-checking examples |
+| [../prompts/add-xslt-example.prompt.md](../prompts/add-xslt-example.prompt.md) | Interactive prompt for example generation | Adding examples (interactive mode) |
+| [../prompts/validate-examples.prompt.md](../prompts/validate-examples.prompt.md) | Interactive prompt for example validation | Validation with reporting |
+
+### Configuration & Workspace Setup
+
+| File | Purpose | When to Read |
+|------|---------|------------|
+| [../copilot-instructions.md](../copilot-instructions.md) | Workspace guidelines, architecture overview, constraints, critical code patterns | First time in workspace |
+| [../AGENTS.md](../AGENTS.md) | Available agent customizations and specialized modes | Using specialized agents |
+
+---
+
+## 📂 Folder Organization
 
 ```
-.github/docs/               ← YOU ARE HERE (developer docs)
-├── README.md              ← This file (navigation hub)
+.github/docs/               ← Developer documentation (master location)
+├── README.md              ← This file (comprehensive navigation hub)
+├── ARCHITECTURE.md        ← Module structure, data flow, design patterns
 ├── DEVELOPMENT.md         ← Local setup, debugging, testing
 ├── TESTING.md             ← E2E testing guide with Playwright
-├── UX_ROADMAP.md          ← Strategic UX improvements (phases 1-3)
-├── CHECKLIST.md           ← Tactical UX checklist with file locations
-├── FEATURE_CHECKLIST.md   ← Quick reference to 200+ features
-│
-.github/instructions/       ← API reference (all 200+ features)
-├── README.md              ← Features API hub
-├── features.instructions.md
-├── examples-data.instructions.md
-├── transform.instructions.md
-│
-.github/skills/            ← Specialized tools
-├── example-validator/     ← Audit all examples
-└── xslt-example/          ← Create new examples
-│
-.github/ux/                ← Archived UX analysis (reference)
-├── README.md              ← Archive index
-├── UX_ANALYSIS.md         ← Detailed pain points (52 issues)
-└── UX_ANALYSIS_SUMMARY.md ← Executive summary
+├── CHECKLIST.md           ← Pre-release verification checklist
+├── FEATURE_CHECKLIST.md   ← Feature validation reference
+└── UX_ROADMAP.md          ← Strategic UX improvements roadmap
 
-Root:
-├── README.md              ← User-facing features + getting started
-├── ARCHITECTURE.md        ← Module structure, data flow
-├── CONTRIBUTING.md        ← PR process, code style, setup
+.github/instructions/       ← Detailed API reference & deep-dives
+├── README.md              ← Instructions hub
+├── features.instructions.md  ← 200+ feature catalog
+├── examples-data.instructions.md ← Example format & validation
+├── testing.instructions.md ← E2E test architecture & patterns
+└── transform.instructions.md ← CPI simulation & XSLT rewriting
+
+.github/skills/            ← Interactive tools
+├── xslt-example/SKILL.md       ← Create new examples
+└── example-validator/SKILL.md  ← Audit examples
+
+Root (/)
+├── README.md              ← User-facing features
+├── CONTRIBUTING.md        ← Code style & PR process
 ├── CHANGELOG.md           ← Version history
-└── LICENSE
+└── LICENSE                ← MIT License
 ```
 
 ---
@@ -62,7 +120,7 @@ Root:
   → [DEVELOPMENT.md - Debugging in Browser](DEVELOPMENT.md#debugging-in-browser)
 
 - **Understand how the codebase is organized**
-  → [../../ARCHITECTURE.md](../../ARCHITECTURE.md)
+  → [ARCHITECTURE.md](ARCHITECTURE.md)
 
 - **Submit a code contribution**
   → [../../CONTRIBUTING.md](../../CONTRIBUTING.md)
@@ -113,7 +171,7 @@ Root:
 - [CONTRIBUTING.md](../../CONTRIBUTING.md) — Code contribution process, code style
 
 ### For Developers
-- [ARCHITECTURE.md](../../ARCHITECTURE.md) — Module structure, data flow, design patterns
+- [ARCHITECTURE.md](ARCHITECTURE.md) — Module structure, data flow, design patterns
 - [DEVELOPMENT.md](DEVELOPMENT.md) — Local dev setup, debugging, testing
 - [TESTING.md](TESTING.md) — E2E testing guide (Playwright, test structure, running tests)
 - [../instructions/features.instructions.md](../instructions/features.instructions.md) — Complete 200+ feature API
@@ -152,7 +210,7 @@ panes.js → files.js → share.js → modal.js → ui.js → examples-data.js
 - CSS classes verbose with hyphens (e.g., `.pane-bar`, `.log-line`)
 - localStorage keys: `xdebugx-*-v1` (versioned)
 
-For full details, see [ARCHITECTURE.md](../../ARCHITECTURE.md).
+For full details, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 
@@ -194,12 +252,12 @@ See [DEVELOPMENT.md - Testing Checklist](DEVELOPMENT.md#testing-checklist).
 ### I'm a First-Time Contributor
 1. Read [CONTRIBUTING.md](../../CONTRIBUTING.md) — code style, PR process
 2. Follow [DEVELOPMENT.md](DEVELOPMENT.md) to get running locally
-3. Check [ARCHITECTURE.md](../../ARCHITECTURE.md) to understand code organization
+3. Check [ARCHITECTURE.md](ARCHITECTURE.md) to understand code organization
 4. Find an issue or feature to work on
 5. Submit a PR with tests
 
 ### I'm a Feature Developer
-1. Scope feature in [ARCHITECTURE.md](../../ARCHITECTURE.md) — which module?
+1. Scope feature in [ARCHITECTURE.md](ARCHITECTURE.md) — which module?
 2. Write code using patterns from that module
 3. Follow [../../CONTRIBUTING.md](../../CONTRIBUTING.md) code style
 4. Test thoroughly with [DEVELOPMENT.md - Testing Checklist](DEVELOPMENT.md#testing-checklist)
@@ -227,7 +285,7 @@ See [DEVELOPMENT.md - Testing Checklist](DEVELOPMENT.md#testing-checklist).
 | What feature exists? | [../instructions/features.instructions.md](../instructions/features.instructions.md) (200+ features) |
 | How do I code style? | [../../CONTRIBUTING.md](../../CONTRIBUTING.md#code-style-guide) |
 | How do I set up locally? | [DEVELOPMENT.md](DEVELOPMENT.md) |
-| How do I understand the codebase? | [../../ARCHITECTURE.md](../../ARCHITECTURE.md) |
+| How do I understand the codebase? | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | What UX improvements are planned? | [UX_ROADMAP.md](UX_ROADMAP.md) or [CHECKLIST.md](CHECKLIST.md) |
 | How do I debug in the browser? | [DEVELOPMENT.md - Debugging](DEVELOPMENT.md#debugging-in-browser) |
 | How do I test my changes? | [DEVELOPMENT.md - Testing](DEVELOPMENT.md#testing-checklist) |

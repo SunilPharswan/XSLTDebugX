@@ -49,20 +49,20 @@ XSLTDebugX is a **zero-build vanilla JavaScript application** deployed as a stat
 
 | Module | Responsibility | Lines | Key Functions |
 |--------|-----------------|-------|----------------|
-| **state.js** | Global state, localStorage persistence, console | 195 | `clog()`, `scheduleSave()`, `loadSavedState()`, `setStatus()` |
-| **editor.js** | Monaco initialization, themes, keyboard shortcuts, context menus | 1,011 | `hideLoader()`, `setupAutoClose()`, `toggleTheme()`, `_toggleXmlComment()` |
-| **transform.js** | XSLT execution, CPI simulation, output rendering | 423 | `runTransform()`, `rewriteCPICalls()`, `buildParamsXPath()`, `renderOutputKV()` |
-| **validate.js** | XML/XSLT validation, Monaco error markers, Saxon error parsing | 170 | `validateXML()`, `markErrorLine()`, `preflight()`, `parseSaxonErrorLine()` |
-| **xpath.js** | XPath mode UI, expression evaluation, node highlighting, syntax coloring | 936 | `runXPath()`, `toggleXPath()`, `_highlightXPath()`, `_highlightMatchedNodes()` |
-| **mode-manager.js** | Centralized mode management (XSLT vs XPath) | 382 | `setMode()`, `isXpath`, `isXslt`, `getMode()` |
-| **panes.js** | Word wrap, copy/clear/format, context menu debouncing | 199 | `toggleWordWrap()`, `copyPane()`, `fmtEditor()`, `prettyXML()` |
-| **files.js** | File upload/download, drag-and-drop | 93 | `triggerUpload()`, `handleUpload()`, `downloadPane()`, `setupDragDrop()` |
-| **share.js** | URL encoding/decoding of session state | 153 | `buildSharePayload()`, `generateShareUrl()`, `loadFromShareHash()` |
-| **modal.js** | Examples library UI, filtering, loading | 237 | `openExModal()`, `loadExample()`, `renderExGrid()`, `filterExamples()` |
+| **state.js** | Global state, localStorage persistence, console | 170 | `clog()`, `scheduleSave()`, `loadSavedState()`, `setStatus()` |
+| **editor.js** | Monaco initialization, themes, keyboard shortcuts, context menus | 926 | `hideLoader()`, `setupAutoClose()`, `toggleTheme()`, `_toggleXmlComment()` |
+| **transform.js** | XSLT execution, CPI simulation, output rendering | 454 | `runTransform()`, `rewriteCPICalls()`, `buildParamsXPath()`, `renderOutputKV()` |
+| **validate.js** | XML/XSLT validation, Monaco error markers, Saxon error parsing | 149 | `validateXML()`, `markErrorLine()`, `preflight()`, `parseSaxonErrorLine()` |
+| **xpath.js** | XPath mode UI, expression evaluation, node highlighting, syntax coloring | 725 | `runXPath()`, `toggleXPath()`, `_highlightXPath()`, `_highlightMatchedNodes()` |
+| **mode-manager.js** | Centralized mode management (XSLT vs XPath) | 328 | `setMode()`, `isXpath`, `isXslt`, `getMode()` |
+| **panes.js** | Word wrap, copy/clear/format, context menu debouncing | 182 | `toggleWordWrap()`, `copyPane()`, `fmtEditor()`, `prettyXML()` |
+| **files.js** | File upload/download, drag-and-drop | 87 | `triggerUpload()`, `handleUpload()`, `downloadPane()`, `setupDragDrop()` |
+| **share.js** | URL encoding/decoding of session state | 130 | `buildSharePayload()`, `generateShareUrl()`, `loadFromShareHash()` |
+| **modal.js** | Examples library UI, filtering, loading | 208 | `openExModal()`, `loadExample()`, `renderExGrid()`, `filterExamples()` |
 | **ui.js** | Console state, theme toggle, help modal, column collapse | 169 | `setConsoleState()`, `toggleTheme()`, `applyConsoleSearch()`, `setConsoleFilter()` |
-| **examples-data.js** | 52 built-in XSLT/XPath examples across 5 categories | 3,675 | `CATEGORIES`, `EXAMPLES` (data objects) |
+| **examples-data.js** | 46 built-in XSLT/XPath examples across 5 categories | 3,365 | `CATEGORIES`, `EXAMPLES` (data objects) |
 
-**Total: 7,643 lines of code**
+**Total: 6,873 lines of code**
 
 ---
 
@@ -477,7 +477,7 @@ async function _showXPathResults(items, errorMsg, isError) {
 
 ## Loading Order & Initialization
 
-The order in [index.html](index.html) is **critical**:
+The order in [../../index.html](../../index.html) is **critical**:
 
 ```html
 <!-- 1. CSS first -->
@@ -576,7 +576,7 @@ let _myModuleState = { foo: 'bar' }; // In my-module.js, prefixed
 
 ## Further Reading
 
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** — Code style, testing, PR process
-- **[.github/instructions/features.instructions.md](.github/instructions/features.instructions.md)** — Complete 200+ feature catalog and API reference
-- **[.github/instructions/transform.instructions.md](.github/instructions/transform.instructions.md)** — CPI simulation deep dive, error mapping
-- **[README.md](README.md)** — User-facing features, getting started, keyboard shortcuts
+- **[../../CONTRIBUTING.md](../../CONTRIBUTING.md)** — Code style, testing, PR process
+- **[../instructions/features.instructions.md](../instructions/features.instructions.md)** — Complete 200+ feature catalog and API reference
+- **[../instructions/transform.instructions.md](../instructions/transform.instructions.md)** — CPI simulation deep dive, error mapping
+- **[../../README.md](../../README.md)** — User-facing features, getting started, keyboard shortcuts

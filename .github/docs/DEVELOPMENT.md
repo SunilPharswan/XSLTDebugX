@@ -26,8 +26,8 @@ Quick-start guide for local development, debugging, and testing XSLTDebugX.
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/xsltdebugx.git
-cd xsltdebugx
+git clone https://github.com/SunilPharswan/XSLTDebugX.git
+cd XSLTDebugX
 ```
 
 No `npm install` or build step needed — it's a zero-build static site.
@@ -444,5 +444,5 @@ XPath evaluation is generally fast, but large document selection can slow:
 ## Next Steps
 
 - Read [../../CONTRIBUTING.md](../../CONTRIBUTING.md) for code style and PR process
-- Read [../../ARCHITECTURE.md](../../ARCHITECTURE.md) for module structure and data flow
+- Read [ARCHITECTURE.md](ARCHITECTURE.md) for module structure and data flow
 - Check [../instructions/](../instructions/) for detailed API reference and CPI patterns

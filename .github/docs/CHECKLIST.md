@@ -257,6 +257,6 @@ After each phase, verify:
 
 Refer to:
 1. **How does X work?** → [../instructions/features.instructions.md](../instructions/features.instructions.md)
-2. **What's the module structure?** → [../../ARCHITECTURE.md](../../ARCHITECTURE.md)
+2. **What's the module structure?** → [ARCHITECTURE.md](ARCHITECTURE.md)
 3. **Code style guide?** → [../../CONTRIBUTING.md](../../CONTRIBUTING.md)
 4. **Existing patterns?** → Search codebase for similar code
