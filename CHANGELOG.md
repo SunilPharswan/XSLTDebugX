@@ -176,4 +176,4 @@ Before releasing a new version:
 
 ## License
 
-All changes are licensed under MIT. See [LICENSE](../LICENSE) for details.
+All changes are licensed under AGPL-3.0-or-later. See [LICENSE](../LICENSE) for details.

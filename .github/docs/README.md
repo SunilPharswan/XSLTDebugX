@@ -25,7 +25,7 @@
 | [CONTRIBUTING.md](../../CONTRIBUTING.md) | Code style, PR process, testing checklist, development setup | Before submitting PRs |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Module structure, data flow, design patterns, namespace guidelines | Before coding features |
 | [CHANGELOG.md](../../CHANGELOG.md) | Version history, release notes, feature additions | For version context |
-| [LICENSE](../../LICENSE) | MIT License terms | Legal reference |
+| [LICENSE](../../LICENSE) | AGPL-3.0-or-later License terms | Legal reference |
 
 ### Developer Setup & Workflows
 
@@ -105,7 +105,7 @@ Root (/)
 ├── README.md              ← User-facing features
 ├── CONTRIBUTING.md        ← Code style & PR process
 ├── CHANGELOG.md           ← Version history
-└── LICENSE                ← MIT License
+└── LICENSE                ← AGPL-3.0-or-later License
 ```
 
 ---

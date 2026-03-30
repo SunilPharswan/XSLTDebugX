@@ -179,7 +179,7 @@ Attach screenshots, XSLT snippets, or XML samples if relevant.
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the same license as the project (MIT License). See [LICENSE](LICENSE) for details.
+By contributing, you agree that your contributions will be licensed under the same license as the project (AGPL-3.0-or-later). See [LICENSE](LICENSE) for details.
 
 ---
 
