@@ -19,12 +19,12 @@ export class EditorPage {
 
   /**
    * Navigate to the application
+   * Uses 'domcontentloaded' instead of 'networkidle' for faster startup
    */
   async navigate() {
-    await this.page.goto('http://localhost:8000');
-    await this.page.waitForLoadState('networkidle');
+    await this.page.goto('http://localhost:8000', { waitUntil: 'domcontentloaded', timeout: 45000 });
     // Wait for Monaco Editor to initialize
-    await this.page.waitForSelector('.monaco-editor', { timeout: 15000 });
+    await this.page.waitForSelector('.monaco-editor', { timeout: 20000 });
     // Extra wait for JS initialization
     await this.page.waitForTimeout(2000);
   }

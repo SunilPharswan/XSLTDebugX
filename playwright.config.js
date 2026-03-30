@@ -68,12 +68,6 @@ export default defineConfig({
     timeout: 120 * 1000,
   },
 
-  /* Global test timeout */
-  timeout: 30 * 1000,
-
-  /* Global navigation timeout */
-  navigationTimeout: 30 * 1000,
-
   /* Expect timeout (for assertions) */
   expect: {
     timeout: 10 * 1000
