@@ -111,4 +111,15 @@ test.describe('XSLT Transform Workflow', () => {
     const mode = await page.getMode();
     expect(mode).toBe('XSLT');
   });
+
+  test('SUMMARY: XSLT Transform', async () => {
+    console.log(`
+✅ XSLT TRANSFORM SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • Basic XSLT transformation
+  • XML validation and error handling
+  • Keyboard shortcuts (Ctrl+Enter)
+  • Session persistence
+`);
+  });
 });

@@ -238,4 +238,14 @@ test.describe('Share URL Workflow', () => {
     isOpen = await backdrop.evaluate(el => el.classList.contains('open'));
     expect(isOpen).toBe(false);
   });
+
+  test('SUMMARY: Share URL', async () => {
+    console.log(`
+✅ SHARE URL SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • URL generation and encoding
+  • Headers/properties in share URLs
+  • Round-trip consistency
+`);
+  });
 });

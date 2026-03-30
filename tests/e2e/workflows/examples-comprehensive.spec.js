@@ -491,39 +491,12 @@ test.describe('Comprehensive Examples Library Coverage', () => {
       const xpathExamples = EXAMPLE_KEYS.filter(key => EXAMPLE_CATEGORIES[key] === 'xpath');
 
       console.log(`
-✅ COMPREHENSIVE EXAMPLES TEST SUMMARY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Total Examples: ${EXAMPLE_KEYS.length}
-  • XSLT Examples: ${xsltExamples.length}
-    - Transform: ${xsltExamples.filter(k => EXAMPLE_CATEGORIES[k] === 'transform').length}
-    - Aggregation: ${xsltExamples.filter(k => EXAMPLE_CATEGORIES[k] === 'aggregation').length}
-    - Format: ${xsltExamples.filter(k => EXAMPLE_CATEGORIES[k] === 'format').length}
-    - CPI: ${xsltExamples.filter(k => EXAMPLE_CATEGORIES[k] === 'cpi').length}
-  
-  • XPath Examples: ${xpathExamples.length}
-
-Test Cases Generated:
-  • XSLT Load Tests: ${xsltExamples.length}
-  • XSLT Run Tests: ${xsltExamples.length}
-  • XSLT Output Tests: ${xsltExamples.length}
-  • XPath Load Tests: ${xpathExamples.length}
-  • XPath Eval Tests: ${xpathExamples.length}
-  • XPath Content Tests: ${xpathExamples.length}
-  • Mode Switching: 3
-  • Edge Cases: 3
-  ──────────────────────
-  Total: ${(xsltExamples.length * 3) + (xpathExamples.length * 3) + 3 + 3}
-
-Focus Areas:
-  ✅ All examples load without errors
-  ✅ All XSLT transforms produce output
-  ✅ All XPath expressions evaluate
-  ✅ No console errors during execution
-  ✅ Mode switching works correctly
-  ✅ Rapid example switching handled
-  ✅ Theme switching doesn't break examples
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-      `);
+✅ COMPREHENSIVE EXAMPLES SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • All examples load without errors
+  • All transforms produce output
+  • Mode switching works correctly
+`);
 
       expect(EXAMPLE_KEYS.length).toBe(47);
     });

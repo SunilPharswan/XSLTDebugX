@@ -81,4 +81,15 @@ test.describe('Smoke Tests', () => {
     mode = await editor.getMode();
     expect(mode).toBe('XSLT');
   });
+
+  // Print summary
+  test('SUMMARY: Smoke Tests', async () => {
+    console.log(`
+✅ SMOKE TESTS SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • App loads successfully
+  • Basic XSLT transform works
+  • Mode switching functional
+`);
+  });
 });
