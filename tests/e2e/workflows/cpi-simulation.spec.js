@@ -149,17 +149,6 @@ test.describe('CPI Simulation Workflow', () => {
     expect(output).toContain('response');
   });
 
-  test('SUMMARY: CPI Simulation', async () => {
-    console.log(`
-✅ CPI SIMULATION SUMMARY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  • Headers panel functional
-  • Properties panel functional
-  • XSLT execution with CPI simulation
-`);
-  });
-});
-
   test('should persist headers/properties across page reload', async ({ page: testPage }) => {
     await page.addHeader('Persistent-Header', 'PersistentValue');
     await page.addProperty('Persistent-Prop', 'PropValue');
@@ -205,5 +194,15 @@ test.describe('CPI Simulation Workflow', () => {
     const session = await page.getStoredSession();
     // Session should still have headers stored, but they won't be used
     expect(session).toBeDefined();
+  });
+
+  test('SUMMARY: CPI Simulation', async () => {
+    console.log(`
+✅ CPI SIMULATION SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • Headers panel functional
+  • Properties panel functional
+  • XSLT execution with CPI simulation
+`);
   });
 });

@@ -149,16 +149,6 @@ test.describe('Mode Switching', () => {
     expect(xpathXml).toBe(xml2);
   });
 
-  test('SUMMARY: Mode Switching', async () => {
-    console.log(`
-✅ MODE SWITCHING SUMMARY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  • XSLT ↔ XPath switching works
-  • Content preservation during mode switches
-  • Mode indicator badge correct
-`);
-  });
-
     // Switch back to XSLT mode
     await page.switchToXslt();
     let xsltXml = await page.getXmlContent();
@@ -231,5 +221,15 @@ test.describe('Mode Switching', () => {
     // Assert - mode should be preserved
     const modeAfter = await page.getMode();
     expect(modeAfter).toBe('XPATH');
+  });
+
+  test('SUMMARY: Mode Switching', async () => {
+    console.log(`
+✅ MODE SWITCHING SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • XSLT ↔ XPath switching works
+  • Content preservation during mode switches
+  • Mode indicator badge correct
+`);
   });
 });
