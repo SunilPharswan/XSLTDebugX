@@ -36,41 +36,74 @@ test.describe('Share URL Workflow', () => {
     expect(shareUrl).toContain('localhost');
   });
 
-  test('should include headers in share URL', async ({ page: testPage }) => {
+  test('should include headers in share URL and decode correctly', async ({ page: testPage }) => {
     const xml = sampleData.simpleXml;
     const xslt = sampleData.simpleXslt;
 
     await page.fillXml(xml);
     await page.fillXslt(xslt);
+    await page.waitForDebounce();
 
     // Add headers
     await page.addHeader('Authorization', 'Bearer token123');
     await page.addHeader('X-Custom', 'Value');
 
+    const headerCountBefore = await page.getHeaderCount();
+    expect(headerCountBefore).toBe(2);
+
     const shareUrl = await page.generateShareUrl();
 
     expect(shareUrl).toBeTruthy();
     expect(shareUrl.length).toBeGreaterThan(20);
 
-    // URL should encode the headers (they're in the hash/query)
-    // We can't directly verify encoding, but we can test round-trip
+    // Load from URL and verify headers are decoded
+    await page.loadFromShareUrl(shareUrl);
+    await testPage.waitForTimeout(2000);
+
+    const headerCountAfter = await page.getHeaderCount();
+    expect(headerCountAfter).toBe(2);
+
+    // Verify headers are in session storage (not just UI)
+    const session = await page.getStoredSession();
+    expect(session.headers).toBeDefined();
+    expect(session.headers.length).toBe(2);
+    expect(session.headers[0].name).toBe('Authorization');
+    expect(session.headers[1].name).toBe('X-Custom');
   });
 
-  test('should include properties in share URL', async ({ page: testPage }) => {
+  test('should include properties in share URL and decode correctly', async ({ page: testPage }) => {
     const xml = sampleData.simpleXml;
     const xslt = sampleData.simpleXslt;
 
     await page.fillXml(xml);
     await page.fillXslt(xslt);
+    await page.waitForDebounce();
 
     // Add properties
     await page.addProperty('Timeout', '5000');
     await page.addProperty('Retries', '3');
 
+    const propertyCountBefore = await page.getPropertyCount();
+    expect(propertyCountBefore).toBe(2);
+
     const shareUrl = await page.generateShareUrl();
 
     expect(shareUrl).toBeTruthy();
     expect(shareUrl.length).toBeGreaterThan(20);
+
+    // Load from URL and verify properties are decoded
+    await page.loadFromShareUrl(shareUrl);
+    await testPage.waitForTimeout(2000);
+
+    const propertyCountAfter = await page.getPropertyCount();
+    expect(propertyCountAfter).toBe(2);
+
+    // Verify properties are in session storage (not just UI)
+    const session = await page.getStoredSession();
+    expect(session.properties).toBeDefined();
+    expect(session.properties.length).toBe(2);
+    expect(session.properties[0].name).toBe('Timeout');
+    expect(session.properties[0].value).toBe('5000');
   });
 
   test('should generate consistent share URL for same content', async ({ page: testPage }) => {
@@ -115,24 +148,52 @@ test.describe('Share URL Workflow', () => {
 
     await page.fillXml(xml);
     await page.fillXslt(xslt);
+    await page.waitForDebounce();
+
     await page.addHeader('TestHeader', 'TestValue');
+    await page.addProperty('TestProp', 'PropValue');
+
+    // Verify initial state
+    const headerCountInitial = await page.getHeaderCount();
+    const propertyCountInitial = await page.getPropertyCount();
+    expect(headerCountInitial).toBe(1);
+    expect(propertyCountInitial).toBe(1);
 
     // First generation
     const url1 = await page.generateShareUrl();
     await page.closeShareModal();
+    await testPage.waitForTimeout(500);
 
-    // Load from URL
+    // Load from URL and verify all content is decoded
     await page.loadFromShareUrl(url1);
     await testPage.waitForTimeout(2000);
 
-    // Second generation (after loading)
-    const url2 = await page.generateShareUrl();
+    // Verify XML, Header, and Property are restored after decode
+    const xml2 = await page.getXmlContent();
+    expect(xml2).toBe(xml);
 
-    // URLs should be identical for same content
+    const xslt2 = await page.getXsltContent();
+    expect(xslt2).toBe(xslt);
+
+    const headerCountAfterDecode = await page.getHeaderCount();
+    const propertyCountAfterDecode = await page.getPropertyCount();
+    expect(headerCountAfterDecode).toBe(1);
+    expect(propertyCountAfterDecode).toBe(1);
+
+    // Verify session has headers and properties
+    const session = await page.getStoredSession();
+    expect(session.headers.length).toBe(1);
+    expect(session.properties.length).toBe(1);
+
+    // Second generation (after loading from share URL)
+    const url2 = await page.generateShareUrl();
+    await page.closeShareModal();
+
+    // URLs should be identical - proves full round-trip encoding/decoding
     expect(url1).toBe(url2);
   });
 
-  test('should clean up hash from URL after loading share data', async ({ page: testPage }) => {
+  test('should clean up hash from URL after loading share data, and verify content is decoded', async ({ page: testPage }) => {
     const xml = sampleData.simpleXml;
     const xslt = sampleData.simpleXslt;
 
@@ -151,7 +212,10 @@ test.describe('Share URL Workflow', () => {
     // App may or may not clean the hash depending on implementation
     // At minimum, the share data should be loaded
     const xml2 = await page.getXmlContent();
+    const xslt2 = await page.getXsltContent();
+    
     expect(xml2).toBe(xml);
+    expect(xslt2).toBe(xslt);
   });
 
   test('should close share modal when clicking outside', async ({ page: testPage }) => {

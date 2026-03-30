@@ -66,6 +66,7 @@ const EXAMPLE_KEYS = [
   'xpathRegexReplace',
   'xpathDateFunctions',
   'xpathNamespaceAgnostic',
+  'xpathBatchErrorDetect',
   'xpathConditional',
   'xpathNodeInspection',
   'xpathSOAPNavigation',
@@ -74,6 +75,9 @@ const EXAMPLE_KEYS = [
   'xpathSequenceOps',
   'xpathDeepEqual',
   'xpathTypeCasting',
+  
+  // IDoc Examples (2)
+  'idocInvoic01',
 ];
 
 // Expected category per example (derived from examples-data.js)
@@ -124,6 +128,7 @@ const EXAMPLE_CATEGORIES = {
   xpathRegexReplace: 'xpath',
   xpathDateFunctions: 'xpath',
   xpathNamespaceAgnostic: 'xpath',
+  xpathBatchErrorDetect: 'xpath',
   xpathConditional: 'xpath',
   xpathNodeInspection: 'xpath',
   xpathSOAPNavigation: 'xpath',
@@ -132,6 +137,9 @@ const EXAMPLE_CATEGORIES = {
   xpathSequenceOps: 'xpath',
   xpathDeepEqual: 'xpath',
   xpathTypeCasting: 'xpath',
+  
+  // IDoc
+  idocInvoic01: 'cpi',
 };
 
 // ════════════════════════════════════════════════════════════════════════════
