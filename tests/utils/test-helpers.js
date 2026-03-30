@@ -24,7 +24,8 @@ export class EditorPage {
   async navigate() {
     await this.page.goto('http://localhost:8000', { waitUntil: 'domcontentloaded', timeout: 45000 });
     // Wait for Monaco Editor to initialize
-    await this.page.waitForSelector('.monaco-editor', { timeout: 20000 });
+    // Increased to 45s for CI environments where initialization is slower (GitHub Actions ~10-15s base delay)
+    await this.page.waitForSelector('.monaco-editor', { timeout: 45000 });
     // Extra wait for JS initialization
     await this.page.waitForTimeout(2000);
   }

@@ -116,6 +116,34 @@ No build step. No `npm install`. No server required.
 
 ---
 
+## Architecture & Dependencies
+
+XSLTDebugX is built for **zero friction** — no build step, no `npm install`, no server required. The "Zero Dependencies" badge refers to **zero npm package dependencies**. Here's what that means:
+
+### Dependency Model
+
+| Component | Type | Source | Impact |
+|-----------|------|--------|--------|
+| **Monaco Editor** | CDN | `cdn.jsdelivr.net` | Syntax highlighting, code editing |
+| **pako** (compression) | CDN | `cdnjs.cloudflare.com` | Share URL encoding/decoding |
+| **Saxon-JS 2.x** | Bundled | `/lib/SaxonJS2.js` (in repo) | XSLT 3.0 + XPath 3.1 processor |
+| **npm packages** | Development only | `@playwright/test`, `http-server` | E2E testing & local dev server |
+
+### What This Means
+
+✅ **No npm bloat in production** — App ships as-is, no `node_modules` build  
+✅ **Fast initial load** — Static files only, no bundler overhead  
+✅ **Simple deployment** — Drop on any static host (Cloudflare Pages, GitHub Pages, etc.)  
+✅ **Offline-capable** — Works fully offline once Monaco/pako cached; only requires pre-cached CDN resources  
+✅ **Zero build step** — Edit source, refresh browser. No webpack, no esbuild, no build time
+
+### CDN vs. Bundled
+
+- **CDN dependencies** (Monaco, pako) are **lightweight, external, cacheable** — loaded once and reused across browser sessions
+- **Bundled code** (Saxon-JS) is **baked into the repo** — always available, offline-ready, no external network call required for core XSLT processing
+
+---
+
 ## Two Modes
 
 A segmented **XSLT | ƒx XPath** control in the header switches between modes. The active mode is always visible in the status bar pill. Loading an example automatically switches to the correct mode.
