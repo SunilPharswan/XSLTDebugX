@@ -257,6 +257,63 @@ All methods use `window.monaco.editor.getEditors()` array indexing:
 
 ---
 
+### Timing Pitfalls with Mode Switches
+
+**Critical Issue:** UI rendering is asynchronous after mode switch.
+
+**Problem Pattern:**
+```javascript
+// ❌ FAILS - timing race condition
+await editor.switchToXpath();
+const value = await editor.getXPathInput();         // May read empty string!
+const results = await editor.evaluateXPath(value);  // XPath evaluator not visible yet
+```
+
+**Why:**
+- `switchToXpath()` waits 1.5s for animation + DOM
+- But XPath input field visibility, event handlers, and keyboard focus complete **after** that wait
+- Attempting `getXPathInput()` immediately after mode switch may return empty string or stale value
+
+**Correct Pattern:**
+```javascript
+// ✅ WORKS - explicit wait for XPath-specific elements
+await editor.switchToXpath();
+await page.waitForSelector('#xpathInput:visible');  // Wait for XPath input visible
+await page.waitForFunction(() => {
+  const input = document.getElementById('xpathInput');
+  return input && input.offsetHeight > 0;           // Confirm rendered
+});
+const value = await editor.getXPathInput();         // Safe to read
+```
+
+**Best Practice - Use EditorPage helpers:**
+```javascript
+// ✅ SAFEST - EditorPage encapsulates timing logic
+await editor.switchToXpath();
+await editor.setXPathInput('//Item[@id="X"]');     // Internal waits + visibility check
+const results = await editor.evaluateXPath();
+```
+
+**What's Safe Immediately After `switchToXpath()` / `switchToXslt()`:**
+- `getMode()` ✅ — Reads JavaScript property (synchronous)
+- `getModeIndicator()` ✅ — Checks header badge (stable element)
+- `getConsoleMessages()` ✅ — Accesses global `window.clog` (not affected by mode)
+- `getStoredSession()` ✅ — Reads localStorage (not affected by mode)
+
+**What Requires Extra Wait:**
+- `getXPathInput()` ❌ — Field only rendered in XSLT mode
+- `setXPathInput(value)` ❌ — Event handlers not attached yet
+- `evaluateXPath()` ❌ — XPath evaluator button not visible yet
+- Editor content reads/writes ❌ — Model switching completes before UI sync
+
+**Rule of Thumb:**
+After `switchToXpath()` or `switchToXslt()`, always wait for **element visibility** before interacting with mode-specific UI:
+```javascript
+await page.waitForSelector('#modeIndicator');      // Stable wait point
+```
+
+---
+
 #### Group 5: Console & State Inspection (7 methods)
 
 **`getConsoleMessages(): Promise<Array<{type, msg, timestamp}>>`**

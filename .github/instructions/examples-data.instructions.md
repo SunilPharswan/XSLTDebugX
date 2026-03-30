@@ -97,9 +97,20 @@ exclude-result-prefixes="cpi xs"
 
 ### XPath Expressions (XPath examples only)
 - Set `cat: 'xpath'`
-- Leave `xslt: ''` empty
-- Add `xpathExprs` array with 3-7 clickable expressions
-- Show progression: simple → complex
+- Leave `xslt: ''` empty (no stylesheet, pure XPath evaluation)
+- Add `xpathHints` array: clickable expression suggestions for users
+- **xpathHints structure**: Show progression from simple → complex
+  ```javascript
+  xpathHints: [
+    "//Order",                           // Basic selection
+    "//Order[@status='OPEN']",          // Add predicate
+    "//Order[@status='OPEN']/Item"      // Navigate deeper (final expression)
+  ]
+  ```
+- Users see these as chips below the XPath input bar
+- Clicking a chip runs that expression and highlights matched nodes
+- **Rule M4b** (NEW): All XPath examples MUST include `xpathHints` with at least 3 progressively complex expressions
+- Final expression in hints should match the most specific/useful search pattern
 
 ## Organization
 
@@ -156,6 +167,42 @@ xpathExample: {
   icon: 'ƒx',
   desc: 'Axis navigation with positional predicates',
   cat: 'xpath',
+
+## Validation Checklist (M1–M13)
+
+Before committing new or modified examples, verify all checks pass:
+
+### Metadata (M1–M3)
+- [ ] **M1**: Example key is camelCase, descriptive, unique
+- [ ] **M2**: Label is concise (max 40 chars), icon is single emoji or `ƒx` for XPath
+- [ ] **M3**: Description is max 60 chars, explains transformation purpose
+
+### Structure (M4–M6)
+- [ ] **M4**: Category exists in CATEGORIES
+- [ ] **M4b** (NEW): XPath examples include `xpathHints` array with 3+ progressively complex expressions
+- [ ] **M5**: XML starts with `<?xml version="1.0" encoding="UTF-8"?>`
+- [ ] **M6**: XSLT starts with `<?xml version="1.0" encoding="UTF-8"?>` and `version="3.0"`
+
+### XSLT Syntax (M7–M9)
+- [ ] **M7**: Namespace declarations present (`xmlns:xsl`, `xmlns:xs` for XSLT examples)
+- [ ] **M8**: `exclude-result-prefixes` prevents namespace leakage
+- [ ] **M9**: Opening comment block explains pattern (3–5 lines)
+
+### CPI Specifics (M10–M11)
+- [ ] **M10** (CPI examples only): Includes `<xsl:param name="exchange"/>` declaration
+- [ ] **M11** (CPI examples only): Uses `cpi:setHeader/getHeader/setProperty/getProperty` correctly
+
+### Completeness (M12–M13)
+- [ ] **M12**: No `TODO`, `FIXME`, or placeholder text
+- [ ] **M13** (NEW): All category references exist; no orphaned categories
+- [ ] Example appears in Examples modal and loads without errors
+
+### Testing (Manual)
+- [ ] Open app, click Examples, find your example in correct category
+- [ ] Example loads (XML, XSLT, and hints/properties pre-filled)
+- [ ] XSLT mode: Click Run, output appears without errors
+- [ ] XPath mode: Click hint chips, matched nodes highlight in amber
+- [ ] Console shows no red errors
   xml: `<Orders><Order><Id>1</Id></Order></Orders>`,
   xslt: '',
   xpathExprs: [

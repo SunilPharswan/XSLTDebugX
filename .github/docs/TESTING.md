@@ -4,7 +4,7 @@
 
 XSLTDebugX uses **Playwright** for end-to-end (E2E) testing. Tests verify the complete user workflows without mocking any backend systems.
 
-**Status**: ✅ 36 tests passing (3 test suites + smoke tests)
+**Status**: ✅ 74 tests passing (8 test suites + smoke tests)
 
 ---
 
@@ -22,7 +22,11 @@ tests/
 │       ├── mode-switching.spec.js       # 12 tests: XSLT ↔ XPath mode switching
 │       ├── session-management.spec.js   # 7 tests: localStorage persistence
 │       ├── xpath-evaluation.spec.js     # 6 tests: XPath expression evaluation
-│       └── xslt-transform.spec.js       # 7 tests: XSLT transformations
+│       ├── xslt-transform.spec.js       # 7 tests: XSLT transformations
+│       ├── cpi-simulation.spec.js       # 11 tests: CPI headers/properties, interceptors
+│       ├── examples-library.spec.js     # 13 tests: Examples modal, search, categories
+│       ├── examples-comprehensive.spec.js # 7 tests: All 47+ examples load & execute
+│       └── share-url.spec.js            # 8 tests: URL encoding, session sharing
 ├── playwright.config.js                 # Playwright configuration
 └── package.json                         # Test dependencies
 ```
@@ -118,6 +122,65 @@ Tests XSLT transformations - 7 tests:
 - ✅ Show mode indicator
 
 **Run**: `npm run test:e2e -- tests/e2e/workflows/xslt-transform.spec.js`
+
+### 6. CPI Simulation (`workflows/cpi-simulation.spec.js`)
+Tests SAP CPI (Cloud Integration) simulation features - 11 tests:
+- ✅ Add single header and display count
+- ✅ Add multiple headers
+- ✅ Add property and display count
+- ✅ Add both headers and properties together
+- ✅ Update existing header
+- ✅ Delete header
+- ✅ Execute XSLT with headers and verify in output
+- ✅ Execute XSLT with multiple headers and properties
+- ✅ Persist headers/properties across page reload
+- ✅ Clear headers/properties when clearing session
+- ✅ Don't include headers/properties in XPath mode
+
+**Run**: `npm run test:e2e -- tests/e2e/workflows/cpi-simulation.spec.js`
+
+### 7. Examples Library (`workflows/examples-library.spec.js`)
+Tests example modal, search, filtering, and loading - 13 tests:
+- ✅ Open examples modal and render sidebar categories
+- ✅ Close modal on backdrop click
+- ✅ Load transform example and populate XML/XSLT
+- ✅ Load XPath example and switch to XPath mode
+- ✅ Load CPI example with auto-populated headers
+- ✅ Search examples by keyword
+- ✅ Return to full list when clearing search
+- ✅ Toggle auto-run checkbox and persist preference
+- ✅ Auto-run example when preference is enabled
+- ✅ Clear validation errors when loading example
+- ✅ Display correct mode indicator in modal
+- ✅ Isolate examples by category
+- ✅ Not populate headers in XPath examples
+
+**Run**: `npm run test:e2e -- tests/e2e/workflows/examples-library.spec.js`
+
+### 8. Examples Comprehensive (`workflows/examples-comprehensive.spec.js`)
+Tests all 47+ built-in examples for correctness - 7 tests:
+- ✅ All XSLT examples load and execute without errors
+- ✅ All XPath examples load and evaluate without errors
+- ✅ Switch from XSLT to XPath example seamlessly
+- ✅ Switch from XPath to XSLT example seamlessly
+- ✅ Preserve mode when loading same-type examples
+- ✅ Handle rapid example switching
+- ✅ Comprehensive coverage reporting
+
+**Run**: `npm run test:e2e -- tests/e2e/workflows/examples-comprehensive.spec.js`
+
+### 9. Share URL (`workflows/share-url.spec.js`)
+Tests session sharing via encoded URLs - 8 tests:
+- ✅ Generate share URL from current editor state
+- ✅ Include headers in share URL and decode correctly
+- ✅ Include properties in share URL and decode correctly
+- ✅ Generate consistent share URL for same content
+- ✅ Handle corrupted share URL gracefully
+- ✅ Perform round-trip: generate → load → generate with same result
+- ✅ Clean up hash from URL after loading share data
+- ✅ Close share modal when clicking outside
+
+**Run**: `npm run test:e2e -- tests/e2e/workflows/share-url.spec.js`
 
 ---
 

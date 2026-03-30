@@ -32,7 +32,7 @@ applyTo:
 - **Debounce timers**: `xsltDebounce`, `xmlDebounce` (global)
 
 ### Format / Minify
-- **prettyXML(xml)** → formatted XML string (`panes.js:75`)
+- **prettyXML(xml)** → formatted XML string (`panes.js:81`)
 - **fmtEditor(which)** → format button handler (`panes.js:176`)
 - **Context menu actions**: Format, Minify, Comment/Uncomment (`editor.js:395-520`)
 
@@ -108,13 +108,12 @@ applyTo:
 - **restoreOutputSection()** → re-expands output section (`xpath.js:808`)
 
 ### Mode Toggle (XSLT ↔ XPath)
-- **toggleXPath()** → switches modes (`xpath.js:236`)
-- **_applyXPathToggleState()** → syncs UI (buttons, panels, console position) (`xpath.js:161`)
-- **xpathEnabled** → global boolean flag
-- **Model swap**: `eds.xml.setModel(xpathEnabled ? xmlModelXpath : xmlModelXslt)`
-- **_suppressNextXmlChange** → prevents synthetic content-change events
-- **Console repositioning** → moves console below workspace in XPath mode
-- **_xpathPreColCenterCollapsed** → saves XSLT column state for restoration
+- **toggleXPath()** → trigger mode switch to XPath; calls `modeManager.setMode('XPATH')` internally (`xpath.js:159`)
+- **ModeManager class** → Centralized mode switching, all UI sync happens inside `modeManager.setMode()` (`mode-manager.js`)
+- **modeManager.isXpath** → getter property (use instead of checking `xpathEnabled` directly)
+- **modeManager.setMode()** → primary API for mode changes; updates models, UI, column states automatically
+- ⚠️ **DEPRECATED**: `xpathEnabled` is ONLY for localStorage persistence; reading the mode should use `modeManager.isXpath`
+- ⚠️ **DEPRECATED**: Do not manually call `_applyXPathToggleState()` or swap models; use `modeManager.setMode()` instead
 
 ### XPath Mode UI Elements
 - **copyXPathInput()** → copies expression to clipboard (`xpath.js:880`)
@@ -127,7 +126,7 @@ applyTo:
 ## 3. Transform Engine
 
 ### XSLT 3.0 Execution
-- **runTransform()** → main entry point (`transform.js:161`)
+- **runTransform()** → main entry point (`transform.js:270`)
 - **Saxon-JS 2.x**: Bundled in `lib/SaxonJS2.js`
 - **saxonReady** → global flag, must be true before transforms
 - **SaxonJS.transform()** → called with `stylesheetText` + `sourceText`
@@ -622,7 +621,7 @@ panes.js → files.js → share.js → modal.js → ui.js → examples-data.js
 |----------|------|------|---------|
 | `runTransform()` | transform.js | 161 | Main XSLT transform entry |
 | `runXPath()` | xpath.js | 501 | Main XPath eval entry |
-| `toggleXPath()` | xpath.js | 236 | Mode switch XSLT↔XPath |
+| `toggleXPath()` | xpath.js | 159 | Mode switch XSLT↔XPath |
 | `loadExample(key)` | modal.js | 132 | Load example by key |
 | `validateXML(src)` | validate.js | 56 | XML validation |
 | `preflight(xml, xslt)` | validate.js | 145 | Pre-transform check |
