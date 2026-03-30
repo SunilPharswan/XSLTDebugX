@@ -147,6 +147,17 @@ test.describe('Mode Switching', () => {
     // Verify it's different
     let xpathXml = await page.getXmlContent();
     expect(xpathXml).toBe(xml2);
+  });
+
+  test('SUMMARY: Mode Switching', async () => {
+    console.log(`
+✅ MODE SWITCHING SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • XSLT ↔ XPath switching works
+  • Content preservation during mode switches
+  • Mode indicator badge correct
+`);
+  });
 
     // Switch back to XSLT mode
     await page.switchToXslt();

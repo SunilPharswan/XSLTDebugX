@@ -26,10 +26,10 @@ export default defineConfig({
 
   /* Reporter to use */
   reporter: [
+    ['list'],
     ['html', { open: 'never' }],
     ['json', { outputFile: 'test-results/results.json' }],
     ['junit', { outputFile: 'test-results/junit.xml' }],
-    ...(process.env.CI ? [] : [['list']])
   ],
 
   use: {

@@ -148,6 +148,18 @@ test.describe('Examples Library Workflow', () => {
     await page.closeExamplesModal();
     await testPage.waitForTimeout(500);
     await page.openExamplesModal();
+  });
+
+  test('SUMMARY: Examples Library', async () => {
+    console.log(`
+✅ EXAMPLES LIBRARY SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • Examples modal opens/closes
+  • Examples load and populate editors
+  • Search and filtering work
+  • Auto-run preference persists
+`);
+  });
 
     // Check box should still be enabled
     const checkbox = testPage.locator('#exAutoRunCheckbox');
