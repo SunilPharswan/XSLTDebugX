@@ -6,6 +6,54 @@ All notable changes to XSLTDebugX are documented here.
 
 ## [Unreleased]
 
+### Documentation Consolidation (2026-03-30)
+
+#### Major Refactor
+- **Centralized Documentation** — Consolidated 26 docs → 23 docs by moving developer content to `.github/docs/`
+- **Moved ARCHITECTURE.md** — Relocated from root to `.github/docs/ARCHITECTURE.md` (technical reference for developers)
+- **Merged INDEX.md** — Consolidated duplicate documentation index into expanded `.github/docs/README.md` (now master hub)
+- **Deleted tests/README.md** — Consolidated testing references to `.github/docs/TESTING.md` (single source of truth)
+
+#### User/Developer Separation
+- **Restructured README.md** — User-focused front (features, quick start, workflows) with "For Developers" footer section
+  - Moved Getting Started, Quick Start Tutorial, Common Workflows to early sections (right after "Why This Exists")
+  - Added clear link to `.github/docs/README.md` for all developer paths
+  - Compact Table of Contents with user/developer split
+  
+- **Condensed CONTRIBUTING.md** — Reduced from ~550 lines to 134 lines (76% reduction)
+  - Deferred Development Setup → `.github/docs/DEVELOPMENT.md`
+  - Deferred Code Style Guide → `.github/docs/DEVELOPMENT.md`
+  - Deferred Testing details → `.github/docs/TESTING.md`
+  - Deferred Examples details → `.github/instructions/examples-data.instructions.md`
+  - Kept high-level meta: before you start, PR process, issue templates, license
+
+- **Master Developer Hub** — `.github/docs/README.md` now single entry point for all developer resources
+  - Task-based navigation (setup, testing, architecture, contributing)
+  - Links to all instruction files, skills, and prompts
+  - Folder organization diagram
+
+#### Testing & Instruction Files
+- **Fixed testing.instructions.md** — Corrected YAML frontmatter (`title:` → `name:`)
+  - Updated relative path to copilot-instructions.md (`../../.github/` → `../`)
+  
+- **Fixed copilot-instructions.md** — Updated all relative paths (file is at `.github/copilot-instructions.md`)
+  - `instructions/` → `./instructions/`
+  - `docs/` → `./docs/`
+  - `.github/docs/` → `./docs/`
+  - `.github/skills/` → `./skills/`
+  - `.github/prompts/` → `./prompts/`
+
+#### Repository Links
+- **Updated GitHub references** — Changed from placeholder `yourusername` and `SAP-samples` to correct repository
+  - All URLs now point to `https://github.com/SunilPharswan/XSLTDebugX`
+  - Updated in: CONTRIBUTING.md, README.md, .github/docs/DEVELOPMENT.md
+
+#### Validation & Cross-Check
+- All 28 documentation links verified (0 broken links)
+- All 15 referenced files exist and resolve correctly
+- Relative paths validated from each file location
+- File structure tested and stable
+
 ---
 
 ## [1.2.0] — 2026-03-27

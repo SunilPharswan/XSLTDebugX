@@ -33,6 +33,7 @@
 |------|---------|------------|
 | [DEVELOPMENT.md](DEVELOPMENT.md) | Local dev setup, debugging in browser, performance tips, troubleshooting | Setting up dev environment |
 | [TESTING.md](TESTING.md) | E2E test suite, Playwright patterns, fixtures, timing strategies, debugging tests | Writing or debugging tests |
+| [EXAMPLES_TESTING.md](EXAMPLES_TESTING.md) | Comprehensive test suite for all 47 examples, running tests, interpreting results | Testing examples library full coverage |
 
 ### Feature Reference & Checklists
 

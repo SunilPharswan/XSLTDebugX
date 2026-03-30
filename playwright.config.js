@@ -15,11 +15,11 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
 
-  /* Retry failed tests twice in CI, once locally */
-  retries: process.env.CI ? 2 : 1,
+  /* Disable retries */
+  retries: 0,
 
   /* Run tests in parallel on CI and locally */
-  workers: process.env.CI ? 4 : 4,
+  workers: process.env.CI ? 4 : 2,
 
   /* Reporter to use */
   reporter: [
