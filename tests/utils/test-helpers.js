@@ -18,46 +18,15 @@ export class EditorPage {
   }
 
   /**
-   * Navigate to the application with balanced timeout strategy
-   * Uses 'domcontentloaded' for faster startup + explicit Monaco readiness check
-   * Balances timeout coverage with overall test execution time (avoid cascading retries)
+   * Navigate to the application
+   * Uses 'domcontentloaded' instead of 'networkidle' for faster startup
    */
   async navigate() {
-    // First: Navigate to page with 60s timeout
-    await this.page.goto('http://localhost:8000', { 
-      waitUntil: 'domcontentloaded', 
-      timeout: 60000 
-    });
-    
-    // Second: Wait for Monaco Editor DOM element with 45s timeout
-    // This is the bottleneck when 4 workers compete for resources
-    try {
-      await this.page.waitForSelector('.monaco-editor', { 
-        timeout: 45000, 
-        state: 'visible' 
-      });
-    } catch (e) {
-      // Capture diagnostics for debugging
-      const monacoPresent = await this.page.locator('.monaco-editor').count() > 0;
-      const windowReady = await this.page.evaluate(() => typeof window.monaco !== 'undefined');
-      const monacoEditors = await this.page.evaluate(() => 
-        window.monaco?.editor?.getEditors?.()?.length ?? 0
-      );
-      throw new Error(
-        `Monaco Editor failed to initialize after 45s. ` +
-        `DOM present: ${monacoPresent}, window.monaco ready: ${windowReady}, ` +
-        `editors count: ${monacoEditors}. Playwright will retry this test. ` +
-        `Original error: ${e.message}`
-      );
-    }
-    
-    // Third: Wait for Saxon-JS to be ready (critical for transform operations)
-    await this.page.waitForFunction(() => window.saxonReady === true, { timeout: 30000 }).catch(() => {
-      // Saxon might not be ready yet, but continue - app handles it gracefully
-    });
-    
-    // Fourth: Wait for JS module initialization (800ms debounce + buffer)
-    await this.page.waitForTimeout(1000);
+    await this.page.goto('http://localhost:8000', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    // Wait for Monaco Editor to initialize
+    await this.page.waitForSelector('.monaco-editor', { timeout: 20000 });
+    // Extra wait for JS initialization
+    await this.page.waitForTimeout(2000);
   }
 
   /**
