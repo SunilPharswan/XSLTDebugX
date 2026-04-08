@@ -28,6 +28,13 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Verify build output
+        run: |
+          echo "=== dist/ contents ==="
+          ls -la dist/
+          echo "=== dist/index.html script tags ==="
+          grep -E "script src|link rel" dist/index.html || echo "WARNING: no script/link tags found"
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
