@@ -34,6 +34,8 @@ jobs:
           ls -la dist/
           echo "=== dist/index.html script tags ==="
           grep -E "script src|link rel" dist/index.html || echo "WARNING: no script/link tags found"
+          echo "=== Confirming built app (no js/ tags in index.html) ==="
+          grep 'src="js/' dist/index.html && echo "❌ FAIL: raw js/ tags found — not built" || echo "✅ PASS: serving built bundle"
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
