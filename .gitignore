@@ -16,3 +16,9 @@ npm-debug.log
 
 # Claude Code
 .claude/
+
+# Vite
+dist/
+.vite/
+
+CLAUDE.md

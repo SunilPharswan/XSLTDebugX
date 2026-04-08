@@ -636,5 +636,5 @@ panes.js → files.js → share.js → modal.js → ui.js → examples-data.js
 ---
 
 **For detailed implementation examples, see individual module files.**
-**For CPI simulation details, see `.github/instructions/transform.instructions.md`.**
-**For example structure, see `.github/instructions/examples-data.instructions.md`.**
+**For CPI simulation details, see `.github/docs/TRANSFORM.md`.**
+**For example structure, see `.github/docs/reference/examples-data.md`.**

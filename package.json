@@ -2,10 +2,13 @@
   "name": "xsltdebugx",
   "version": "1.0.0",
   "description": "Browser-based XSLT/XPath IDE with CPI simulation",
+  "license": "AGPL-3.0-or-later",
   "private": true,
   "type": "module",
   "scripts": {
     "serve": "http-server -p 8000 -c-1",
+    "build": "vite build",
+    "preview": "vite preview --port 8000",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
@@ -13,6 +16,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.48.2",
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "vite": "^6.0.0"
   }
 }

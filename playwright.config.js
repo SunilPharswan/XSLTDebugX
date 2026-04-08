@@ -19,7 +19,7 @@ export default defineConfig({
   retries: 0,
 
   /* Test timeout - increase for slow CI environments */
-  timeout: process.env.CI ? 90000 : 30000,
+  timeout: process.env.CI ? 120000 : 30000,
 
   /* Run tests in parallel on CI and locally */
   workers: process.env.CI ? 4 : 2,
@@ -62,7 +62,9 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run serve',
+    command: process.env.TEST_SERVER === 'dist'
+      ? 'npx http-server dist/ -p 8000 -c-1'
+      : 'npm run serve',
     url: 'http://localhost:8000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,

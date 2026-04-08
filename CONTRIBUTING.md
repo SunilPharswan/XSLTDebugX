@@ -46,9 +46,7 @@ See [.github/docs/DEVELOPMENT.md](.github/docs/DEVELOPMENT.md) for detailed code
 
 ## Working with Examples
 
-See [.github/instructions/examples-data.instructions.md](.github/instructions/examples-data.instructions.md) for the complete example library structure, format validation rules, and how to add new examples to `js/examples-data.js`.
-
-Use the `xslt-example` skill to generate new examples and the `example-validator` skill to audit all 52 examples.
+See [.github/docs/reference/examples-data.md](.github/docs/reference/examples-data.md) for the complete example library structure, format validation rules, and how to add new examples to `js/examples-data.js`.
 
 ---
 
@@ -186,8 +184,8 @@ By contributing, you agree that your contributions will be licensed under the sa
 ## Questions?
 
 - **User features**: See [README.md](README.md)
-- **Developer docs**: See [.github/docs/README.md](.github/docs/README.md) (setup, testing, code style, architecture)
-- **API reference**: See [.github/instructions/](../instructions/)
+- **Developer docs**: See [.github/docs/DEVELOPMENT.md](.github/docs/DEVELOPMENT.md) (setup, testing, architecture)
+- **API reference**: See [.github/docs/reference/](.github/docs/reference/)
 - **Discussions**: Open a GitHub Discussion
 - **Bug reports / Feature requests**: Use GitHub Issues
 

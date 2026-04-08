@@ -5,6 +5,7 @@ This document describes the structure, data flow, and design patterns of XSLTDeb
 ## Table of Contents
 
 - [High-Level Architecture](#high-level-architecture)
+- [Build Pipeline](#build-pipeline)
 - [Module Overview](#module-overview)
 - [Module Dependency Graph](#module-dependency-graph)
 - [Data Flow](#data-flow)
@@ -18,7 +19,7 @@ This document describes the structure, data flow, and design patterns of XSLTDeb
 
 ## High-Level Architecture
 
-XSLTDebugX is a **zero-build vanilla JavaScript application** deployed as a static site on Cloudflare Pages. It uses **no framework, no bundler, no build step**.
+XSLTDebugX is a **vanilla JavaScript application** deployed as a static site on Cloudflare Pages. It uses **no framework**. For local development, source files are served directly (no build required). For production, a Vite + esbuild pipeline bundles and minifies into `dist/`.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -41,6 +42,46 @@ XSLTDebugX is a **zero-build vanilla JavaScript application** deployed as a stat
               │   Browser localStorage       │
               │   (xdebugx-session-v1)       │
               └──────────────────────────────┘
+```
+
+---
+
+## Build Pipeline
+
+`npm run build` runs `vite build`, which uses a custom two-plugin pipeline in `vite.config.js`:
+
+```
+Source files (js/*.js + css/style.css)
+    ↓
+esbuild — minifies each JS module individually (no IIFE wrapping)
+    ↓
+Concatenated in strict load order → content-hashed → dist/app.{hash}.js
+    ↓
+Vite — processes css/style.css → dist/app.{hash}.css
+    ↓
+index.html rewritten:
+  - 12 <script src="js/..."> tags stripped
+  - Single <script src="app.{hash}.js"> injected
+  - CSS link replaced with hashed filename
+    ↓
+dist/lib/SaxonJS2.js, _headers, _redirects, favicon.svg copied as-is
+```
+
+**Why no IIFE wrapping?** The source code uses inline HTML event handlers (`onclick="runTransform()"`) that require functions to be on `window`. IIFE-wrapping would make them local-scoped and break all handlers. esbuild's `bundle: false` mode minifies without wrapping.
+
+**Load order** is defined by the `JS_MODULES` array in `vite.config.js` and must stay in sync with the `<script>` tag order in `index.html`. When adding or reordering modules, update both.
+
+**dist/ output:**
+```
+dist/
+├── index.html           # Rewritten HTML
+├── app.{hash}.js        # All 12 modules, minified + concatenated
+├── app.{hash}.css       # Minified CSS
+├── favicon.svg
+├── _headers             # Cloudflare cache rules
+├── _redirects           # SPA routing fallback
+└── lib/
+    └── SaxonJS2.js      # Vendor XSLT engine (~2.3 MB)
 ```
 
 ---
@@ -574,9 +615,66 @@ let _myModuleState = { foo: 'bar' }; // In my-module.js, prefixed
 
 ---
 
+## Critical Constraints
+
+These patterns prevent the most common bugs. See also `CLAUDE.md` Critical Constraints section.
+
+### 1. Global Namespace
+
+Public API functions: unprefixed (`runTransform()`). Private/internal: `_` prefix (`_rewriteCPICalls()`). Never add an unprefixed function without checking `state.js` for conflicts.
+
+### 2. Editor Model Isolation
+
+Always check `modeManager.isXpath` before reading/writing XML — the two modes use separate models (`xmlModelXslt` / `xmlModelXpath`). Using the wrong model corrupts content and decorations.
+
+```javascript
+// ✅ Correct
+const model = modeManager.isXpath ? xmlModelXpath : xmlModelXslt;
+return model.getValue();
+```
+
+### 3. Saxon Readiness
+
+Always guard Saxon calls with `if (!saxonReady)`. Saxon loads async from CDN — buttons render before it's ready.
+
+### 4. CPI Rewriting Fragility
+
+`rewriteCPICalls()` in `transform.js` shifts error line numbers. Don't modify it without running the full CPI test suite (`npx playwright test --grep "CPI"`).
+
+### 5. Validation Debouncing
+
+Validation is debounced at 800ms. When making programmatic editor changes, set `_suppressNextValidation = true` first to avoid spurious error markers.
+
+### 6. Share URL Limit
+
+URLs cap at ~2,000 chars. Large XSLT + XML silently fail to encode. No warning is shown — users discover on load.
+
+### 7. localStorage Versioning
+
+Storage key is `xdebugx-session-v1`. If you change the saved-state schema, bump to `v2` — old sessions are silently ignored, users get a clean state.
+
+### 8. Mode Switch Timing
+
+Mode switches trigger UI animations (~1.5s). XPath-specific DOM elements don't exist in XSLT mode. Wait for `#xpathInput` before interacting:
+
+```javascript
+await modeManager.setMode('XPATH');
+await page.waitForSelector('#xpathInput'); // in tests
+```
+
+### Pre-commit Checklist
+
+- [ ] No new unprefixed globals — check `state.js`
+- [ ] Saxon calls guarded with `saxonReady`
+- [ ] Programmatic editor changes use `_suppressNextValidation`
+- [ ] localStorage schema unchanged, or version bumped
+- [ ] `rewriteCPICalls()` untouched, or CPI tests run
+
+---
+
 ## Further Reading
 
 - **[../../CONTRIBUTING.md](../../CONTRIBUTING.md)** — Code style, testing, PR process
-- **[../instructions/features.instructions.md](../instructions/features.instructions.md)** — Complete 200+ feature catalog and API reference
-- **[../instructions/transform.instructions.md](../instructions/transform.instructions.md)** — CPI simulation deep dive, error mapping
+- **[reference/features.md](reference/features.md)** — Complete 200+ feature catalog and API reference
+- **[TRANSFORM.md](TRANSFORM.md)** — CPI simulation deep dive, error mapping
 - **[../../README.md](../../README.md)** — User-facing features, getting started, keyboard shortcuts

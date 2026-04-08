@@ -1,6 +1,6 @@
 # XSLTDebugX — SAP Cloud Integration XSLT IDE
 
-![XSLT 3.0](https://img.shields.io/badge/XSLT-3.0-blue?logo=w3c) ![XPath 3.1](https://img.shields.io/badge/XPath-3.1-blue) ![Saxon-JS](https://img.shields.io/badge/Saxon--JS-2.x-green) ![License](https://img.shields.io/badge/license-AGPL%203.0-blue) ![No Build](https://img.shields.io/badge/build-none-orange) ![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
+![XSLT 3.0](https://img.shields.io/badge/XSLT-3.0-blue?logo=w3c) ![XPath 3.1](https://img.shields.io/badge/XPath-3.1-blue) ![Saxon-JS](https://img.shields.io/badge/Saxon--JS-2.x-green) ![License](https://img.shields.io/badge/license-AGPL%203.0-blue) ![Build](https://img.shields.io/badge/build-vite-646cff) ![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 
 > A browser-based XSLT 3.0 IDE and XPath evaluator built specifically for SAP Cloud Integration (CPI) developers. Test and debug XSLT mappings and XPath expressions locally — with full CPI runtime simulation — before ever deploying to your tenant.
 
@@ -18,7 +18,7 @@
 
 SAP CPI's built-in mapping editor lacks live validation, an integrated debugger, and instant feedback on XSLT transformations. Testing iFlow XSLT requires simulating the runtime with correct headers and properties — a manual, error-prone process.
 
-XSLTDebugX runs entirely in the browser with full CPI runtime simulation. Nothing to install, no build step, no server. Open the page, paste your XML and XSLT, press **Ctrl+Enter**, and see the output — with headers, properties, and `xsl:message` traces in a live console. Instant feedback before deploying to CPI.
+XSLTDebugX runs entirely in the browser with full CPI runtime simulation. Nothing to install. Open the page, paste your XML and XSLT, press **Ctrl+Enter**, and see the output — with headers, properties, and `xsl:message` traces in a live console. Instant feedback before deploying to CPI.
 
 ---
 
@@ -33,10 +33,11 @@ XSLTDebugX runs entirely in the browser with full CPI runtime simulation. Nothin
 ```bash
 git clone https://github.com/SunilPharswan/XSLTDebugX.git
 cd XSLTDebugX
-open index.html    # macOS
+npm install         # installs devDependencies (Playwright, http-server, Vite)
+npm run serve       # serve source files directly — no build needed for local dev
 ```
 
-No build step. No `npm install`. No server required.
+Or open `index.html` directly in the browser — no server required for basic use.
 
 ### Keyboard shortcuts
 
@@ -118,7 +119,7 @@ No build step. No `npm install`. No server required.
 
 ## Architecture & Dependencies
 
-XSLTDebugX is built for **zero friction** — no build step, no `npm install`, no server required. The "Zero Dependencies" badge refers to **zero npm package dependencies**. Here's what that means:
+XSLTDebugX is built for **zero friction** — the **app itself** has zero npm runtime dependencies. The "Zero Dependencies" badge refers to **zero npm package dependencies at runtime**. Here's what that means:
 
 ### Dependency Model
 
@@ -127,15 +128,14 @@ XSLTDebugX is built for **zero friction** — no build step, no `npm install`, n
 | **Monaco Editor** | CDN | `cdn.jsdelivr.net` | Syntax highlighting, code editing |
 | **pako** (compression) | CDN | `cdnjs.cloudflare.com` | Share URL encoding/decoding |
 | **Saxon-JS 2.x** | Bundled | `/lib/SaxonJS2.js` (in repo) | XSLT 3.0 + XPath 3.1 processor |
-| **npm packages** | Development only | `@playwright/test`, `http-server` | E2E testing & local dev server |
+| **npm packages** | Development only | `@playwright/test`, `http-server`, `vite` | E2E testing, local dev server, production build |
 
 ### What This Means
 
-✅ **No npm bloat in production** — App ships as-is, no `node_modules` build  
-✅ **Fast initial load** — Static files only, no bundler overhead  
-✅ **Simple deployment** — Drop on any static host (Cloudflare Pages, GitHub Pages, etc.)  
-✅ **Offline-capable** — Works fully offline once Monaco/pako cached; only requires pre-cached CDN resources  
-✅ **Zero build step** — Edit source, refresh browser. No webpack, no esbuild, no build time
+✅ **No npm bloat in production** — App ships with zero runtime npm dependencies  
+✅ **Fast initial load** — Static files only, single bundled JS/CSS after build  
+✅ **Simple deployment** — Build → drop `dist/` on any static host (Cloudflare Pages, GitHub Pages, etc.)  
+✅ **Offline-capable** — Works fully offline once Monaco/pako cached; only requires pre-cached CDN resources
 
 ### CDN vs. Bundled
 
@@ -204,7 +204,7 @@ Type an XPath 3.0 expression and press **Enter** or **Run XPath**. Matched nodes
 - **`xsl:message` in console** — amber entries in correct execution order
 - **`terminate="yes"` as intentional halt** — logged as warning, not error
 - **Comprehensive example** — "CPI Headers & Properties (Complete)" shows all 4 functions (getHeader, setHeader, getProperty, setProperty) with step-by-step console debugging for newcomers
-- **Deep dive** — See [.github/instructions/transform.instructions.md](.github/instructions/transform.instructions.md) for XSLT rewriting, error line mapping, and interceptor patterns
+- **Deep dive** — See [.github/docs/TRANSFORM.md](.github/docs/TRANSFORM.md) for XSLT rewriting, error line mapping, and interceptor patterns
 
 ### Console
 - **Message types** — info (blue), success (green), warn (amber), error (red) with color-coded icons and timestamps
@@ -348,8 +348,8 @@ Hosted on **Cloudflare Pages** at [xsltdebugx.pages.dev](https://xsltdebugx.page
 
 2. **Build Configuration**
    - Framework preset: **None** (static site)
-   - Build command: (leave empty)
-   - Output directory: `/` (serve root directory)
+   - Build command: `npm run build`
+   - Output directory: `dist`
    - Environment variables: (none required)
 
 3. **Domain Configuration**
@@ -360,23 +360,24 @@ Hosted on **Cloudflare Pages** at [xsltdebugx.pages.dev](https://xsltdebugx.page
 
 Cloudflare Pages respects HTTP cache headers defined in `_headers` file:
 
-**Application Code** (`no-store` — always fresh)
+**Application Bundle** (immutable — 1-year cache)
 ```
-/index.html
-/css/*
-/js/*.js (except vendor)
+/app.*.js
+/app.*.css
 ```
-- `Cache-Control: no-store`
-- Ensures users always get the latest code
-- No service worker cache (immediate updates on new releases)
+- `Cache-Control: public, max-age=31536000, immutable`
+- Hash-suffixed filenames (`app.{sha256}.js`) change on every build, so old bundles are never stale
+- Browsers cache aggressively; new deploys serve a new filename automatically
 
 **Vendor Libraries** (7-day cache)
 ```
 /lib/SaxonJS2.js
 ```
 - `Cache-Control: public, max-age=604800`
-- Bundles Saxon locally; safe to cache long-term
-- If Saxon-JS version updates, bump `lib/SaxonJS2.js` version in JS and increment cache-buster query param
+- Bundled locally; safe to cache long-term
+- If Saxon-JS version updates, bump `lib/SaxonJS2.js` — the new filename busts the cache
+
+**index.html** — served fresh on every request (no cache directive = no-store default)
 
 ### Single-Page App (SPA) Routing
 
@@ -397,8 +398,7 @@ This allows:
 Before pushing to `main`:
 
 1. **Update version** in `README.md`
-2. **Update CHANGELOG.md** with all changes, version tag, date
-3. **Run example validator** — ensure all 52 examples pass checks
+2. **Run example validator** — ensure all 52 examples pass checks
 4. **Test all features** — click through each category/workflow in the browser
 5. **Clear old sessions** — remove `xdebugx-session-v1*` test data from localStorage
 6. **Check bundle size** — `lib/SaxonJS2.js` should be ~10-12MB (minified)
@@ -431,7 +431,7 @@ XSLTDebugX comes with a comprehensive Playwright E2E test suite (61 tests across
 
 **For writing and running tests:**
 - **[.github/docs/TESTING.md](.github/docs/TESTING.md)** — E2E testing guide: setup, Playwright patterns, test structure, example workflows
-- **[.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md)** — Complete technical guide: architecture, POM design, fixture structure, timing strategy, feature-specific setups, debugging tips
+- **[.github/docs/reference/testing-reference.md](.github/docs/reference/testing-reference.md)** — Complete technical guide: architecture, POM design, fixture structure, timing strategy, feature-specific setups, debugging tips
 
 **Running tests:**
 ```bash
@@ -456,7 +456,8 @@ npx playwright test -g "should perform basic"
 
 For detailed local development setup, debugging, testing, and troubleshooting, see [.github/docs/DEVELOPMENT.md](.github/docs/DEVELOPMENT.md).
 
-XSLTDebugX is **zero-build** — no npm scripts, no bundler, no build step. Edit files → refresh browser → see changes.
+**Local development:** Edit source files in `js/` and `css/`, then `npm run serve` and refresh — no build required.  
+**Production build:** `npm run build` → `dist/` — bundles and minifies via Vite + esbuild, outputs hash-named `app.{hash}.js/css`.
 
 ### Testing Checklist
 
@@ -655,7 +656,7 @@ Check `exclude-result-prefixes="cpi xs"` in your stylesheet declaration. Namespa
 - **Architecture & module overview**: [ARCHITECTURE.md](./.github/docs/ARCHITECTURE.md)
 - **Local development setup**: [.github/docs/DEVELOPMENT.md](.github/docs/DEVELOPMENT.md)
 - **Testing guide**: [.github/docs/TESTING.md](.github/docs/TESTING.md)
-- **Complete documentation index**: [.github/docs/README.md](.github/docs/README.md) — All files organized by category and role with navigation
+- **Complete documentation index**: [.github/docs/ARCHITECTURE.md](.github/docs/ARCHITECTURE.md) — Architecture, constraints, module API
 
 ### For Users & Learners
 
@@ -874,16 +875,11 @@ XSLTDebugX uses [GoatCounter](https://www.goatcounter.com) for anonymous, privac
 
 **Setting up local development, understanding the codebase, writing tests, contributing code, and managing releases?**
 
-Start with [.github/docs/README.md](.github/docs/README.md) — the master hub for all developer documentation organized by task:
-
 - **[Setting up locally?](docs/DEVELOPMENT.md)** → [.github/docs/DEVELOPMENT.md](.github/docs/DEVELOPMENT.md)
 - **[Writing or running tests?](docs/TESTING.md)** → [.github/docs/TESTING.md](.github/docs/TESTING.md)
 - **[Understanding the architecture?](docs/ARCHITECTURE.md)** → [.github/docs/ARCHITECTURE.md](.github/docs/ARCHITECTURE.md)
 - **[Code style & contributing?](CONTRIBUTING.md)** → [CONTRIBUTING.md](CONTRIBUTING.md)
-- **[Feature API reference?](instructions/)** → [.github/instructions/README.md](.github/instructions/README.md)
-- **[Skills & prompts?](skills/)** → [.github/skills/](../.github/skills/) and [.github/prompts/](../.github/prompts/)
-
-All developer paths flow back to [.github/docs/README.md](.github/docs/README.md) for a single entry point.
+- **[Feature API reference?](.github/docs/reference/features.md)** → [.github/docs/reference/features.md](.github/docs/reference/features.md)
 
 ---
 
