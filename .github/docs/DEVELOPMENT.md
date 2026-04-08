@@ -441,8 +441,85 @@ XPath evaluation is generally fast, but large document selection can slow:
 
 ---
 
+## Browser Debugging Reference
+
+### Useful DevTools Console Commands
+
+```javascript
+// Inspect live state
+window.eds              // { xml, xslt, out } Monaco instances
+window.kvData           // { headers: [...], properties: [...] }
+window.saxonReady       // true if Saxon-JS loaded
+window.modeManager      // { isXpath, setMode(), ... }
+
+eds.xml.getValue()      // Current XML content
+eds.xslt.getValue()     // Current XSLT content
+modeManager.isXpath     // true = XPath mode, false = XSLT mode
+
+// localStorage
+localStorage.getItem('xdebugx-session-v1')   // Session state
+localStorage.getItem('xdebugx-xpath-history') // Last 20 XPath expressions
+localStorage.clear()                           // Wipe and start fresh
+```
+
+### Common Debugging Tasks
+
+**"Transform won't run"**
+```javascript
+console.log(saxonReady);              // Must be true
+console.log(eds.xslt.getValue());    // Empty?
+console.log(modeManager.isXpath);   // Must be false for XSLT
+```
+
+**"Mode switch breaks things"**
+```javascript
+console.log(eds.xml.getModel());    // Check active model
+// Mode switch takes ~1.5s — code running too soon?
+await new Promise(r => setTimeout(r, 2000));
+```
+
+**"CPI headers not captured"**
+```javascript
+console.log(window.kvData);         // Headers populated?
+console.log(modeManager.isXpath);  // Must be false — CPI is XSLT-only
+```
+
+**"Storage won't restore"**
+```javascript
+const stored = localStorage.getItem('xdebugx-session-v1');
+try { JSON.parse(stored); } catch(e) { console.error('Corrupt:', e); }
+localStorage.clear(); location.reload();  // Fresh start
+```
+
+**"XPath won't evaluate"**
+```javascript
+console.log(modeManager.isXpath);  // Must be true
+document.getElementById('xpathInput').value;  // Expression set?
+// Try simple expression first: //Item
+```
+
+### Quick State Dump (for bug reports)
+
+```javascript
+console.log(JSON.stringify({
+  xml: eds.xml.getValue(),
+  xslt: eds.xslt.getValue(),
+  mode: modeManager.isXpath ? 'XPATH' : 'XSLT',
+  kvData: window.kvData,
+  saxonReady: window.saxonReady
+}, null, 2));
+```
+
+### Chrome DevTools Tips
+
+- **Pause on exception:** Console → ⚙️ → "Pause on exceptions"
+- **Local Overrides:** Sources → Overrides — edit files without reloading
+- **Useful breakpoints:** `runTransform()` in `transform.js`, `rewriteCPICalls()` in `transform.js`, `switchToXpath()` in `mode-manager.js`
+
+---
+
 ## Next Steps
 
 - Read [../../CONTRIBUTING.md](../../CONTRIBUTING.md) for code style and PR process
-- Read [ARCHITECTURE.md](ARCHITECTURE.md) for module structure and data flow
-- Check [../instructions/](../instructions/) for detailed API reference and CPI patterns
+- Read [ARCHITECTURE.md](ARCHITECTURE.md) for module structure, data flow, and critical constraints
+- Check [reference/features.md](reference/features.md) for the feature catalog and [TRANSFORM.md](TRANSFORM.md) for CPI patterns

@@ -788,7 +788,7 @@ async waitForDebounce() {
 ```
 
 **Why 1s?**
-- App uses 800ms debounce for state persistence (see [copilot-instructions.md](../copilot-instructions.md))
+- App uses 800ms debounce for state persistence (see `state.js` `scheduleSave()` and `ARCHITECTURE.md` Critical Constraints)
 - localStorage write is synchronous but debounced
 - 200ms buffer for safety: network events, other timers
 - Tests that check localStorage must call `waitForDebounce()` first
