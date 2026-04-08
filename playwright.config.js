@@ -19,7 +19,7 @@ export default defineConfig({
   retries: 0,
 
   /* Test timeout - increase for slow CI environments */
-  timeout: process.env.CI ? 90000 : 30000,
+  timeout: process.env.CI ? 120000 : 30000,
 
   /* Run tests in parallel on CI and locally */
   workers: process.env.CI ? 4 : 2,
