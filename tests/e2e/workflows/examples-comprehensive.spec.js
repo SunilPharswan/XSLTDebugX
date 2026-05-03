@@ -4,7 +4,7 @@ import { EditorPage } from '../../utils/test-helpers.js';
 /**
  * Comprehensive Examples Library Test Suite
  *
- * Tests ALL 47 XSLT and XPath examples to verify:
+ * Tests ALL 61 XSLT and XPath examples to verify:
  * ✅ Examples load without errors
  * ✅ Content is properly populated
  * ✅ XSLT transforms generate valid output
@@ -16,7 +16,7 @@ import { EditorPage } from '../../utils/test-helpers.js';
  */
 
 // ════════════════════════════════════════════════════════════════════════════
-// METADATA: All 47 examples for parametrized testing
+// METADATA: All 61 examples for parametrized testing
 // ════════════════════════════════════════════════════════════════════════════
 
 const EXAMPLE_KEYS = [
@@ -25,40 +25,54 @@ const EXAMPLE_KEYS = [
   'renameElements',
   'filterNodes',
   'namespaceHandling',
+  'unwrapRewrap',
+  'sortRecords',
+  'fieldInjection',
+  'emptyElementCleanup',
+
+  // Aggregation & Splitting (5)
   'groupBy',
   'splitMessage',
   'mergeMessages',
-  'xmlToText',
-  
-  // Aggregation & Splitting (3)
   'batchProcessing',
-  'sortRecords',
-  'fieldInjection',
-  
+  'pivotCrossTab',
+
   // Format Conversion (6)
   'dateFormatting',
   'currencyAmount',
-  'idocToXml',
+  'multiCurrencyReport',
   'xmlToJson',
   'xmlToCsv',
   'xmlToFixedLength',
-  
-  // SAP CPI Patterns (13)
+
+  // XSLT 3.0 Advanced (6)
+  'mapsAndArrays',
+  'higherOrderFilter',
+  'higherOrderFold',
+  'groupByAdjacent',
+  'groupByStartingWith',
+  'inlineFunctions',
+
+  // SAP CPI Patterns (17)
   'cpiGetSet',
   'lookupEnrich',
   'errorHandling',
-  'multiCurrencyReport',
   'batchKeyRecovery',
   'xslMessageDebug',
   'soapFaultHandling',
   'conditionalRouting',
-  'unwrapRewrap',
-  'emptyElementCleanup',
+  'sfEmployeeMapping',
+  'idocToXml',
+  'idocInvoic01',
   'stripSoapEnvelope',
   'addXmlWrapper',
-  'sfEmployeeMapping',
+  'xmlToText',
+  's4BusinessPartner',
+  's4SalesOrder',
+  'cpiDynamicConfig',
+  'cpiMultiMapping',
 
-  // XPath Explorer (16)
+  // XPath Explorer (19)
   'xpathNavigation',
   'xpathAggregation',
   'xpathStringFunctions',
@@ -75,9 +89,9 @@ const EXAMPLE_KEYS = [
   'xpathSequenceOps',
   'xpathDeepEqual',
   'xpathTypeCasting',
-  
-  // IDoc Examples (2)
-  'idocInvoic01',
+  'xpathMapsArrays',
+  'xpathLetExpressions',
+  'xpathQuantified',
 ];
 
 // Expected category per example (derived from examples-data.js)
@@ -87,39 +101,53 @@ const EXAMPLE_CATEGORIES = {
   renameElements: 'transform',
   filterNodes: 'transform',
   namespaceHandling: 'transform',
-  groupBy: 'transform',
-  splitMessage: 'transform',
-  mergeMessages: 'transform',
-  xmlToText: 'transform',
-  
+  unwrapRewrap: 'transform',
+  sortRecords: 'transform',
+  fieldInjection: 'transform',
+  emptyElementCleanup: 'transform',
+
   // Aggregation
+  groupBy: 'aggregation',
+  splitMessage: 'aggregation',
+  mergeMessages: 'aggregation',
   batchProcessing: 'aggregation',
-  sortRecords: 'aggregation',
-  fieldInjection: 'aggregation',
-  
+  pivotCrossTab: 'aggregation',
+
   // Format
   dateFormatting: 'format',
   currencyAmount: 'format',
-  idocToXml: 'format',
+  multiCurrencyReport: 'format',
   xmlToJson: 'format',
   xmlToCsv: 'format',
   xmlToFixedLength: 'format',
-  
+
+  // Advanced
+  mapsAndArrays: 'advanced',
+  higherOrderFilter: 'advanced',
+  higherOrderFold: 'advanced',
+  groupByAdjacent: 'advanced',
+  groupByStartingWith: 'advanced',
+  inlineFunctions: 'advanced',
+
   // CPI
   cpiGetSet: 'cpi',
   lookupEnrich: 'cpi',
   errorHandling: 'cpi',
-  multiCurrencyReport: 'cpi',
   batchKeyRecovery: 'cpi',
   xslMessageDebug: 'cpi',
   soapFaultHandling: 'cpi',
   conditionalRouting: 'cpi',
-  unwrapRewrap: 'cpi',
-  emptyElementCleanup: 'cpi',
+  sfEmployeeMapping: 'cpi',
+  idocToXml: 'cpi',
+  idocInvoic01: 'cpi',
   stripSoapEnvelope: 'cpi',
   addXmlWrapper: 'cpi',
-  sfEmployeeMapping: 'cpi',
-  
+  xmlToText: 'cpi',
+  s4BusinessPartner: 'cpi',
+  s4SalesOrder: 'cpi',
+  cpiDynamicConfig: 'cpi',
+  cpiMultiMapping: 'cpi',
+
   // XPath
   xpathNavigation: 'xpath',
   xpathAggregation: 'xpath',
@@ -137,9 +165,9 @@ const EXAMPLE_CATEGORIES = {
   xpathSequenceOps: 'xpath',
   xpathDeepEqual: 'xpath',
   xpathTypeCasting: 'xpath',
-  
-  // IDoc
-  idocInvoic01: 'cpi',
+  xpathMapsArrays: 'xpath',
+  xpathLetExpressions: 'xpath',
+  xpathQuantified: 'xpath',
 };
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -176,10 +204,10 @@ test.describe('Comprehensive Examples Library Coverage', () => {
   });
 
   // ════════════════════════════════════════════════────────────────────────
-  // XSLT EXAMPLES: Transform, Aggregation, Format, CPI
+  // XSLT EXAMPLES: Transform, Aggregation, Format, Advanced, CPI
   // ════════════════════════════════════════════────────────────────────────
 
-  test.describe('XSLT Examples (Transform, Aggregation, Format, CPI)', () => {
+  test.describe('XSLT Examples (Transform, Aggregation, Format, Advanced, CPI)', () => {
     const xsltExamples = EXAMPLE_KEYS.filter(key => EXAMPLE_CATEGORIES[key] !== 'xpath');
 
     for (const exampleKey of xsltExamples) {
@@ -498,7 +526,7 @@ test.describe('Comprehensive Examples Library Coverage', () => {
   • Mode switching works correctly
 `);
 
-      expect(EXAMPLE_KEYS.length).toBe(47);
+      expect(EXAMPLE_KEYS.length).toBe(61);
     });
   });
 });
