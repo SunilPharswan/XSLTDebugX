@@ -3740,6 +3740,7 @@ const EXAMPLES = {
   -->
 
   <xsl:template match="/">
+    <xsl:variable name="doc" select="/"/>
     <xsl:variable name="priceMap" select="
       map:merge(
         for $p in /Products/Product
@@ -3761,7 +3762,7 @@ const EXAMPLES = {
         <xsl:for-each select="1 to array:size($categories)">
           <xsl:variable name="cat" select="array:get($categories, .)"/>
           <Category name="{$cat}"
-                    products="{count(/Products/Product[@category = $cat])}"/>
+                    products="{count($doc/Products/Product[@category = $cat])}"/>
         </xsl:for-each>
       </Categories>
     </RoutingPlan>
