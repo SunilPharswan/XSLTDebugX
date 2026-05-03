@@ -29,7 +29,7 @@ XSLTDebugX is a **vanilla JavaScript application** deployed as a static site on 
                               ↓
               ┌─────────────────────────────────┐
               │   Vanilla ES6+ JavaScript       │
-              │   (7,643 lines across 12 modules)
+              │   (8,520 lines across 12 modules)
               └─────────────────────────────────┘
                               ↓
         ┌─────────────────────────────────────────────┐
@@ -90,20 +90,20 @@ dist/
 
 | Module | Responsibility | Lines | Key Functions |
 |--------|-----------------|-------|----------------|
-| **state.js** | Global state, localStorage persistence, console | 170 | `clog()`, `scheduleSave()`, `loadSavedState()`, `setStatus()` |
-| **editor.js** | Monaco initialization, themes, keyboard shortcuts, context menus | 926 | `hideLoader()`, `setupAutoClose()`, `toggleTheme()`, `_toggleXmlComment()` |
-| **transform.js** | XSLT execution, CPI simulation, output rendering | 454 | `runTransform()`, `rewriteCPICalls()`, `buildParamsXPath()`, `renderOutputKV()` |
-| **validate.js** | XML/XSLT validation, Monaco error markers, Saxon error parsing | 149 | `validateXML()`, `markErrorLine()`, `preflight()`, `parseSaxonErrorLine()` |
-| **xpath.js** | XPath mode UI, expression evaluation, node highlighting, syntax coloring | 725 | `runXPath()`, `toggleXPath()`, `_highlightXPath()`, `_highlightMatchedNodes()` |
-| **mode-manager.js** | Centralized mode management (XSLT vs XPath) | 328 | `setMode()`, `isXpath`, `isXslt`, `getMode()` |
-| **panes.js** | Word wrap, copy/clear/format, context menu debouncing | 182 | `toggleWordWrap()`, `copyPane()`, `fmtEditor()`, `prettyXML()` |
-| **files.js** | File upload/download, drag-and-drop | 87 | `triggerUpload()`, `handleUpload()`, `downloadPane()`, `setupDragDrop()` |
-| **share.js** | URL encoding/decoding of session state | 130 | `buildSharePayload()`, `generateShareUrl()`, `loadFromShareHash()` |
-| **modal.js** | Examples library UI, filtering, loading | 208 | `openExModal()`, `loadExample()`, `renderExGrid()`, `filterExamples()` |
-| **ui.js** | Console state, theme toggle, help modal, column collapse | 169 | `setConsoleState()`, `toggleTheme()`, `applyConsoleSearch()`, `setConsoleFilter()` |
-| **examples-data.js** | 46 built-in XSLT/XPath examples across 5 categories | 3,365 | `CATEGORIES`, `EXAMPLES` (data objects) |
+| **state.js** | Global state, localStorage persistence, console | 195 | `clog()`, `scheduleSave()`, `loadSavedState()`, `setStatus()` |
+| **mode-manager.js** | Centralized mode management (XSLT vs XPath) | 384 | `setMode()`, `isXpath`, `isXslt`, `getMode()` |
+| **validate.js** | XML/XSLT validation, Monaco error markers, Saxon error parsing | 170 | `validateXML()`, `markErrorLine()`, `preflight()`, `parseSaxonErrorLine()` |
+| **panes.js** | Word wrap, copy/clear/format, context menu debouncing | 203 | `toggleWordWrap()`, `copyPane()`, `fmtEditor()`, `prettyXML()` |
+| **transform.js** | XSLT execution, CPI simulation, output rendering | 518 | `runTransform()`, `rewriteCPICalls()`, `buildParamsXPath()`, `renderOutputKV()` |
+| **examples-data.js** | 61 built-in XSLT/XPath examples across 6 categories | 4,557 | `CATEGORIES`, `EXAMPLES` (data objects) |
+| **modal.js** | Examples library UI, filtering, loading | 236 | `openExModal()`, `loadExample()`, `renderExGrid()`, `filterExamples()` |
+| **files.js** | File upload/download, drag-and-drop | 93 | `triggerUpload()`, `handleUpload()`, `downloadPane()`, `setupDragDrop()` |
+| **ui.js** | Console state, theme toggle, help modal, column collapse | 191 | `setConsoleState()`, `toggleTheme()`, `applyConsoleSearch()`, `setConsoleFilter()` |
+| **share.js** | URL encoding/decoding of session state | 151 | `buildSharePayload()`, `generateShareUrl()`, `loadFromShareHash()` |
+| **xpath.js** | XPath mode UI, expression evaluation, node highlighting, syntax coloring | 810 | `runXPath()`, `toggleXPath()`, `_highlightXPath()`, `_highlightMatchedNodes()` |
+| **editor.js** | Monaco initialization, themes, keyboard shortcuts, context menus | 1,012 | `hideLoader()`, `setupAutoClose()`, `toggleTheme()`, `_toggleXmlComment()` |
 
-**Total: 6,873 lines of code**
+**Total: 8,520 lines of code**
 
 ---
 
@@ -116,29 +116,29 @@ index.html
     ↓
 state.js ←─────────────────────────────────────────────────────┐
     ↓ (provides global state, clog, scheduleSave)               │
-editor.js (uses state)                                          │
-    ↓ (provides eds, setupAutoClose)                            │
-transform.js (uses state, editor)                               │
-    ↓ (provides runTransform, CPI functions)                    │
-validate.js (uses state, editor)                                │
+mode-manager.js (uses state)                                    │
+    ↓ (provides setMode, isXpath, isXslt, getMode)             │
+validate.js (uses state)                                        │
     ↓ (provides validateXML, markErrorLine, preflight)          │
-mode-manager.js (uses state) ←───────────────────┐              │
-    ↓ (provides setMode, isXpath, isXslt)        │              │
-xpath.js (uses state, editor, validate) ←────────┤──────────────┤
-    ↓ (provides runXPath, toggleXPath, node highlighting)       │
-panes.js (uses state, editor) ←──────────────────┐              │
-    ↓ (provides toggleWordWrap, copyPane)        │              │
-files.js (uses state, editor) ←──────────────────┤──────────────┤
-    ↓ (provides triggerUpload, downloadPane)     │              │
-share.js (uses state, editor, transform) ←──────┤──────────────┤
-    ↓ (provides generateShareUrl)                │              │
-modal.js (uses state, editor, examples-data) ←──┤──────────────┤
-    ↓ (provides openExModal, loadExample)        │              │
-ui.js (uses state, editor, xpath) ←─────────────┤──────────────┤
-    ↓ (provides toggleTheme, setConsoleState)    │              │
-examples-data.js ←───────────────────────────────┘              │
+panes.js (uses state)                                           │
+    ↓ (provides toggleWordWrap, copyPane, fmtEditor)            │
+transform.js (uses state, validate)                             │
+    ↓ (provides runTransform, CPI functions)                    │
+examples-data.js                                                │
     ↓ (provides CATEGORIES, EXAMPLES)                           │
-[All modules must load before first user interaction]           │
+modal.js (uses state, examples-data)                            │
+    ↓ (provides openExModal, loadExample)                       │
+files.js (uses state)                                           │
+    ↓ (provides triggerUpload, downloadPane)                    │
+ui.js (uses state)                                              │
+    ↓ (provides toggleTheme, setConsoleState)                   │
+share.js (uses state, transform)                                │
+    ↓ (provides generateShareUrl)                               │
+xpath.js (uses state, validate, mode-manager)                   │
+    ↓ (provides runXPath, toggleXPath, node highlighting)       │
+editor.js (uses state, all above) ←────────────────────────────┘
+    ↓ (provides eds, Monaco init, keyboard shortcuts)
+[All modules must load before first user interaction]
 ```
 
 **Key Constraint**: Load order is strict. Each module depends on globals defined by earlier modules.
@@ -530,17 +530,17 @@ The order in [../../index.html](../../index.html) is **critical**:
 
 <!-- 3. JS modules in dependency order -->
 <script src="js/state.js"></script>      <!-- Global state, clog -->
-<script src="js/editor.js"></script>     <!-- Monaco setup, uses state -->
-<script src="js/transform.js"></script>  <!-- Transform logic, uses state, editor -->
-<script src="js/validate.js"></script>   <!-- Validation, uses state, editor -->
 <script src="js/mode-manager.js"></script>  <!-- Mode management (XSLT vs XPath) -->
-<script src="js/xpath.js"></script>      <!-- XPath mode, uses all above -->
-<script src="js/panes.js"></script>      <!-- UI helpers, uses state, editor -->
-<script src="js/files.js"></script>      <!-- File I/O, uses state, editor -->
-<script src="js/share.js"></script>      <!-- URL sharing, uses state, editor, transform -->
-<script src="js/modal.js"></script>      <!-- Examples modal, uses state, editor -->
-<script src="js/ui.js"></script>         <!-- UI state, uses state, editor, xpath -->
-<script src="js/examples-data.js"></script>  <!-- Example definitions (last) -->
+<script src="js/validate.js"></script>   <!-- Validation, uses state -->
+<script src="js/panes.js"></script>      <!-- UI helpers, uses state -->
+<script src="js/transform.js"></script>  <!-- Transform logic, uses state, validate -->
+<script src="js/examples-data.js"></script>  <!-- Example definitions -->
+<script src="js/modal.js"></script>      <!-- Examples modal, uses examples-data -->
+<script src="js/files.js"></script>      <!-- File I/O, uses state -->
+<script src="js/ui.js"></script>         <!-- UI state, uses state -->
+<script src="js/share.js"></script>      <!-- URL sharing, uses state, transform -->
+<script src="js/xpath.js"></script>      <!-- XPath mode, uses validate, mode-manager -->
+<script src="js/editor.js"></script>     <!-- Monaco setup, uses all above (last) -->
 ```
 
 **Initialization sequence**:
@@ -549,11 +549,13 @@ The order in [../../index.html](../../index.html) is **critical**:
 2. **Vendor libs load asynchronously** (Monaco, Saxon-JS)
 3. **Module scripts execute in order**
 4. **state.js** → Initializes global state, sets up saveDebounce
-5. **editor.js** → Initializes Monaco editors, waits for Monaco lib to load
-6. **transform.js** → Registers transform button handler, waits for editor
-7. ... (remaining modules register event handlers, await their dependencies)
-8. **All modules loaded** → `saxonReady` flag triggers when Saxon-JS loaded
-9. **On first user interaction** → Transform or XPath can run
+5. **mode-manager.js** → Registers mode switching logic
+6. **validate.js** → Provides XML validation functions
+7. **transform.js** → Registers transform button handler
+8. ... (remaining modules register event handlers, await their dependencies)
+9. **editor.js** (last) → Initializes Monaco editors, restores session, connects all handlers
+10. **All modules loaded** → `saxonReady` flag triggers when Saxon-JS loaded
+11. **On first user interaction** → Transform or XPath can run
 
 ### When is the App Ready?
 

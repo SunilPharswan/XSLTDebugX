@@ -220,7 +220,7 @@ applyTo:
 ## 5. Examples Library
 
 ### Category System
-- **CATEGORIES object** → 5 categories with labels + accent colors (`examples-data.js:3`)
+- **CATEGORIES object** → 6 categories with labels + accent colors (`examples-data.js:3`)
 - **renderExSidebar()** → auto-generates category buttons with counts (`modal.js:8`)
 - **setExCat(cat)** → filters grid by category (`modal.js:65`)
 - **'all' category** → shows all 47 examples

@@ -4,7 +4,7 @@
 
 XSLTDebugX uses **Playwright** for end-to-end (E2E) testing. Tests verify the complete user workflows without mocking any backend systems.
 
-**Status**: ✅ 74 tests passing (8 test suites + smoke tests)
+**Status**: ✅ 88 tests passing (8 test suites + smoke tests)
 
 ---
 
@@ -19,14 +19,14 @@ tests/
 │   ├── fixtures/
 │   │   └── sample-data.js               # Test data (XML, XSLT, XPath examples)
 │   └── workflows/
-│       ├── mode-switching.spec.js       # 12 tests: XSLT ↔ XPath mode switching
-│       ├── session-management.spec.js   # 7 tests: localStorage persistence
-│       ├── xpath-evaluation.spec.js     # 6 tests: XPath expression evaluation
-│       ├── xslt-transform.spec.js       # 7 tests: XSLT transformations
-│       ├── cpi-simulation.spec.js       # 11 tests: CPI headers/properties, interceptors
-│       ├── examples-library.spec.js     # 13 tests: Examples modal, search, categories
-│       ├── examples-comprehensive.spec.js # 7 tests: All 47+ examples load & execute
-│       └── share-url.spec.js            # 8 tests: URL encoding, session sharing
+│       ├── mode-switching.spec.js       # 13 tests: XSLT ↔ XPath mode switching
+│       ├── session-management.spec.js   # 8 tests: localStorage persistence
+│       ├── xpath-evaluation.spec.js     # 7 tests: XPath expression evaluation
+│       ├── xslt-transform.spec.js       # 8 tests: XSLT transformations
+│       ├── cpi-simulation.spec.js       # 12 tests: CPI headers/properties, interceptors
+│       ├── examples-library.spec.js     # 14 tests: Examples modal, search, categories
+│       ├── examples-comprehensive.spec.js # 13 tests: All 61 examples load & execute
+│       └── share-url.spec.js            # 9 tests: URL encoding, session sharing
 ├── playwright.config.js                 # Playwright configuration
 └── package.json                         # Test dependencies
 ```
@@ -70,15 +70,16 @@ npm run test:e2e -- --project=chrome
 ## Test Suites
 
 ### 1. Smoke Tests (`smoke.spec.js`)
-Quick sanity checks - 3 tests:
+Quick sanity checks - 4 tests:
 - ✅ App loads with all UI elements
 - ✅ Basic XSLT transform works
 - ✅ Mode switching (XSLT ↔ XPath)
+- ✅ Saxon-JS engine ready
 
 **Run**: `npm run test:e2e -- tests/e2e/smoke.spec.js`
 
 ### 2. Mode Switching (`workflows/mode-switching.spec.js`)
-Tests switching between XSLT and XPath modes - 12 tests:
+Tests switching between XSLT and XPath modes - 13 tests:
 - ✅ Switch from XSLT → XPath
 - ✅ Switch from XPath → XSLT
 - ✅ Preserve content when switching
@@ -89,7 +90,7 @@ Tests switching between XSLT and XPath modes - 12 tests:
 **Run**: `npm run test:e2e -- tests/e2e/workflows/mode-switching.spec.js`
 
 ### 3. Session Management (`workflows/session-management.spec.js`)
-Tests localStorage persistence - 7 tests:
+Tests localStorage persistence - 8 tests:
 - ✅ Auto-save session to localStorage
 - ✅ Persist session after page reload
 - ✅ Store transform output
@@ -101,7 +102,7 @@ Tests localStorage persistence - 7 tests:
 **Run**: `npm run test:e2e -- tests/e2e/workflows/session-management.spec.js`
 
 ### 4. XPath Evaluation (`workflows/xpath-evaluation.spec.js`)
-Tests XPath expressions - 6 tests:
+Tests XPath expressions - 7 tests:
 - ✅ Evaluate count expressions
 - ✅ Select text nodes
 - ✅ Handle predicates
@@ -112,7 +113,7 @@ Tests XPath expressions - 6 tests:
 **Run**: `npm run test:e2e -- tests/e2e/workflows/xpath-evaluation.spec.js`
 
 ### 5. XSLT Transform (`workflows/xslt-transform.spec.js`)
-Tests XSLT transformations - 7 tests:
+Tests XSLT transformations - 8 tests:
 - ✅ Basic XML → XSLT → output
 - ✅ Detect malformed XML
 - ✅ Ctrl+Enter keyboard shortcut
@@ -124,7 +125,7 @@ Tests XSLT transformations - 7 tests:
 **Run**: `npm run test:e2e -- tests/e2e/workflows/xslt-transform.spec.js`
 
 ### 6. CPI Simulation (`workflows/cpi-simulation.spec.js`)
-Tests SAP CPI (Cloud Integration) simulation features - 11 tests:
+Tests SAP CPI (Cloud Integration) simulation features - 12 tests:
 - ✅ Add single header and display count
 - ✅ Add multiple headers
 - ✅ Add property and display count
@@ -140,7 +141,7 @@ Tests SAP CPI (Cloud Integration) simulation features - 11 tests:
 **Run**: `npm run test:e2e -- tests/e2e/workflows/cpi-simulation.spec.js`
 
 ### 7. Examples Library (`workflows/examples-library.spec.js`)
-Tests example modal, search, filtering, and loading - 13 tests:
+Tests example modal, search, filtering, and loading - 14 tests:
 - ✅ Open examples modal and render sidebar categories
 - ✅ Close modal on backdrop click
 - ✅ Load transform example and populate XML/XSLT
@@ -158,7 +159,7 @@ Tests example modal, search, filtering, and loading - 13 tests:
 **Run**: `npm run test:e2e -- tests/e2e/workflows/examples-library.spec.js`
 
 ### 8. Examples Comprehensive (`workflows/examples-comprehensive.spec.js`)
-Tests all 47+ built-in examples for correctness - 7 tests:
+Tests all 61 built-in examples for correctness - 13 tests:
 - ✅ All XSLT examples load and execute without errors
 - ✅ All XPath examples load and evaluate without errors
 - ✅ Switch from XSLT to XPath example seamlessly
@@ -170,7 +171,7 @@ Tests all 47+ built-in examples for correctness - 7 tests:
 **Run**: `npm run test:e2e -- tests/e2e/workflows/examples-comprehensive.spec.js`
 
 ### 9. Share URL (`workflows/share-url.spec.js`)
-Tests session sharing via encoded URLs - 8 tests:
+Tests session sharing via encoded URLs - 9 tests:
 - ✅ Generate share URL from current editor state
 - ✅ Include headers in share URL and decode correctly
 - ✅ Include properties in share URL and decode correctly
@@ -392,11 +393,15 @@ Edit `tests/fixtures/sample-data.js` to add new examples.
 
 ## Current Status
 
-✅ **36 tests passing**
-- Smoke tests: 3/3
-- Mode switching: 12/12
-- Session management: 7/7
-- XPath evaluation: 6/6
-- XSLT transforms: 7/7
+✅ **88 tests passing**
+- Smoke tests: 4/4
+- Mode switching: 13/13
+- Session management: 8/8
+- XPath evaluation: 7/7
+- XSLT transforms: 8/8
+- CPI simulation: 12/12
+- Examples library: 14/14
+- Examples comprehensive: 13/13
+- Share URL: 9/9
 
-Last updated: March 29, 2026
+Last updated: May 3, 2026

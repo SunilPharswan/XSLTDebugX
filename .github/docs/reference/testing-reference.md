@@ -31,8 +31,8 @@ applyTo: tests/**/*.spec.js, tests/utils/test-helpers.js, tests/fixtures/sample-
 
 ### Coverage
 
-- **7 test files** across 2 directories (smoke + 6 workflow suites)
-- **~61 tests** total
+- **9 test files** across 2 directories (smoke + 8 workflow suites)
+- **88 tests** total
 - **~700 lines** of test code (spec files)
 - **~650 lines** of helpers + POM (test-helpers.js)
 - **~400 lines** of fixtures (sample-data.js)
@@ -1779,6 +1779,6 @@ test('monitor network', async () => {
 
 ---
 
-**Document Version:** 1.0 (March 2026)
-**Test Suite Status:** 61 tests, 100% passing, production-ready
+**Document Version:** 1.1 (May 2026)
+**Test Suite Status:** 88 tests, 100% passing, production-ready
 **Last Reviewed:** March 30, 2026

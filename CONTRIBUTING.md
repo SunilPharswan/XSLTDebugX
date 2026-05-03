@@ -163,7 +163,7 @@ Attach screenshots, XSLT snippets, or XML samples if relevant.
 **Before releasing:**
 1. Bump version in README.md
 2. Update CHANGELOG.md
-3. Run `example-validator` skill to ensure all 52 examples pass
+3. Run `example-validator` skill to ensure all 61 examples pass
 4. Test all examples in browser (click through each category)
 5. Create GitHub release with version tag
 6. Verify Cloudflare Pages deployment

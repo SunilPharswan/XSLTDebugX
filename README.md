@@ -111,7 +111,7 @@ Or open `index.html` directly in the browser — no server required for basic us
 ## Recent Updates
 
 - **CPI GET/SET Complete Example** — New comprehensive example showing all 4 CPI functions (`getHeader`, `setHeader`, `getProperty`, `setProperty`) with step-by-step console debugging for newcomers
-- **46 Built-in Examples** — Example library across 5 categories (Data Transformation, Aggregation, Format Conversion, SAP CPI Patterns, XPath Explorer)
+- **61 Built-in Examples** — Example library across 6 categories (Data Transformation, Aggregation, Format Conversion, XSLT 3.0 Advanced, SAP CPI Patterns, XPath Explorer)
 - **Console Enhancements** — Search, type filtering, minimize/restore, auto-expand on errors, error/warning count badges
 - **XPath Mode Improvements** — Clickable hint chips, expression history (last 20), auto-growing input bar, namespace-agnostic examples
 
@@ -224,7 +224,7 @@ Type an XPath 3.0 expression and press **Enter** or **Run XPath**. Matched nodes
 - **Responsive layout** — 3-column flex layout with collapsible sections; works on tablets (iPad Pro tested)
 
 ### Examples Library
-46 built-in examples across 5 categories. All categories are fully dynamic — adding a new category to `CATEGORIES` in `examples-data.js` automatically creates its sidebar button, grid section, and card tags.
+61 built-in examples across 6 categories. All categories are fully dynamic — adding a new category to `CATEGORIES` in `examples-data.js` automatically creates its sidebar button, grid section, and card tags.
 
 **Library Features:**
 - **Search** — live filter by example name or description; highlights matching text
@@ -236,10 +236,11 @@ Type an XPath 3.0 expression and press **Enter** or **Run XPath**. Matched nodes
 | Category | Count | Examples |
 |---|---|---|
 | **Data Transformation** | 8 | Identity Transform, Rename Elements, Filter / Conditional Output, Namespace Handling, Unwrap / Rewrap Payload, Sort Records, Deep Copy + Field Injection, Empty Element Cleanup |
-| **Aggregation & Splitting** | 3 | Group-by & Aggregate, Split Message, Merge / Collect Records |
+| **Aggregation & Splitting** | 4 | Group-by & Aggregate, Split Message, Merge / Collect Records, Pivot / Cross-Tab |
 | **Format Conversion** | 6 | Date Format Conversion, Currency & Amount Formatting, Multi-Currency Consolidation, XML → JSON Output, XML → CSV Output, XML → Fixed-Length Output |
+| **XSLT 3.0 Advanced** | 6 | Maps & Arrays, Higher-Order Functions, Streaming, Accumulators, Try/Catch, Regex |
 | **SAP CPI Patterns** | 18 | IDoc ORDERS05, IDoc INVOIC01, Value Mapping / Lookup, CPI Headers & Properties (Complete), Error Handling (xsl:try), Batch Processing, Batch Key Recovery, xsl:message Debugging, SOAP Fault Handling, Conditional Routing Headers, XML to Flat Text/CSV, SuccessFactors Employee Mapping, Strip SOAP Envelope, Add XML Wrapper, + 4 additional patterns |
-| **XPath Explorer** | 17 | Navigation & Predicates, Aggregation, String Functions, tokenize/string-join, Regex, Date & Duration, Namespace-Agnostic, Batch Error Detection, Conditional & Boolean, Node Inspection, SOAP Envelope Navigation, distinct-values(), Sibling Axes, index-of() & subsequence(), deep-equal(), xs: Type Casting, + 1 additional expression |
+| **XPath Explorer** | 19 | Navigation & Predicates, Aggregation, String Functions, tokenize/string-join, Regex, Date & Duration, Namespace-Agnostic, Batch Error Detection, Conditional & Boolean, Node Inspection, SOAP Envelope Navigation, distinct-values(), Sibling Axes, index-of() & subsequence(), deep-equal(), xs: Type Casting, + 3 additional expressions |
 
 ### Share
 XML, XSLT, headers, and properties encoded into a single URL. Recipients always land in XSLT mode. Never hits a server. XPath expressions and XPath mode are not shared.
@@ -398,7 +399,7 @@ This allows:
 Before pushing to `main`:
 
 1. **Update version** in `README.md`
-2. **Run example validator** — ensure all 52 examples pass checks
+2. **Run example validator** — ensure all 61 examples pass checks
 4. **Test all features** — click through each category/workflow in the browser
 5. **Clear old sessions** — remove `xdebugx-session-v1*` test data from localStorage
 6. **Check bundle size** — `lib/SaxonJS2.js` should be ~10-12MB (minified)
@@ -427,7 +428,7 @@ Analytics via [GoatCounter](https://www.goatcounter.com) (privacy-friendly, no c
 
 ## Testing
 
-XSLTDebugX comes with a comprehensive Playwright E2E test suite (61 tests across 7 files).
+XSLTDebugX comes with a comprehensive Playwright E2E test suite (88 tests across 9 files).
 
 **For writing and running tests:**
 - **[.github/docs/TESTING.md](.github/docs/TESTING.md)** — E2E testing guide: setup, Playwright patterns, test structure, example workflows
@@ -501,15 +502,16 @@ XSLTDebugX/
 │   └── style.css           # All styles, themes (light/dark), component CSS
 ├── js/
 │   ├── state.js            # Global state, console, status bar, localStorage
+│   ├── mode-manager.js     # XSLT ↔ XPath mode switching, state + UI
 │   ├── validate.js         # XML validation, Monaco markers
 │   ├── panes.js            # clearPane, copyPane, prettyXML, fmtEditor, toggleWordWrap
 │   ├── transform.js        # CPI simulation, KV panels, runTransform
-│   ├── examples-data.js    # CATEGORIES object + 52 built-in examples
+│   ├── examples-data.js    # CATEGORIES object + 61 built-in examples
 │   ├── modal.js            # Examples library, dynamic sidebar, loadExample
 │   ├── files.js            # Upload, download, drag-and-drop
 │   ├── ui.js               # Column collapse, console, theme toggle, help modal
 │   ├── share.js            # Share URL encode/decode
-│   ├── xpath.js            # XPath evaluator, expression colorization, history, highlighting, mode toggle
+│   ├── xpath.js            # XPath evaluator, expression colorization, history, highlighting
 │   └── editor.js           # Monaco init, context menu, cursor stat, session restore
 └── lib/
     └── SaxonJS2.js         # Saxon-JS 2.x (bundled, no CDN)
@@ -519,7 +521,7 @@ XSLTDebugX/
 
 ## Architecture Overview
 
-XSLTDebugX uses a **zero-build vanilla JavaScript architecture** with 12 modules (~7,643 lines of code) and no external dependencies.
+XSLTDebugX uses a **zero-build vanilla JavaScript architecture** with 12 modules (~8,520 lines of code) and no external dependencies.
 
 ### Key Design Principles
 
@@ -534,9 +536,11 @@ XSLTDebugX uses a **zero-build vanilla JavaScript architecture** with 12 modules
 ```
 state.js (global state, clog, localStorage)
   ↓
-editor.js (Monaco init) → transform.js → validate.js → xpath.js → panes.js 
+mode-manager.js → validate.js → panes.js → transform.js → examples-data.js
                                                               ↓
-                                                        files.js, share.js, modal.js, ui.js
+                                                        modal.js, files.js, ui.js, share.js
+                                                              ↓
+                                                        xpath.js → editor.js (Monaco init)
 ```
 
 All modules must load before first user interaction. See [ARCHITECTURE.md](./.github/docs/ARCHITECTURE.md) for complete module reference, data flow diagrams, and design patterns.
@@ -661,7 +665,7 @@ Check `exclude-result-prefixes="cpi xs"` in your stylesheet declaration. Namespa
 ### For Users & Learners
 
 - **Keyboard shortcuts**: See header `?` icon in the app
-- **Built-in examples**: 46 examples across 5 categories — click **Examples** sidebar button
+- **Built-in examples**: 61 examples across 6 categories — click **Examples** sidebar button
 - **Getting started**: See [Features](#features) section above
 
 ### For Issues & Questions

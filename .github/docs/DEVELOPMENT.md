@@ -285,7 +285,7 @@ Before committing or submitting a PR, verify:
 - [ ] **Headers/Properties** — Add rows, run transform, values inject as `xsl:param`
 - [ ] **CPI Simulation** — Test `cpi:setHeader`, `cpi:getHeader`, `cpi:setProperty`, `cpi:getProperty`
 - [ ] **File Operations** — Upload files, download output, drag-and-drop works
-- [ ] **Examples** — Load examples from all 5 categories, no errors
+- [ ] **Examples** — Load examples from all 6 categories, no errors
 - [ ] **Console** — Search, type filters, minimize, auto-expand on error all work
 
 ### ✅ Browser Compatibility
@@ -313,7 +313,7 @@ Before committing or submitting a PR, verify:
 
 ### ✅ Examples Library
 
-- [ ] All 52 examples load without errors
+- [ ] All 61 examples load without errors
 - [ ] Example icons, labels, descriptions are correct
 - [ ] Categories filter correctly in modal
 - [ ] XPath hints display when loading XPath examples
