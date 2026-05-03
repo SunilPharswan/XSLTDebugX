@@ -110,6 +110,7 @@
     }
     .logo {
       display: flex; align-items: center; gap: 9px; text-decoration: none;
+      margin: 0; font-size: inherit; font-weight: inherit;
     }
     .logo-mark {
       width: 30px; height: 30px;

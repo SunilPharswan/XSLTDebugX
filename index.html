@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>XSLTDebugX — SAP Cloud Integration XSLT IDE</title>
-  <meta name="description" content="Free browser-based XSLT 3.0 and XPath 3.1 IDE for SAP Cloud Integration. Test XSLT transformations locally with CPI headers, properties, and extension functions — no deployment needed.">
+  <meta name="description" content="Free browser-based XSLT 3.0 and XPath 3.1 IDE for SAP Cloud Integration. Test transformations locally with CPI headers and properties — no deploy needed.">
   <meta name="keywords" content="XSLT editor, XPath evaluator, SAP CPI, SAP Cloud Integration, XSLT 3.0, XPath 3.1, XSLT debugger, XSLT online, Saxon-JS, XML transformation, XSLT IDE, XML editor online, SAP Integration Suite, iFlow XSLT, CPI mapping">
   <meta name="author" content="XSLTDebugX">
   <meta name="google-site-verification" content="2FIJQa0iXMS64h8tWPm5lUdskRuBHUzKXt8RxuyUlis">
@@ -116,12 +116,12 @@
 
 <!-- Header -->
 <header class="header">
-  <div class="logo">
+  <h1 class="logo">
     <div class="logo-mark">XD</div>
     <span class="logo-name">XSLTDebugX</span>
     <span class="logo-tag">SAP Cloud Integration</span>
     <span class="logo-tag logo-tag-ide">XSLT IDE</span>
-  </div>
+  </h1>
 
   <div class="h-spacer"></div>
 
@@ -225,7 +225,7 @@
           <div class="pane-divider"></div>
           <button class="collapse-btn" title="Collapse panel" onclick="toggleSideCol('left')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 4L6 8l4 4"/></svg></button>
         </div>
-        <input type="file" class="file-input-hidden" id="uploadXml" accept=".xml,.xsl,.xslt,.txt" onchange="handleUpload(event,'xml')">
+        <input type="file" class="file-input-hidden" id="uploadXml" accept=".xml,.xsl,.xslt,.txt" aria-label="Upload XML file" onchange="handleUpload(event,'xml')">
       </div>
 
       <div class="editor-wrap" id="xmlEdWrap">
@@ -279,7 +279,7 @@
         <button class="pane-icon-btn" title="Upload XSLT file" onclick="triggerUpload('xslt')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 10V2M5 5l3-3 3 3M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg></button>
         <button class="pane-icon-btn" title="Download XSLT file" onclick="downloadPane('xslt','stylesheet.xslt')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg></button>
       </div>
-      <input type="file" class="file-input-hidden" id="uploadXslt" accept=".xsl,.xslt,.xml,.txt" onchange="handleUpload(event,'xslt')">
+      <input type="file" class="file-input-hidden" id="uploadXslt" accept=".xsl,.xslt,.xml,.txt" aria-label="Upload XSLT file" onchange="handleUpload(event,'xslt')">
     </div>
     <div class="editor-wrap" id="xsltEdWrap" style="flex:1;min-height:0;">
       <div id="xsltEd"></div>
@@ -299,7 +299,7 @@
             <button class="console-filter-btn"         data-filter="error" onclick="setConsoleFilter('error')" title="Errors only"><svg viewBox="0 0 10 10" width="10" height="10"><circle cx="5" cy="5" r="4.5" fill="currentColor"/></svg></button>
           </div>
           <div class="pane-divider"></div>
-          <input class="console-search" id="consoleSearch" type="text" placeholder="search…" oninput="applyConsoleSearch(this.value)" title="Filter console by text"/>
+          <input class="console-search" id="consoleSearch" type="text" placeholder="search…" aria-label="Search console output" oninput="applyConsoleSearch(this.value)" title="Filter console by text"/>
           <div class="pane-divider"></div>
           <button class="pane-act-btn" id="consoleCopyBtn" title="Copy console output" onclick="copyConsole()">Copy</button>
           <button class="pane-act-btn" id="consoleClearBtn" title="Clear console" onclick="clearConsole()">Clear</button>
@@ -399,7 +399,7 @@
 
     <div class="share-modal-body">
       <div class="share-url-row">
-        <input class="share-url-input" id="shareUrlInput" readonly onclick="this.select()">
+        <input class="share-url-input" id="shareUrlInput" readonly aria-label="Share URL" onclick="this.select()">
         <button class="share-copy-btn" id="shareCopyBtn" onclick="_copyShareUrl(document.getElementById('shareUrlInput').value, false)">Copy URL</button>
       </div>
       <div class="share-hint">Includes XML, XSLT, headers and properties · recipient opens the link to restore this session</div>
@@ -418,7 +418,7 @@
         <input class="ex-modal-search" id="exModalSearch" placeholder="Search examples…" oninput="filterExamples()" autocomplete="off">
       </div>
       <label class="ex-auto-run-label" title="Automatically run examples after loading them">
-        <input type="checkbox" id="exAutoRunCheckbox" onchange="exAutoRunChecked = this.checked; localStorage.setItem('xdebugx-auto-run-examples', this.checked)">
+        <input type="checkbox" id="exAutoRunCheckbox" aria-label="Auto-run loaded examples" onchange="exAutoRunChecked = this.checked; localStorage.setItem('xdebugx-auto-run-examples', this.checked)">
         Auto-run
       </label>
       <button class="ex-modal-close" onclick="closeExModal()" title="Close">✕</button>
