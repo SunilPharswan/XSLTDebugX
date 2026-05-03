@@ -880,41 +880,9 @@ const EXAMPLES = {
   <xsl:output method="xml" indent="yes"/>
 
   <!--
-    ╔═══════════════════════════════════════════════════════════════════╗
-    ║  CPI HEADERS & PROPERTIES — COMPLETE DEMO                         ║
-    ║  For SAP Cloud Integration Newcomers                              ║
-    ╚═══════════════════════════════════════════════════════════════════╝
-
-    This example demonstrates:
-      ✅ Setting headers + properties   (cpi:setHeader / cpi:setProperty)
-      ✅ Getting headers + properties   (cpi:getHeader / cpi:getProperty)
-      ✅ Using retrieved values in transformation logic
-      ✅ Console debugging with xsl:message
-      ✅ Dynamic routing based on customer tier + source channel
-
-    ┌─────────────────────────────────────────────────────────────────┐
-    │  HEADERS vs PROPERTIES — What's the Difference?                 │
-    ├─────────────────────────────────────────────────────────────────┤
-    │  HEADERS:      Protocol-level (HTTP headers, SOAP headers)      │
-    │                Used for routing, authentication, content-type   │
-    │                Visible to external systems                      │
-    │                                                                  │
-    │  PROPERTIES:   CPI-internal exchange properties                 │
-    │                Shared across mapping/script/router steps        │
-    │                NOT visible to external systems                  │
-    │                Used for flow control, intermediate values        │
-    └─────────────────────────────────────────────────────────────────┘
-
-    ┌─────────────────────────────────────────────────────────────────┐
-    │  HOW IT WORKS IN CPI                                             │
-    ├─────────────────────────────────────────────────────────────────┤
-    │  1. Incoming message arrives with headers (source, channel)     │
-    │  2. XSLT reads headers via cpi:getHeader()                      │
-    │  3. XSLT inspects payload (CustomerTier, TotalAmount)           │
-    │  4. XSLT sets new headers for downstream routing                │
-    │  5. XSLT sets properties for audit logging / tracking           │
-    │  6. Router step checks headers to decide next step              │
-    └─────────────────────────────────────────────────────────────────┘
+    CPI Headers & Properties: get/set headers and exchange properties.
+    Demonstrates routing logic based on customer tier and source channel.
+    Uses xsl:message for console debugging of intermediate values.
   -->
 
   <!-- ═══════ INPUT PARAMETERS ═══════════════════════════════════ -->
@@ -1181,7 +1149,7 @@ const EXAMPLES = {
 
   batchProcessing: {
     label: 'Batch Processing (SuccessFactors)',
-    icon: '🔄',
+    icon: '🗂️',
     desc: 'OData $batch for EmpEmployment + EmpJob UPSERT',
     cat:  'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
@@ -1506,7 +1474,7 @@ const EXAMPLES = {
   xslMessageDebug: {
     label: 'xsl:message Debugging',
     icon: '🐛',
-    desc: 'Use xsl:message as console.log — trace variables, loop counts and branch decisions',
+    desc: 'xsl:message as console.log — trace variables and branches',
     cat:  'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <Orders>
@@ -1593,7 +1561,7 @@ const EXAMPLES = {
   xpathNavigation: {
     label: 'Navigation & Predicates',
     icon:  '🧭',
-    desc:  'Select elements by name, attribute value, position and multi-condition predicates',
+    desc:  'Filter by attribute, position and multi-condition predicates',
     cat:   'xpath',
     xpathExpr: "//Item[@status='active']",
     xml: `<?xml version="1.0" encoding="UTF-8"?>
@@ -1658,7 +1626,7 @@ const EXAMPLES = {
   xpathAggregation: {
     label: 'Aggregation Functions',
     icon:  '∑',
-    desc:  'sum(), count(), max(), min(), avg() — essential for CPI payload inspection',
+    desc:  'sum(), count(), max(), min(), avg() — CPI payload inspection',
     cat:   'xpath',
     xpathExpr: "sum(//Item/(UnitPrice * Qty))",
     xml: `<?xml version="1.0" encoding="UTF-8"?>
@@ -1716,7 +1684,7 @@ const EXAMPLES = {
   xpathStringFunctions: {
     label: 'String Functions',
     icon:  '🔤',
-    desc:  'normalize-space, contains, starts-with, concat, upper-case, substring, string-length',
+    desc:  'normalize-space, upper-case, substring — string functions',
     cat:   'xpath',
     xpathExpr: "//Employee[contains(normalize-space(Name), 'Kumar')]",
     xml: `<?xml version="1.0" encoding="UTF-8"?>
@@ -1775,7 +1743,7 @@ const EXAMPLES = {
   xpathTokenizeJoin: {
     label: 'tokenize() & string-join()',
     icon:  '🔗',
-    desc:  'Split delimited CPI property strings and reassemble — common in batch and routing flows',
+    desc:  'Split delimited CPI property strings and reassemble',
     cat:   'xpath',
     xpathExpr: "string-join(tokenize(//BatchKeys, ';'), ',')",
     xml: `<?xml version="1.0" encoding="UTF-8"?>
@@ -1814,7 +1782,7 @@ const EXAMPLES = {
   xpathRegexReplace: {
     label: 'matches() & replace() — Regex',
     icon:  '⚡',
-    desc:  'Validate and clean field values with XPath 2.0 regex — useful before CPI mapping',
+    desc:  'Validate and clean field values with XPath regex',
     cat:   'xpath',
     xpathExpr: "replace(//Invoice[1]/VATNumber, '[^A-Z0-9]', '')",
     xml: `<?xml version="1.0" encoding="UTF-8"?>
@@ -1862,7 +1830,7 @@ const EXAMPLES = {
   xpathDateFunctions: {
     label: 'Date & Duration Functions',
     icon:  '📅',
-    desc:  'Parse, format and compare xs:date values — critical for CPI SLA and deadline checks',
+    desc:  'Parse, format and compare xs:date — SLA and deadline checks',
     cat:   'xpath',
     xpathExpr: "//Order[xs:date(DeliveryDate) lt current-date()]",
     xml: `<?xml version="1.0" encoding="UTF-8"?>
@@ -1913,7 +1881,7 @@ const EXAMPLES = {
   xpathNamespaceAgnostic: {
     label: 'Namespace-Agnostic Selection',
     icon:  '🏷️',
-    desc:  'Use local-name() and *[local-name()] to query namespaced CPI payloads without prefix binding',
+    desc:  'local-name() for namespaced payloads, no prefix binding',
     cat:   'xpath',
     xpathExpr: "//*[local-name()='Amount']",
     xml: `<?xml version="1.0" encoding="UTF-8"?>
@@ -1964,7 +1932,7 @@ const EXAMPLES = {
   xpathBatchErrorDetect: {
     label: 'Batch Error Detection',
     icon:  '🚨',
-    desc:  'Identify failed changesets in SuccessFactors / OData $batch responses — real CPI pattern',
+    desc:  'Identify failed changesets in SF $batch responses',
     cat:   'xpath',
     xpathExpr: "//batchChangeSetPartResponse[statusCode != '200']",
     xml: `<?xml version="1.0" encoding="UTF-8"?>
@@ -2050,7 +2018,7 @@ const EXAMPLES = {
   soapFaultHandling: {
     label: 'SOAP Fault Handling',
     icon:  '⚠️',
-    desc:  'Extract faultcode, faultstring and detail from a SOAP Fault response — common in CPI error branches',
+    desc:  'Extract faultcode, faultstring and detail from a SOAP Fault',
     cat:   'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope
@@ -2104,7 +2072,7 @@ const EXAMPLES = {
   conditionalRouting: {
     label: 'Conditional Routing Headers',
     icon:  '🔀',
-    desc:  'Set cpi:setHeader routing values based on payload content — controls CPI router steps',
+    desc:  'Set routing headers from payload — drives CPI router steps',
     cat:   'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <PurchaseOrder>
@@ -2168,8 +2136,8 @@ const EXAMPLES = {
 
   xmlToText: {
     label: 'XML to Flat Text / CSV',
-    icon:  '📄',
-    desc:  'Convert XML records to pipe-delimited flat file — common for legacy system integration in CPI',
+    icon:  '📝',
+    desc:  'XML to pipe-delimited flat file — legacy system integration',
     cat:   'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <Employees>
@@ -2239,7 +2207,7 @@ const EXAMPLES = {
   sfEmployeeMapping: {
     label: 'SuccessFactors Employee Mapping',
     icon:  '👤',
-    desc:  'Map SuccessFactors EmpEmployment + EmpJob response to a flat HR integration format',
+    desc:  'Map SuccessFactors EmpEmployment + EmpJob to flat HR format',
     cat:   'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <EmpEmploymentCollection>
@@ -2352,7 +2320,7 @@ const EXAMPLES = {
   xpathConditional: {
     label: 'Conditional & Boolean Logic',
     icon:  '🔀',
-    desc:  'if/then/else, and/or predicates, not(), exists() — decision logic in XPath expressions',
+    desc:  'if/then/else, and/or, not(), exists() — XPath decision logic',
     cat:   'xpath',
     xslt:  '',
     xpathExpr: "//Order[xs:decimal(Amount) gt 1000 and Status = 'OPEN']",
@@ -2400,7 +2368,7 @@ const EXAMPLES = {
   xpathNodeInspection: {
     label: 'Node Inspection Functions',
     icon:  '🔬',
-    desc:  'name(), local-name(), namespace-uri(), count(), position(), last() — inspect document structure',
+    desc:  'name(), local-name(), namespace-uri() — inspect structure',
     cat:   'xpath',
     xslt:  '',
     xpathExpr: "//IDOC/*[local-name() != 'EDI_DC40']",
@@ -2454,7 +2422,7 @@ const EXAMPLES = {
   xpathSOAPNavigation: {
     label: 'SOAP Envelope Navigation',
     icon:  '🧩',
-    desc:  'Navigate SOAP envelope headers and body with namespace-aware XPath — daily CPI use case',
+    desc:  'Navigate SOAP envelope with namespace-aware XPath',
     cat:   'xpath',
     xslt:  '',
     xpathExpr: "//*[local-name()='Body']/*[1]",
@@ -2517,7 +2485,7 @@ const EXAMPLES = {
   unwrapRewrap: {
     label: 'Unwrap / Rewrap Payload',
     icon:  '📦',
-    desc:  'Strip an outer envelope and re-wrap content under a new root \u2014 common adapter mapping pattern in CPI',
+    desc:  'Strip envelope and re-wrap under new root \u2014 adapter',
     cat:   'transform',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <ns0:MT_PurchaseOrder_Out
@@ -2592,7 +2560,7 @@ const EXAMPLES = {
   sortRecords: {
     label: 'Sort Records',
     icon:  '🔄',
-    desc:  'Multi-key sort with xsl:sort \u2014 order invoice lines by priority then net value descending',
+    desc:  'Multi-key xsl:sort by priority then net value descending',
     cat:   'transform',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <Invoices>
@@ -2675,7 +2643,7 @@ const EXAMPLES = {
   fieldInjection: {
     label: 'Deep Copy + Field Injection',
     icon:  '💉',
-    desc:  'Identity transform variant that adds or overrides specific fields mid-copy \u2014 enrich without rewriting the full structure',
+    desc:  'Identity transform that injects or overrides specific fields',
     cat:   'transform',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <DeliveryNote>
@@ -2768,7 +2736,7 @@ const EXAMPLES = {
   emptyElementCleanup: {
     label: 'Empty Element Cleanup',
     icon:  '🧹',
-    desc:  'Remove blank and whitespace-only elements, normalize internal whitespace \u2014 data quality step before sending to downstream',
+    desc:  'Remove blank elements and normalize whitespace \u2014 pre-send',
     cat:   'transform',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <CustomerMaster>
@@ -2848,7 +2816,7 @@ const EXAMPLES = {
   stripSoapEnvelope: {
     label: 'Strip SOAP Envelope',
     icon:  '✂️',
-    desc:  'Extract the Body payload from a SOAP message \u2014 used when CPI receives SOAP but routes to a REST or plain-XML adapter',
+    desc:  'Extract SOAP Body payload \u2014 bridge to REST or plain-XML',
     cat:   'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope
@@ -2918,7 +2886,7 @@ const EXAMPLES = {
   addXmlWrapper: {
     label: 'Add XML Wrapper / Envelope',
     icon:  '📋',
-    desc:  'Wrap a bare payload under a new root with sender, receiver and timestamp metadata \u2014 common before PI/PO or B2B handoff',
+    desc:  'Wrap payload under new root with interface metadata',
     cat:   'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <GoodsReceipt>
@@ -2991,7 +2959,7 @@ const EXAMPLES = {
   idocInvoic01: {
     label: 'IDoc INVOIC01 \u2192 XML',
     icon:  '🧾',
-    desc:  'Parse SAP invoice IDoc (INVOIC01) into a structured XML \u2014 maps control record, tax, payment terms and line items',
+    desc:  'Parse INVOIC01 IDoc \u2014 maps header, payment terms and items',
     cat:   'cpi',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <INVOIC01>
@@ -3163,7 +3131,7 @@ const EXAMPLES = {
   xpathDistinctValues: {
     label: 'distinct-values()',
     icon:  '🎯',
-    desc:  'Get unique codes from repeated elements \u2014 deduplicate currency, status or category lists in CPI payloads',
+    desc:  'Deduplicate currency, status and category in CPI payloads',
     cat:   'xpath',
     xslt:  '',
     xpathExpr: "distinct-values(//Item/Currency)",
@@ -3199,8 +3167,8 @@ const EXAMPLES = {
 
   xpathSiblingAxes: {
     label: 'Sibling Axes',
-    icon:  '🔀',
-    desc:  'following-sibling and preceding-sibling \u2014 navigate between peer elements, essential for IDoc segment traversal',
+    icon:  '↔️',
+    desc:  'Sibling axes \u2014 navigate peer elements and IDoc segments',
     cat:   'xpath',
     xslt:  '',
     xpathExpr: "//E1EDP01[1]/following-sibling::E1EDP01",
@@ -3265,7 +3233,7 @@ const EXAMPLES = {
   xpathSequenceOps: {
     label: 'index-of() & subsequence()',
     icon:  '🔢',
-    desc:  'Positional operations on sequences \u2014 find item positions and slice ranges in batch and multi-record payloads',
+    desc:  'index-of() and subsequence() \u2014 slice sequences',
     cat:   'xpath',
     xslt:  '',
     xpathExpr: "subsequence(//Item, 2, 3)",
@@ -3299,7 +3267,7 @@ const EXAMPLES = {
   xpathDeepEqual: {
     label: 'deep-equal()',
     icon:  '🔍',
-    desc:  'Compare two XML subtrees for structural equality \u2014 reconciliation, duplicate detection and change detection in CPI flows',
+    desc:  'Compare XML subtrees for structural equality',
     cat:   'xpath',
     xslt:  '',
     xpathExpr: "deep-equal(//SourceOrder/LineItems, //TargetOrder/LineItems)",
@@ -3339,7 +3307,7 @@ const EXAMPLES = {
   xpathTypeCasting: {
     label: 'xs: Type Casting',
     icon:  '🔄',
-    desc:  'xs:integer, xs:decimal, xs:boolean, xs:date \u2014 type coercion patterns that trip up CPI developers',
+    desc:  'xs:integer, xs:decimal, xs:boolean \u2014 type coercion patterns',
     cat:   'xpath',
     xslt:  '',
     xpathExpr: "xs:decimal(//Item[1]/UnitPrice) * xs:integer(//Item[1]/Qty)",
@@ -3394,7 +3362,7 @@ const EXAMPLES = {
   xmlToJson: {
     label: 'XML \u2192 JSON Output',
     icon:  '🔄',
-    desc:  'Convert SAP sales order XML to JSON using XSLT 3.0 maps and arrays \u2014 method="json"',
+    desc:  'XML to JSON via XSLT 3.0 maps and arrays \u2014 method="json"',
     cat:   'format',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <SalesOrders>
@@ -3490,7 +3458,7 @@ const EXAMPLES = {
   xmlToCsv: {
     label: 'XML \u2192 CSV Output',
     icon:  '📊',
-    desc:  'Export purchase order lines to RFC\u00a04180-compliant CSV \u2014 handles commas and quotes in field data',
+    desc:  'Export to RFC 4180 CSV \u2014 handles commas and quotes in fields',
     cat:   'format',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <PurchaseOrders>
@@ -3582,7 +3550,7 @@ const EXAMPLES = {
   xmlToFixedLength: {
     label: 'XML \u2192 Fixed-Length Output',
     icon:  '📐',
-    desc:  'Produce fixed-width flat file for legacy mainframe/EDI systems \u2014 padded and truncated fields at exact column positions',
+    desc:  'Fixed-width flat file with padded/truncated fields',
     cat:   'format',
     xml: `<?xml version="1.0" encoding="UTF-8"?>
 <Employees>
