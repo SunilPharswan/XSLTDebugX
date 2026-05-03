@@ -5,6 +5,7 @@ const CATEGORIES = {
   transform:   { label: 'Data Transformation',    accent: '#3fb950' },
   aggregation: { label: 'Aggregation & Splitting', accent: '#f5a524' },
   format:      { label: 'Format Conversion',       accent: '#c084fc' },
+  advanced:    { label: 'XSLT 3.0 Advanced',      accent: '#e06c75' },
   cpi:         { label: 'SAP CPI Patterns',        accent: '#0070f2' },
   xpath:       { label: 'XPath Explorer',          accent: '#f5a524' },
 };
@@ -461,6 +462,61 @@ const EXAMPLES = {
 
   <xsl:template match="Order">
     <Order id="{Id}" status="{Status}" amount="{format-number(xs:decimal(Amount), '#,##0.00')}"/>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  pivotCrossTab: {
+    label: 'Pivot / Cross-Tab',
+    icon: '📈',
+    desc: 'Rotate rows to columns — months as column headers',
+    cat:  'aggregation',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<MonthlySales>
+  <Entry region="North" month="Jan" amount="12500"/>
+  <Entry region="North" month="Feb" amount="14200"/>
+  <Entry region="North" month="Mar" amount="11800"/>
+  <Entry region="South" month="Jan" amount="9800"/>
+  <Entry region="South" month="Feb" amount="10500"/>
+  <Entry region="South" month="Mar" amount="13200"/>
+  <Entry region="East" month="Jan" amount="7600"/>
+  <Entry region="East" month="Feb" amount="8100"/>
+  <Entry region="East" month="Mar" amount="9400"/>
+</MonthlySales>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Pivot / Cross-Tab: rotate row-oriented data so that months
+    become columns and regions become rows. Common for reporting
+    transformations where downstream systems expect tabular layout.
+  -->
+
+  <xsl:variable name="months" select="distinct-values(/MonthlySales/Entry/@month)"/>
+
+  <xsl:template match="MonthlySales">
+    <SalesPivot>
+      <xsl:for-each-group select="Entry" group-by="@region">
+        <xsl:sort select="current-grouping-key()"/>
+        <Region name="{current-grouping-key()}">
+          <xsl:for-each select="$months">
+            <xsl:variable name="m" select="."/>
+            <xsl:variable name="val" select="current-group()[@month = $m]/@amount"/>
+            <Month name="{$m}">
+              <xsl:value-of select="format-number(xs:decimal($val), '#,##0')"/>
+            </Month>
+          </xsl:for-each>
+          <Total>
+            <xsl:value-of select="format-number(sum(current-group()/xs:decimal(@amount)), '#,##0')"/>
+          </Total>
+        </Region>
+      </xsl:for-each-group>
+    </SalesPivot>
   </xsl:template>
 
 </xsl:stylesheet>`
@@ -3639,6 +3695,863 @@ const EXAMPLES = {
   </xsl:template>
 
 </xsl:stylesheet>`
+  },
+
+  // ── XSLT 3.0 ADVANCED ──────────────────────────────────────────
+
+  mapsAndArrays: {
+    label: 'Maps & Arrays',
+    icon: '🗺️',
+    desc: 'XPath 3.1 maps and arrays for structured data routing',
+    cat:  'advanced',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Products>
+  <Product id="P-001" category="electronics">
+    <Name>Industrial Sensor XR20</Name>
+    <Price currency="EUR">125.00</Price>
+    <Stock warehouse="WH-01">42</Stock>
+    <Stock warehouse="WH-02">18</Stock>
+  </Product>
+  <Product id="P-002" category="mechanical">
+    <Name>Hydraulic Pump 50bar</Name>
+    <Price currency="USD">890.00</Price>
+    <Stock warehouse="WH-01">7</Stock>
+    <Stock warehouse="WH-03">23</Stock>
+  </Product>
+  <Product id="P-003" category="electronics">
+    <Name>Control Module CM50</Name>
+    <Price currency="EUR">450.00</Price>
+    <Stock warehouse="WH-02">31</Stock>
+  </Product>
+</Products>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:map="http://www.w3.org/2005/xpath-functions/map"
+  xmlns:array="http://www.w3.org/2005/xpath-functions/array"
+  exclude-result-prefixes="xs map array">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    XPath 3.1 maps and arrays: build a lookup map from product data,
+    then use it to route products by category to different targets.
+    Demonstrates map{}, array{}, map:keys(), map:get().
+  -->
+
+  <xsl:template match="/">
+    <xsl:variable name="priceMap" select="
+      map:merge(
+        for $p in /Products/Product
+        return map{ string($p/@id): xs:decimal($p/Price) }
+      )
+    "/>
+
+    <xsl:variable name="categories" select="
+      array{ distinct-values(/Products/Product/@category) }
+    "/>
+
+    <RoutingPlan>
+      <PriceIndex>
+        <xsl:for-each select="map:keys($priceMap)">
+          <Entry id="{.}" price="{map:get($priceMap, .)}"/>
+        </xsl:for-each>
+      </PriceIndex>
+      <Categories count="{array:size($categories)}">
+        <xsl:for-each select="1 to array:size($categories)">
+          <xsl:variable name="cat" select="array:get($categories, .)"/>
+          <Category name="{$cat}"
+                    products="{count(/Products/Product[@category = $cat])}"/>
+        </xsl:for-each>
+      </Categories>
+    </RoutingPlan>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  higherOrderFilter: {
+    label: 'Higher-Order: filter() & sort()',
+    icon: '⚡',
+    desc: 'Functional filter() and sort() with custom comparator',
+    cat:  'advanced',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Shipments>
+  <Shipment id="SH-001">
+    <Origin>Frankfurt</Origin>
+    <Destination>Singapore</Destination>
+    <Weight unit="kg">1250</Weight>
+    <Priority>HIGH</Priority>
+    <DueDate>2024-04-01</DueDate>
+  </Shipment>
+  <Shipment id="SH-002">
+    <Origin>Mumbai</Origin>
+    <Destination>London</Destination>
+    <Weight unit="kg">340</Weight>
+    <Priority>LOW</Priority>
+    <DueDate>2024-04-15</DueDate>
+  </Shipment>
+  <Shipment id="SH-003">
+    <Origin>Shanghai</Origin>
+    <Destination>New York</Destination>
+    <Weight unit="kg">2100</Weight>
+    <Priority>HIGH</Priority>
+    <DueDate>2024-03-28</DueDate>
+  </Shipment>
+  <Shipment id="SH-004">
+    <Origin>Berlin</Origin>
+    <Destination>Tokyo</Destination>
+    <Weight unit="kg">890</Weight>
+    <Priority>MEDIUM</Priority>
+    <DueDate>2024-04-05</DueDate>
+  </Shipment>
+</Shipments>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Higher-order functions: filter() selects elements by predicate,
+    sort() orders with a custom key function. Avoids verbose
+    xsl:for-each with nested xsl:sort for simple cases.
+  -->
+
+  <xsl:template match="/">
+    <xsl:variable name="shipments" select="/Shipments/Shipment"/>
+
+    <!-- filter(): keep only heavy shipments (>500kg) -->
+    <xsl:variable name="heavy" select="
+      filter($shipments, function($s) { xs:decimal($s/Weight) gt 500 })
+    "/>
+
+    <!-- sort(): order by DueDate ascending -->
+    <xsl:variable name="sorted" select="
+      sort($heavy, (), function($s) { xs:date($s/DueDate) })
+    "/>
+
+    <HeavyShipments count="{count($sorted)}">
+      <xsl:for-each select="$sorted">
+        <Shipment id="{@id}" priority="{Priority}">
+          <Route><xsl:value-of select="concat(Origin, ' → ', Destination)"/></Route>
+          <Weight><xsl:value-of select="Weight"/> kg</Weight>
+          <DueDate><xsl:value-of select="DueDate"/></DueDate>
+        </Shipment>
+      </xsl:for-each>
+    </HeavyShipments>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  higherOrderFold: {
+    label: 'Higher-Order: fold-left()',
+    icon: '🔁',
+    desc: 'Running totals via fold-left() — no recursion needed',
+    cat:  'advanced',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Transactions>
+  <Transaction>
+    <Date>2024-03-01</Date>
+    <Type>CREDIT</Type>
+    <Amount>5000.00</Amount>
+    <Description>Opening balance</Description>
+  </Transaction>
+  <Transaction>
+    <Date>2024-03-05</Date>
+    <Type>DEBIT</Type>
+    <Amount>1200.00</Amount>
+    <Description>Supplier payment</Description>
+  </Transaction>
+  <Transaction>
+    <Date>2024-03-12</Date>
+    <Type>CREDIT</Type>
+    <Amount>3400.00</Amount>
+    <Description>Customer receipt</Description>
+  </Transaction>
+  <Transaction>
+    <Date>2024-03-18</Date>
+    <Type>DEBIT</Type>
+    <Amount>800.00</Amount>
+    <Description>Office supplies</Description>
+  </Transaction>
+  <Transaction>
+    <Date>2024-03-25</Date>
+    <Type>DEBIT</Type>
+    <Amount>2500.00</Amount>
+    <Description>Equipment lease</Description>
+  </Transaction>
+</Transactions>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:map="http://www.w3.org/2005/xpath-functions/map"
+  exclude-result-prefixes="xs map">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    fold-left(): compute running balance without recursion.
+    Each transaction adds or subtracts from an accumulator.
+    Replaces complex recursive templates in XSLT 1.0/2.0.
+  -->
+
+  <xsl:template match="/">
+    <xsl:variable name="txns" select="/Transactions/Transaction"/>
+
+    <xsl:variable name="withBalance" select="
+      fold-left($txns, map{ 'balance': 0, 'rows': () },
+        function($acc, $txn) {
+          let $amt := xs:decimal($txn/Amount),
+              $delta := if ($txn/Type = 'CREDIT') then $amt else -$amt,
+              $newBal := map:get($acc, 'balance') + $delta
+          return map{
+            'balance': $newBal,
+            'rows': (map:get($acc, 'rows'), map{ 'txn': $txn, 'bal': $newBal })
+          }
+        }
+      )
+    "/>
+
+    <Ledger finalBalance="{map:get($withBalance, 'balance')}">
+      <xsl:for-each select="map:get($withBalance, 'rows')">
+        <Entry date="{map:get(., 'txn')/Date}"
+               type="{map:get(., 'txn')/Type}"
+               amount="{map:get(., 'txn')/Amount}"
+               balance="{map:get(., 'bal')}">
+          <xsl:value-of select="map:get(., 'txn')/Description"/>
+        </Entry>
+      </xsl:for-each>
+    </Ledger>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  groupByAdjacent: {
+    label: 'Group-by Adjacent',
+    icon: '📊',
+    desc: 'Detect consecutive runs with group-adjacent',
+    cat:  'advanced',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<SensorReadings device="TEMP-01">
+  <Reading time="08:00" value="22.1" status="NORMAL"/>
+  <Reading time="08:15" value="22.3" status="NORMAL"/>
+  <Reading time="08:30" value="28.7" status="WARNING"/>
+  <Reading time="08:45" value="31.2" status="WARNING"/>
+  <Reading time="09:00" value="35.8" status="WARNING"/>
+  <Reading time="09:15" value="24.1" status="NORMAL"/>
+  <Reading time="09:30" value="23.9" status="NORMAL"/>
+  <Reading time="09:45" value="29.5" status="WARNING"/>
+  <Reading time="10:00" value="22.0" status="NORMAL"/>
+</SensorReadings>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    group-adjacent: detect consecutive runs of the same status.
+    Groups readings into "episodes" where each episode is an
+    unbroken sequence of the same status value. Essential for
+    alerting, time-series analysis, and CPI batch error detection.
+  -->
+
+  <xsl:template match="SensorReadings">
+    <AlertReport device="{@device}">
+      <xsl:for-each-group select="Reading" group-adjacent="@status">
+        <Episode status="{current-grouping-key()}"
+                 readings="{count(current-group())}"
+                 from="{current-group()[1]/@time}"
+                 to="{current-group()[last()]/@time}">
+          <xsl:if test="current-grouping-key() = 'WARNING'">
+            <MaxValue><xsl:value-of select="max(current-group()/xs:decimal(@value))"/></MaxValue>
+          </xsl:if>
+        </Episode>
+      </xsl:for-each-group>
+    </AlertReport>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  groupByStartingWith: {
+    label: 'Group Starting-With',
+    icon: '📑',
+    desc: 'Flat-to-hierarchy via group-starting-with pattern',
+    cat:  'advanced',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<FlatRecords>
+  <Record type="HEADER" id="H001" customer="ACME Corp" date="2024-03-15"/>
+  <Record type="ITEM" lineNo="10" material="MAT-001" qty="5" price="120.00"/>
+  <Record type="ITEM" lineNo="20" material="MAT-002" qty="3" price="85.50"/>
+  <Record type="HEADER" id="H002" customer="GlobalTech" date="2024-03-16"/>
+  <Record type="ITEM" lineNo="10" material="MAT-005" qty="12" price="43.00"/>
+  <Record type="ITEM" lineNo="20" material="MAT-008" qty="1" price="1250.00"/>
+  <Record type="ITEM" lineNo="30" material="MAT-003" qty="8" price="67.00"/>
+</FlatRecords>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    group-starting-with: convert flat sequential records into
+    nested hierarchy. Each HEADER record starts a new group
+    that includes all following ITEM records until the next HEADER.
+    Common pattern for IDoc flat segments and EDI parsing.
+  -->
+
+  <xsl:template match="FlatRecords">
+    <Orders>
+      <xsl:for-each-group select="Record" group-starting-with="Record[@type='HEADER']">
+        <xsl:variable name="hdr" select="current-group()[1]"/>
+        <Order id="{$hdr/@id}" customer="{$hdr/@customer}" date="{$hdr/@date}">
+          <Items>
+            <xsl:for-each select="current-group()[position() gt 1]">
+              <Item lineNo="{@lineNo}" material="{@material}">
+                <Qty><xsl:value-of select="@qty"/></Qty>
+                <Price><xsl:value-of select="format-number(xs:decimal(@price), '#,##0.00')"/></Price>
+              </Item>
+            </xsl:for-each>
+          </Items>
+          <Total><xsl:value-of select="format-number(
+            sum(current-group()[position() gt 1]/(xs:decimal(@qty) * xs:decimal(@price))),
+            '#,##0.00')"/></Total>
+        </Order>
+      </xsl:for-each-group>
+    </Orders>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  inlineFunctions: {
+    label: 'User-Defined Functions (xsl:function)',
+    icon: '🧩',
+    desc: 'Reusable xsl:function for DRY stylesheets',
+    cat:  'advanced',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Invoices>
+  <Invoice id="INV-001" currency="EUR">
+    <LineItems>
+      <Line qty="5" unitPrice="120.00" taxRate="0.19"/>
+      <Line qty="3" unitPrice="85.50" taxRate="0.19"/>
+      <Line qty="10" unitPrice="22.00" taxRate="0.07"/>
+    </LineItems>
+  </Invoice>
+  <Invoice id="INV-002" currency="USD">
+    <LineItems>
+      <Line qty="2" unitPrice="450.00" taxRate="0.08"/>
+      <Line qty="1" unitPrice="1200.00" taxRate="0.08"/>
+    </LineItems>
+  </Invoice>
+</Invoices>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:f="urn:xsltdebugx:fn"
+  exclude-result-prefixes="xs f">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    xsl:function: define reusable functions to avoid repeating
+    calculation logic. Keeps templates clean and enables unit-testable
+    business logic. Use a custom namespace (f:) to avoid collisions.
+  -->
+
+  <xsl:function name="f:line-total" as="xs:decimal">
+    <xsl:param name="line" as="element()"/>
+    <xsl:sequence select="xs:decimal($line/@qty) * xs:decimal($line/@unitPrice)"/>
+  </xsl:function>
+
+  <xsl:function name="f:line-tax" as="xs:decimal">
+    <xsl:param name="line" as="element()"/>
+    <xsl:sequence select="f:line-total($line) * xs:decimal($line/@taxRate)"/>
+  </xsl:function>
+
+  <xsl:function name="f:format-amount" as="xs:string">
+    <xsl:param name="amount" as="xs:decimal"/>
+    <xsl:param name="currency" as="xs:string"/>
+    <xsl:sequence select="concat($currency, ' ', format-number($amount, '#,##0.00'))"/>
+  </xsl:function>
+
+  <xsl:template match="Invoices">
+    <InvoiceSummary>
+      <xsl:for-each select="Invoice">
+        <xsl:variable name="lines" select="LineItems/Line"/>
+        <xsl:variable name="subtotal" select="sum(for $l in $lines return f:line-total($l))"/>
+        <xsl:variable name="tax" select="sum(for $l in $lines return f:line-tax($l))"/>
+        <Invoice id="{@id}">
+          <Subtotal><xsl:value-of select="f:format-amount($subtotal, @currency)"/></Subtotal>
+          <Tax><xsl:value-of select="f:format-amount($tax, @currency)"/></Tax>
+          <GrandTotal><xsl:value-of select="f:format-amount($subtotal + $tax, @currency)"/></GrandTotal>
+        </Invoice>
+      </xsl:for-each>
+    </InvoiceSummary>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  // ── SAP CPI PATTERNS (advanced) ──────────────────────────────────
+
+  s4BusinessPartner: {
+    label: 'S/4HANA Business Partner',
+    icon: '👤',
+    desc: 'Map BP OData API response to canonical partner format',
+    cat:  'cpi',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<BusinessPartner xmlns="http://sap.com/s4/bupa/v1">
+  <BusinessPartnerNumber>BP-0010042</BusinessPartnerNumber>
+  <BusinessPartnerCategory>1</BusinessPartnerCategory>
+  <FirstName>Thomas</FirstName>
+  <LastName>Mueller</LastName>
+  <BusinessPartnerFullName>Thomas Mueller</BusinessPartnerFullName>
+  <CreationDate>2023-06-15</CreationDate>
+  <IsFemale>false</IsFemale>
+  <IsMale>true</IsMale>
+  <Language>DE</Language>
+  <Addresses>
+    <Address>
+      <AddressID>1</AddressID>
+      <Country>DE</Country>
+      <Region>BY</Region>
+      <CityName>Munich</CityName>
+      <PostalCode>80331</PostalCode>
+      <StreetName>Marienplatz</StreetName>
+      <HouseNumber>8</HouseNumber>
+    </Address>
+  </Addresses>
+  <Roles>
+    <Role>FLCU00</Role>
+    <Role>BUP003</Role>
+  </Roles>
+  <BankAccounts>
+    <BankAccount>
+      <BankCountry>DE</BankCountry>
+      <BankNumber>70050000</BankNumber>
+      <BankAccountNumber>123456789</BankAccountNumber>
+      <IBAN>DE89370400440532013000</IBAN>
+    </BankAccount>
+  </BankAccounts>
+</BusinessPartner>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:s4="http://sap.com/s4/bupa/v1"
+  exclude-result-prefixes="xs s4">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    S/4HANA Business Partner OData mapping: transform the BUPA API
+    response into a canonical partner format for downstream systems.
+    Strips S/4 namespace, maps category codes, flattens address.
+  -->
+
+  <xsl:template match="s4:BusinessPartner">
+    <Partner>
+      <Id><xsl:value-of select="s4:BusinessPartnerNumber"/></Id>
+      <Type>
+        <xsl:choose>
+          <xsl:when test="s4:BusinessPartnerCategory = '1'">Person</xsl:when>
+          <xsl:when test="s4:BusinessPartnerCategory = '2'">Organization</xsl:when>
+          <xsl:otherwise>Group</xsl:otherwise>
+        </xsl:choose>
+      </Type>
+      <Name>
+        <First><xsl:value-of select="s4:FirstName"/></First>
+        <Last><xsl:value-of select="s4:LastName"/></Last>
+        <Full><xsl:value-of select="s4:BusinessPartnerFullName"/></Full>
+      </Name>
+      <Gender>
+        <xsl:choose>
+          <xsl:when test="s4:IsMale = 'true'">M</xsl:when>
+          <xsl:when test="s4:IsFemale = 'true'">F</xsl:when>
+          <xsl:otherwise>X</xsl:otherwise>
+        </xsl:choose>
+      </Gender>
+      <Language><xsl:value-of select="s4:Language"/></Language>
+      <CreatedOn><xsl:value-of select="s4:CreationDate"/></CreatedOn>
+      <xsl:apply-templates select="s4:Addresses/s4:Address[1]"/>
+      <Roles>
+        <xsl:for-each select="s4:Roles/s4:Role">
+          <Role code="{.}"/>
+        </xsl:for-each>
+      </Roles>
+    </Partner>
+  </xsl:template>
+
+  <xsl:template match="s4:Address">
+    <Address primary="true">
+      <Street><xsl:value-of select="concat(s4:StreetName, ' ', s4:HouseNumber)"/></Street>
+      <City><xsl:value-of select="s4:CityName"/></City>
+      <PostalCode><xsl:value-of select="s4:PostalCode"/></PostalCode>
+      <Region><xsl:value-of select="s4:Region"/></Region>
+      <Country><xsl:value-of select="s4:Country"/></Country>
+    </Address>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  s4SalesOrder: {
+    label: 'S/4HANA Sales Order A2X',
+    icon: '🛒',
+    desc: 'Transform S/4 Sales Order API to internal schema',
+    cat:  'cpi',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<SalesOrder xmlns="http://sap.com/s4/sd/v1">
+  <SalesOrderNumber>SO-0000045678</SalesOrderNumber>
+  <SalesOrderType>OR</SalesOrderType>
+  <SalesOrganization>1000</SalesOrganization>
+  <DistributionChannel>10</DistributionChannel>
+  <SoldToParty>C-10042</SoldToParty>
+  <PurchaseOrderByCustomer>CUST-PO-9981</PurchaseOrderByCustomer>
+  <CreationDate>2024-03-20</CreationDate>
+  <RequestedDeliveryDate>2024-04-05</RequestedDeliveryDate>
+  <OverallSDProcessStatus>B</OverallSDProcessStatus>
+  <TotalNetAmount>18750.00</TotalNetAmount>
+  <TransactionCurrency>EUR</TransactionCurrency>
+  <Items>
+    <Item>
+      <SalesOrderItem>000010</SalesOrderItem>
+      <Material>FG-2000</Material>
+      <MaterialDescription>Electric Motor 5kW</MaterialDescription>
+      <RequestedQuantity>5</RequestedQuantity>
+      <RequestedQuantityUnit>EA</RequestedQuantityUnit>
+      <NetAmount>12500.00</NetAmount>
+      <Plant>1000</Plant>
+      <StorageLocation>0001</StorageLocation>
+    </Item>
+    <Item>
+      <SalesOrderItem>000020</SalesOrderItem>
+      <Material>FG-3010</Material>
+      <MaterialDescription>Control Panel CP-A</MaterialDescription>
+      <RequestedQuantity>2</RequestedQuantity>
+      <RequestedQuantityUnit>EA</RequestedQuantityUnit>
+      <NetAmount>6250.00</NetAmount>
+      <Plant>2000</Plant>
+      <StorageLocation>0002</StorageLocation>
+    </Item>
+  </Items>
+</SalesOrder>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:sd="http://sap.com/s4/sd/v1"
+  exclude-result-prefixes="xs sd">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    S/4HANA Sales Order A2X API mapping: transform the SD API
+    response to an internal order schema. Maps process status codes,
+    computes line-level unit prices, and normalizes item numbers.
+  -->
+
+  <xsl:template match="sd:SalesOrder">
+    <Order>
+      <OrderNumber><xsl:value-of select="sd:SalesOrderNumber"/></OrderNumber>
+      <Type><xsl:value-of select="sd:SalesOrderType"/></Type>
+      <CustomerRef><xsl:value-of select="sd:PurchaseOrderByCustomer"/></CustomerRef>
+      <Customer><xsl:value-of select="sd:SoldToParty"/></Customer>
+      <Status>
+        <xsl:choose>
+          <xsl:when test="sd:OverallSDProcessStatus = 'A'">NOT_STARTED</xsl:when>
+          <xsl:when test="sd:OverallSDProcessStatus = 'B'">IN_PROGRESS</xsl:when>
+          <xsl:when test="sd:OverallSDProcessStatus = 'C'">COMPLETED</xsl:when>
+          <xsl:otherwise>UNKNOWN</xsl:otherwise>
+        </xsl:choose>
+      </Status>
+      <Dates>
+        <Created><xsl:value-of select="sd:CreationDate"/></Created>
+        <RequestedDelivery><xsl:value-of select="sd:RequestedDeliveryDate"/></RequestedDelivery>
+      </Dates>
+      <Totals currency="{sd:TransactionCurrency}">
+        <NetAmount><xsl:value-of select="format-number(xs:decimal(sd:TotalNetAmount), '#,##0.00')"/></NetAmount>
+      </Totals>
+      <LineItems>
+        <xsl:for-each select="sd:Items/sd:Item">
+          <LineItem number="{xs:integer(sd:SalesOrderItem)}">
+            <Material><xsl:value-of select="sd:Material"/></Material>
+            <Description><xsl:value-of select="sd:MaterialDescription"/></Description>
+            <Quantity uom="{sd:RequestedQuantityUnit}"><xsl:value-of select="sd:RequestedQuantity"/></Quantity>
+            <UnitPrice><xsl:value-of select="format-number(xs:decimal(sd:NetAmount) div xs:decimal(sd:RequestedQuantity), '#,##0.00')"/></UnitPrice>
+            <NetAmount><xsl:value-of select="format-number(xs:decimal(sd:NetAmount), '#,##0.00')"/></NetAmount>
+            <Fulfillment plant="{sd:Plant}" storageLocation="{sd:StorageLocation}"/>
+          </LineItem>
+        </xsl:for-each>
+      </LineItems>
+    </Order>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  cpiDynamicConfig: {
+    label: 'CPI Dynamic Configuration',
+    icon: '⚙️',
+    desc: 'Set receiver and interface dynamically from payload',
+    cat:  'cpi',
+    headers: [['SAP_Sender', 'ERP_PROD']],
+    properties: [['routingMode', 'CONTENT_BASED']],
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Message>
+  <Header>
+    <MessageType>ORDERS</MessageType>
+    <SenderSystem>ERP_PROD</SenderSystem>
+    <ReceiverSystem>CRM_EU</ReceiverSystem>
+    <Priority>HIGH</Priority>
+    <Country>DE</Country>
+  </Header>
+  <Payload>
+    <OrderId>PO-2024-88123</OrderId>
+    <Amount currency="EUR">42500.00</Amount>
+    <Customer>C-20017</Customer>
+  </Payload>
+</Message>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:cpi="http://sap.com/it/"
+  exclude-result-prefixes="xs cpi">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Dynamic Configuration: set SAP CPI receiver determination and
+    interface at runtime based on message content. Used when routing
+    cannot be determined statically in the iFlow configuration.
+  -->
+
+  <xsl:param name="exchange"/>
+
+  <xsl:template match="/">
+    <xsl:variable name="msg" select="/Message"/>
+    <xsl:variable name="country" select="$msg/Header/Country"/>
+    <xsl:variable name="msgType" select="$msg/Header/MessageType"/>
+    <xsl:variable name="amount" select="xs:decimal($msg/Payload/Amount)"/>
+
+    <!-- Determine receiver based on country -->
+    <xsl:variable name="receiver" select="
+      if ($country = ('DE', 'AT', 'CH')) then 'CRM_EU_CENTRAL'
+      else if ($country = ('US', 'CA')) then 'CRM_AMERICAS'
+      else 'CRM_DEFAULT'
+    "/>
+
+    <!-- Determine interface based on message type + amount threshold -->
+    <xsl:variable name="interface" select="
+      if ($amount gt 50000) then concat($msgType, '_PRIORITY')
+      else $msgType
+    "/>
+
+    <!-- Set dynamic configuration headers for CPI routing -->
+    <xsl:value-of select="cpi:setHeader($exchange, 'SAP_Receiver', $receiver)"/>
+    <xsl:value-of select="cpi:setHeader($exchange, 'SAP_Interface', $interface)"/>
+    <xsl:value-of select="cpi:setProperty($exchange, 'resolvedReceiver', $receiver)"/>
+    <xsl:value-of select="cpi:setProperty($exchange, 'resolvedInterface', $interface)"/>
+
+    <xsl:message select="concat('[ROUTING] ', $receiver, '/', $interface, ' for ', $msg/Payload/OrderId)"/>
+
+    <!-- Pass through payload unchanged -->
+    <xsl:copy-of select="$msg/Payload"/>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  cpiMultiMapping: {
+    label: 'Multi-Mapping (1:N Split)',
+    icon: '🔱',
+    desc: 'Produce multiple output documents with routing context',
+    cat:  'cpi',
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<BatchOrder>
+  <OrderId>BO-2024-5501</OrderId>
+  <Customer>C-10042</Customer>
+  <Lines>
+    <Line plant="1000" material="MAT-A" qty="10" type="STANDARD"/>
+    <Line plant="1000" material="MAT-B" qty="5" type="STANDARD"/>
+    <Line plant="2000" material="MAT-C" qty="3" type="CONSIGNMENT"/>
+    <Line plant="2000" material="MAT-D" qty="8" type="STANDARD"/>
+    <Line plant="3000" material="MAT-E" qty="1" type="SUBCONTRACT"/>
+  </Lines>
+</BatchOrder>`,
+    xslt: `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  exclude-result-prefixes="xs">
+  <xsl:output method="xml" indent="yes"/>
+
+  <!--
+    Multi-Mapping 1:N: split a single batch order into one output
+    document per plant. Each sub-document carries routing metadata
+    so a CPI Splitter step can send each to the correct receiver.
+    Uses xsl:for-each-group to partition by plant.
+  -->
+
+  <xsl:template match="/">
+    <xsl:variable name="order" select="/BatchOrder"/>
+    <MultiMessages>
+      <xsl:for-each-group select="$order/Lines/Line" group-by="@plant">
+        <Message index="{position()}" targetPlant="{current-grouping-key()}">
+          <PlantOrder>
+            <SourceOrder><xsl:value-of select="$order/OrderId"/></SourceOrder>
+            <Customer><xsl:value-of select="$order/Customer"/></Customer>
+            <Plant><xsl:value-of select="current-grouping-key()"/></Plant>
+            <Items>
+              <xsl:for-each select="current-group()">
+                <Item material="{@material}" qty="{@qty}" type="{@type}"/>
+              </xsl:for-each>
+            </Items>
+            <TotalQty><xsl:value-of select="sum(current-group()/xs:decimal(@qty))"/></TotalQty>
+          </PlantOrder>
+        </Message>
+      </xsl:for-each-group>
+    </MultiMessages>
+  </xsl:template>
+
+</xsl:stylesheet>`
+  },
+
+  // ── XPATH EXPLORER (new examples) ────────────────────────────────
+
+  xpathMapsArrays: {
+    label: 'XPath Maps & Arrays',
+    icon: '🗂️',
+    desc: 'Construct and query XPath 3.1 maps and arrays',
+    cat:  'xpath',
+    xpathExpr: "map{ 'name': //Product[1]/Name, 'price': xs:decimal(//Product[1]/Price) }",
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Catalog>
+  <Product id="P-001" category="sensor">
+    <Name>Temperature Probe XR-20</Name>
+    <Price>125.00</Price>
+    <InStock>true</InStock>
+  </Product>
+  <Product id="P-002" category="actuator">
+    <Name>Servo Motor SM-50</Name>
+    <Price>890.00</Price>
+    <InStock>false</InStock>
+  </Product>
+  <Product id="P-003" category="sensor">
+    <Name>Pressure Gauge PG-10</Name>
+    <Price>45.00</Price>
+    <InStock>true</InStock>
+  </Product>
+</Catalog>`,
+    xslt: '',
+    xpathHints: [
+      "map{ 'a': 1, 'b': 2 }                             — literal map",
+      "map{ 'name': //Product[1]/Name, 'price': xs:decimal(//Product[1]/Price) } — map from data",
+      "['one', 'two', 'three']                            — array literal",
+      "array{ //Product/Name }                            — array from sequence",
+      "array{ //Product/Name }?2                          — array lookup (2nd item)",
+      "map{ 'x': 10, 'y': 20 }?x                        — map lookup shorthand",
+      "map:keys(map{ 'a': 1, 'b': 2 })                  — get map keys",
+      "map:merge((map{'a':1}, map{'b':2}))               — merge two maps",
+      "array:size(array{ //Product })                    — array size",
+      "array:flatten([1, [2, 3], 4])                     — flatten nested arrays",
+    ]
+  },
+
+  xpathLetExpressions: {
+    label: 'let Expressions',
+    icon: '📝',
+    desc: 'Readable complex expressions with let $x := ... return',
+    cat:  'xpath',
+    xpathExpr: "let $items := //Item, $total := sum($items/xs:decimal(Price) * xs:decimal(Qty)) return $total",
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<PurchaseOrder id="PO-7712" currency="EUR">
+  <Vendor>Bosch Rexroth AG</Vendor>
+  <Items>
+    <Item status="confirmed">
+      <Material>BRX-CYL-40</Material>
+      <Description>Hydraulic Cylinder 40mm</Description>
+      <Qty>4</Qty>
+      <Price>780.00</Price>
+    </Item>
+    <Item status="confirmed">
+      <Material>BRX-VALVE-DN25</Material>
+      <Description>Directional Valve DN25</Description>
+      <Qty>8</Qty>
+      <Price>145.00</Price>
+    </Item>
+    <Item status="pending">
+      <Material>BRX-PUMP-A10</Material>
+      <Description>Axial Piston Pump A10</Description>
+      <Qty>1</Qty>
+      <Price>4200.00</Price>
+    </Item>
+  </Items>
+</PurchaseOrder>`,
+    xslt: '',
+    xpathHints: [
+      "let $items := //Item return count($items)                             — bind and use",
+      "let $items := //Item, $total := sum($items/xs:decimal(Price) * xs:decimal(Qty)) return $total — multi-bind",
+      "let $confirmed := //Item[@status='confirmed'] return sum($confirmed/xs:decimal(Price) * xs:decimal(Qty)) — filtered sum",
+      "let $avg := avg(//Item/xs:decimal(Price)) return //Item[xs:decimal(Price) gt $avg]/Material — above average",
+      "let $max := max(//Item/xs:decimal(Price)) return //Item[xs:decimal(Price) = $max]/Description — most expensive",
+      "for $i in //Item let $lineTotal := xs:decimal($i/Price) * xs:decimal($i/Qty) return concat($i/Material, ': ', $lineTotal) — per-item totals",
+    ]
+  },
+
+  xpathQuantified: {
+    label: 'Quantified Expressions',
+    icon: '∀',
+    desc: 'some/every for existence and universal checks',
+    cat:  'xpath',
+    xpathExpr: "every $item in //Item satisfies xs:decimal($item/Stock) gt 0",
+    xml: `<?xml version="1.0" encoding="UTF-8"?>
+<Warehouse id="WH-CENTRAL">
+  <Items>
+    <Item sku="SKU-001">
+      <Name>Industrial Sensor XR20</Name>
+      <Stock>42</Stock>
+      <MinStock>10</MinStock>
+      <Price>125.00</Price>
+    </Item>
+    <Item sku="SKU-002">
+      <Name>Control Module CM50</Name>
+      <Stock>0</Stock>
+      <MinStock>5</MinStock>
+      <Price>450.00</Price>
+    </Item>
+    <Item sku="SKU-003">
+      <Name>Hydraulic Pump HP-30</Name>
+      <Stock>7</Stock>
+      <MinStock>3</MinStock>
+      <Price>890.00</Price>
+    </Item>
+    <Item sku="SKU-004">
+      <Name>Servo Drive SD-100</Name>
+      <Stock>15</Stock>
+      <MinStock>8</MinStock>
+      <Price>1250.00</Price>
+    </Item>
+  </Items>
+</Warehouse>`,
+    xslt: '',
+    xpathHints: [
+      "some $i in //Item satisfies xs:decimal($i/Stock) = 0              — any out of stock?",
+      "every $i in //Item satisfies xs:decimal($i/Stock) gt 0            — all in stock?",
+      "every $i in //Item satisfies xs:decimal($i/Stock) ge xs:decimal($i/MinStock) — all above minimum?",
+      "some $i in //Item satisfies xs:decimal($i/Stock) lt xs:decimal($i/MinStock)  — any below minimum?",
+      "some $i in //Item satisfies xs:decimal($i/Price) gt 1000          — any expensive items?",
+      "every $i in //Item satisfies string-length($i/Name) le 30         — all names short?",
+      "//Item[xs:decimal(Stock) lt xs:decimal(MinStock)]/@sku            — SKUs below minimum",
+      "count(//Item[xs:decimal(Stock) = 0])                              — count out-of-stock",
+    ]
   },
 
 };
